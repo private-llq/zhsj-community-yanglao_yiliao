@@ -4,7 +4,7 @@ spring:
   gateway:
     tokenUri: 192.168.12.49:4646/zhsj/base/api
   application:
-    name: community-yanglao_yiliao-myself-service
+    name: community-yanglao-yiliao-myself-service
   datasource:
     druid:
       username: root
