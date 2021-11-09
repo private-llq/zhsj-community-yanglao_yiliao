@@ -17,4 +17,5 @@ public interface TestFeign {
     @LoginIgnore
     @PostMapping("/test1")
     void test(@RequestBody String str);
+
 }
