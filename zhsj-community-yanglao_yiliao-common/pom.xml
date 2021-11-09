@@ -9,6 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <description>公共</description>
+
+
     <artifactId>zhsj-community-yanglao_yiliao-common</artifactId>
 
     <dependencies>

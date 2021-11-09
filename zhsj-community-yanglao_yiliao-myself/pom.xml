@@ -9,6 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <description>我的医疗、我的养老</description>
+
     <artifactId>zhsj-community-yanglao_yiliao-myself</artifactId>
 
 
