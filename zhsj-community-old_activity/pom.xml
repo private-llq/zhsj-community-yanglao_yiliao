@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>老年活动</name>
     <description>老年活动</description>
 
     <artifactId>zhsj-community-old_activity</artifactId>

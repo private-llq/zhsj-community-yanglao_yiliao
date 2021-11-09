@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>zhsj-community-interface</artifactId>
+    <name>接口</name>
     <description>接口</description>
 
 

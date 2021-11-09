@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>医疗服务</name>
     <description>医疗服务</description>
 
     <artifactId>zhsj-community-yiliao_service</artifactId>
