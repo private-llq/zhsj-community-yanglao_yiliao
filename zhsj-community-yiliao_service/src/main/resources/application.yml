@@ -1,0 +1,21 @@
+server:
+  port: 20145
+spring:
+  gateway:
+    tokenUri: 192.168.12.49:4646/zhsj/base/api
+  application:
+    name: community-yiliao_service-service
+  datasource:
+    druid:
+      username: root
+      password: dev_zhsj_mysql
+      url: jdbc:mysql://192.168.12.49/zhsj_community_yanglao_yiliao?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.12.49:36366/eureka
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
