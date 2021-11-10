@@ -5,6 +5,18 @@ spring:
     tokenUri: 192.168.12.49:4646/zhsj/base/api
   application:
     name: community-old_activity-service
+  redis:
+    database: 0
+    host: 192.168.12.49
+    password: text_profile
+    port: 6379
+    timeout: 7000
+    jedis:
+      pool:
+        max-idle: 10000
+        min-idle: 10
+        max-active: -1
+        max-wait: -1
   datasource:
     druid:
       username: root

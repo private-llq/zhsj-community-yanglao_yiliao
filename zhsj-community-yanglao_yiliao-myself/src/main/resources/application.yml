@@ -11,6 +11,18 @@ spring:
       password: dev_zhsj_mysql
       url: jdbc:mysql://192.168.12.49/zhsj_community_yanglao_yiliao?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
       driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    database: 0
+    host: 192.168.12.49
+    password: text_profile
+    port: 6379
+    timeout: 7000
+    jedis:
+      pool:
+        max-idle: 10000
+        min-idle: 10
+        max-active: -1
+        max-wait: -1
 eureka:
   client:
     service-url:
