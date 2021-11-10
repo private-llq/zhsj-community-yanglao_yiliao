@@ -2,7 +2,7 @@ server:
   port: 20631
 spring:
   gateway:
-    tokenUri: 192.168.12.49:4646/zhsj/base/api
+    tokenUri: 192.168.12.49:8090/zhsj/base/api
   application:
     name: community-yanglao-yiliao-myself-service
   datasource:
