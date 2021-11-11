@@ -13,14 +13,8 @@ import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
-import java.sql.SQLOutput;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,27 +36,22 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
     @Override
     public void monitorHeartRate(List<MonitorHeartRateReqBo> list) {
         log.info("Real time monitoring of user heart rate parameters,List<MonitorHeartRateReqBo> = {}", list);
-        LoginUser loginUser = isAuth();
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<HeartRate> arr = new ArrayList<>();
         for (MonitorHeartRateReqBo reqBo : list) {
+            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getCreateTime, TimeUtils.formatTimestamp(reqBo.getCreateTime())));
+                    .eq(HeartRate::getCreateTime, localDateTime)
+                    .eq(HeartRate::getDeleted, true));
             if (heartRate != null) {
                 continue;
             }
-            arr.add(HeartRate.build(loginUser, reqBo));
+            arr.add(HeartRate.build(loginUser, reqBo, localDateTime));
         }
-        saveBatch(arr);
+        if (CollectionUtil.isNotEmpty(arr)) {
+            saveBatch(arr);
+        }
     }
 
-
-    // ------------------------------------------------inner-----------------------------------------------------------------
-
-    /**
-     * 获取当前登录用户
-     */
-    private LoginUser isAuth() {
-        return ContextHolder.getContext().getLoginUser();
-    }
 }

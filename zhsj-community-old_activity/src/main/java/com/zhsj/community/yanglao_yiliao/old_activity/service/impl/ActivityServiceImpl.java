@@ -1,10 +1,12 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
+
+import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,20 +24,50 @@ import java.util.List;
 @Slf4j
 public class ActivityServiceImpl implements ActivityService {
 
+
     @Autowired
     private ActivityMapper activityMapper;
 
     /**
-     * 查询活动的类型
-     * @param loginUser
+     * 查询活动类型
      * @return
      */
     @Override
-    public List<Activity> getType(LoginUser  loginUser) {
-        log.info("用户的信息{}",loginUser);
-        List<Activity> activity = activityMapper.selectList(new QueryWrapper<Activity>()
-                .eq("u_id", loginUser.getCurrentIp()));
-        System.out.println("这个的值是："+activity);
-        return activity;
+    public ActivityVo geted() {
+        ActivityVo activityType = this.activityMapper.getActivityTyped();
+        return activityType;
     }
+
+    /**
+     * 新增发布活动
+     * @return
+     */
+    @Override
+    public List<ActivityVo> addActivity() {
+        return null;
+    }
+
+    /**
+     * 删除发布活动
+     * @return
+     */
+    @Override
+    public int deletedActivity(LoginUser loginUser) {
+        log.info("用户的字段：{}",loginUser);
+        int userId = this.activityMapper.deleteById(loginUser.getId());
+        return userId;
+    }
+
+
+
+
+
+    /**
+     *  ***************************************获取当前登录用户**********************************************************
+     *       *****************************************************************************************************
+     */
+    private LoginUser UserAuth() {
+        return ContextHolder.getContext().getLoginUser();
+    }
+
 }

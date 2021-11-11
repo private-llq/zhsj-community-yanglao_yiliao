@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @TableName(value = "t_activity")
-public class Activity {
+public class Activity implements Serializable {
     /**
      * 主键id
      */
@@ -38,6 +39,10 @@ public class Activity {
      * 活动说明
      */
     private String activityExplain;
+     /**
+     * 附近人的距离
+     */
+    private String distance;
     /**
      * 图片路径
      */

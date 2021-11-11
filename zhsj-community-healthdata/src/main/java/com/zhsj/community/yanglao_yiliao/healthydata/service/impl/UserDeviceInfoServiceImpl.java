@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  * @author zzm
@@ -35,7 +36,15 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     @Override
     public void userBindDevice(UserBindDeviceReqBo bo) {
         log.info("Binding user device parameters,UserBindDeviceReqBo = {}", bo);
-        LoginUser user = isAuth();
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
+                .eq(UserDeviceInfo::getUserUuid, user.getAccount())
+                .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
+                .eq(UserDeviceInfo::getBind, true));
+        if (deviceInfo != null) {
+            log.error("The user has bound the device, userUuid = {}, mDeviceAddress = {}", deviceInfo.getUserUuid(), deviceInfo.getMDeviceAddress());
+            throw new BaseException(ErrorEnum.THE_DEVICE_IS_ALREADY_BOUND);
+        }
         UserDeviceInfo userDeviceInfo = UserDeviceInfo.build(user, bo);
         save(userDeviceInfo);
     }
@@ -49,25 +58,22 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     @Override
     public void userUnbindDevice(UserUnbindDeviceReqBo bo) {
         log.info("User unbinds device parameters,UserUnbindDeviceReqBo = {}", bo);
-        LoginUser user = isAuth();
-        UserDeviceInfo userDeviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
-                .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress()));
-        if (userDeviceInfo == null) {
-            log.error("User device does not exist");
+                .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
+                .eq(UserDeviceInfo::getBind, true));
+        if (deviceInfo == null) {
+            log.error("User device does not exist, userUuid = {}, mDeviceAddress = {}", user.getAccount(), bo.getDeviceAddress());
             throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
         }
-        removeById(userDeviceInfo.getId());
+        deviceInfo.setUpdateTime(LocalDateTime.now());
+        removeById(deviceInfo.getId());
     }
 
     // ------------------------------------------------inner-----------------------------------------------------------------
 
     // token = e50fb3ef-8427-4b4a-8116-77d23845a074   bfb1d0f7-21e0-45ab-bca3-1be16e64f712
 
-    /**
-     * 获取当前登录用户
-     */
-    private LoginUser isAuth() {
-        return ContextHolder.getContext().getLoginUser();
-    }
+
 }
