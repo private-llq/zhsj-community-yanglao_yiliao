@@ -3,6 +3,8 @@ package com.zhsj.community.yanglao_yiliao.healthydata.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.basecommon.enums.ErrorEnum;
+import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
@@ -52,5 +54,32 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
         }
+    }
+
+    /***************************************************************************************************************************
+     * @description 批量删除用户体温数据
+     * @author zzm
+     * @date 2021/11/11 17:19
+     * @param list 体温id列表
+     **************************************************************************************************************************/
+    @Override
+    public void batchDeleteTemperature(List<Long> list) {
+        log.info("Delete user temperature in batch request parameter, list = {}", list);
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("Please check the body temperature to be deleted");
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
+        for (Long id : list) {
+            Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
+                    .eq(Temperature::getId, id)
+                    .eq(Temperature::getDeleted, true)
+                    .eq(Temperature::getUserUuid, user.getAccount()));
+            if (temperature == null) {
+                log.error("Body temperature to delete not found, temperatureId = {}", id);
+                throw new BaseException(ErrorEnum.SERVER_BUSY);
+            }
+        }
+        removeByIds(list);
     }
 }

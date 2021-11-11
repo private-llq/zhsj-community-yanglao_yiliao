@@ -38,4 +38,16 @@ public class HeartRateController {
         heartRateService.monitorHeartRate(list);
         return R.ok();
     }
+
+    /***************************************************************************************************************************
+     * @description 批量删除用户心率数据
+     * @author zzm
+     * @date 2021/11/11 17:19
+     * @param list 心率id列表
+     **************************************************************************************************************************/
+    @PostMapping("/batchDeleteHeartRate")
+    public R<Void> batchDeleteHeartRate(@RequestBody List<Long> list) {
+        heartRateService.batchDeleteHeartRate(list);
+        return R.ok();
+    }
 }

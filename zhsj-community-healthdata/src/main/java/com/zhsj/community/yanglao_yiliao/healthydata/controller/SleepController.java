@@ -38,4 +38,16 @@ public class SleepController {
         sleepService.monitorSleep(list);
         return R.ok();
     }
+
+    /***************************************************************************************************************************
+     * @description 批量删除用户睡眠数据
+     * @author zzm
+     * @date 2021/11/11 17:19
+     * @param list 睡眠id列表
+     **************************************************************************************************************************/
+    @PostMapping("/batchDeleteSleep")
+    public R<Void> batchDeleteSleep(@RequestBody List<Long> list) {
+        sleepService.batchDeleteSleep(list);
+        return R.ok();
+    }
 }

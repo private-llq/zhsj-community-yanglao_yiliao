@@ -3,11 +3,14 @@ package com.zhsj.community.yanglao_yiliao.healthydata.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.basecommon.enums.ErrorEnum;
+import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
+import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +55,33 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
         }
+    }
+
+    /***************************************************************************************************************************
+     * @description 批量删除用户心率数据
+     * @author zzm
+     * @date 2021/11/11 17:19
+     * @param list 心率id列表
+     **************************************************************************************************************************/
+    @Override
+    public void batchDeleteHeartRate(List<Long> list) {
+        log.info("Delete user heartRate in batch request parameter, list = {}", list);
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("Please check the body heartRate to be deleted");
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
+        for (Long id : list) {
+            HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
+                    .eq(HeartRate::getId, id)
+                    .eq(HeartRate::getDeleted, true)
+                    .eq(HeartRate::getUserUuid, user.getAccount()));
+            if (heartRate == null) {
+                log.error("Body heartRate to delete not found, temperatureId = {}", id);
+                throw new BaseException(ErrorEnum.SERVER_BUSY);
+            }
+        }
+        removeByIds(list);
     }
 
 }
