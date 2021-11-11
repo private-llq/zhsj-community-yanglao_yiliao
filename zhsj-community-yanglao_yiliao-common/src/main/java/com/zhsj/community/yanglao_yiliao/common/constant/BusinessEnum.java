@@ -83,7 +83,6 @@ public interface BusinessEnum {
         }
 
         public static final List<Map<String, Object>> familyRelationTextList = new ArrayList<>();
-
         public static String getName(Integer code) {
             FamilyRelationTextEnum[] values = FamilyRelationTextEnum.values();
             for (FamilyRelationTextEnum c : values) {

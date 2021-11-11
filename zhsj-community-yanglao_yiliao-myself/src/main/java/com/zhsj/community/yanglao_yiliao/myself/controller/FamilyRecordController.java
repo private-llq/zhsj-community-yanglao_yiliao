@@ -97,4 +97,6 @@ public class FamilyRecordController {
     public R<Boolean> delete(@RequestParam Long id){
         return R.ok(familyRecordService.removeById(id));
     }
+
+
 }

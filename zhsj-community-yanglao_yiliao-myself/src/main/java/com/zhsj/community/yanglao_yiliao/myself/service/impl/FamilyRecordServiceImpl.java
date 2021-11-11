@@ -50,12 +50,14 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
 
         FamilyRecordEntity familyRecordEntity = new FamilyRecordEntity();
         familyRecordEntity.setRelation(0);
+        familyRecordEntity.setRelationText("我自己");
         familyRecordEntity.setName(loginUser.getNickName());
         familyRecordEntity.setMobile(loginUser.getPhone());
-        familyRecordEntity.setSex(0);
         familyRecordEntity.setUid(loginUser.getCurrentIp());
         familyRecordEntity.setId(SnowFlake.nextId());
         familyRecordEntity.setCreateTime(LocalDateTime.now());
+        familyRecordMapper.insert(familyRecordEntity);
+
         list = new LinkedList<>();
         list.add(familyRecordEntity);
         return list;
