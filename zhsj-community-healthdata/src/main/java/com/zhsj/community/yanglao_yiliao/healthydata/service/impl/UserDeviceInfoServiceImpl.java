@@ -55,7 +55,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress()));
         if (userDeviceInfo == null) {
             log.error("User device does not exist");
-            throw new BaseException(ErrorEnum.SERVER_BUSY);
+            throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
         }
         removeById(userDeviceInfo.getId());
     }
@@ -64,6 +64,9 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
 
     // token = e50fb3ef-8427-4b4a-8116-77d23845a074   bfb1d0f7-21e0-45ab-bca3-1be16e64f712
 
+    /**
+     * 获取当前登录用户
+     */
     private LoginUser isAuth() {
         return ContextHolder.getContext().getLoginUser();
     }

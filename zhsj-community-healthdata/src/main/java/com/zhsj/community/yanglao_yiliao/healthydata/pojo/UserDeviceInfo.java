@@ -1,6 +1,5 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.pojo;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -25,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@TableName(value = "user_device_info")
+@TableName(value = "t_user_device_info")
 public class UserDeviceInfo {
 
     /**

@@ -1,12 +1,10 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.controller;
 
 import com.zhsj.basecommon.vo.R;
-import com.zhsj.baseweb.annotation.LoginIgnore;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserBindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserUnbindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +32,7 @@ public class UserDeviceInfoController {
      * @param userBindDeviceReqBo 设备信息
      **************************************************************************************************************************/
     @PostMapping("/userBindDevice")
-    public R<Void> userBindDevice(@RequestBody @Validated UserBindDeviceReqBo userBindDeviceReqBo) {
+    public R<Void> userBindDevice(@RequestBody @Valid UserBindDeviceReqBo userBindDeviceReqBo) {
         userDeviceInfoService.userBindDevice(userBindDeviceReqBo);
         return R.ok();
     }
@@ -46,7 +44,7 @@ public class UserDeviceInfoController {
      * @param userUnbindDeviceReqBo 解绑信息
      **************************************************************************************************************************/
     @PostMapping("/userUnbindDevice")
-    public R<Void> userUnbindDevice(@RequestBody @Validated UserUnbindDeviceReqBo userUnbindDeviceReqBo) {
+    public R<Void> userUnbindDevice(@RequestBody @Valid UserUnbindDeviceReqBo userUnbindDeviceReqBo) {
         userDeviceInfoService.userUnbindDevice(userUnbindDeviceReqBo);
         return R.ok();
     }
