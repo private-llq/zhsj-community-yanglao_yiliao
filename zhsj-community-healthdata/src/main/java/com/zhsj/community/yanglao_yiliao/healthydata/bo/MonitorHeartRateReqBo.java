@@ -1,17 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
-import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author zzm
@@ -42,12 +32,6 @@ public class MonitorHeartRateReqBo {
      */
     @NotNull(message = "心率时间不能为空")
     private Long createTime;
-
-    // 1636600672114
-
-    // 1636600753510
-
-    // 1636600780866
 }
 
 

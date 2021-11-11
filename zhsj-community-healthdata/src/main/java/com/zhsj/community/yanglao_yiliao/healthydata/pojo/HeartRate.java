@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
@@ -54,14 +55,19 @@ public class HeartRate {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+    /**
+     * 是否删除（0：已删除false，1：未删除true）
+     */
+    @TableLogic
+    private Boolean deleted;
 
-    public static HeartRate build(LoginUser user, MonitorHeartRateReqBo reqBo) {
+    public static HeartRate build(LoginUser user, MonitorHeartRateReqBo reqBo, LocalDateTime localDateTime) {
         return HeartRate.builder()
                 .userUuid(user.getAccount())
                 .silentHeart(reqBo.getSilentHeart())
                 .diastolicPressure(reqBo.getDiastolicPressure())
                 .systolicPressure(reqBo.getSystolicPressure())
-                .createTime(TimeUtils.formatTimestamp(reqBo.getCreateTime()))
+                .createTime(localDateTime)
                 .build();
     }
 }
