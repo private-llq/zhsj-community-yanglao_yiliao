@@ -33,9 +33,14 @@ public class Sleep {
     private Long id;
 
     /**
-     * 用户id
+     * 当前登录用户id
      */
     private String userUuid;
+
+    /**
+     * 家人id
+     */
+    private String familyMemberId;
 
     /**
      * 睡眠计数步数
@@ -61,6 +66,7 @@ public class Sleep {
     public static Sleep build(@NotNull LoginUser user, @NotNull MonitorSleepReqBo reqBo, @NotNull LocalDateTime localDateTime) {
         return Sleep.builder()
                 .userUuid(user.getAccount())
+                .familyMemberId(reqBo.getFamilyMemberId())
                 .stepCount(reqBo.getStepCount())
                 .sleepStatus(reqBo.getSleepStatus())
                 .createTime(localDateTime)

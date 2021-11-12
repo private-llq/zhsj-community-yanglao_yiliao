@@ -1,6 +1,8 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
 import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -13,20 +15,29 @@ import javax.validation.constraints.NotNull;
 public class MonitorHeartRateReqBo {
 
     /**
+     * 家人id
+     */
+    @NotBlank(message = "家人id不能为空")
+    private String familyMemberId;
+
+    /**
      * 用户心率
      */
     @NotNull(message = "用户心率不能为空")
     private Integer silentHeart;
+
     /**
      * 用户舒张压
      */
     @NotNull(message = "用户舒张压不能为空")
     private Integer diastolicPressure;
+
     /**
      * 用户收缩压
      */
     @NotNull(message = "用户收缩压不能为空")
     private Integer systolicPressure;
+
     /**
      * 心率时间
      */

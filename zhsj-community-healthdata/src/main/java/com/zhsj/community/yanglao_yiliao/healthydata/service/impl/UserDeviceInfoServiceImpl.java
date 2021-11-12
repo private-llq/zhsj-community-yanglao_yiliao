@@ -14,7 +14,6 @@ import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoServi
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -39,6 +38,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         LoginUser user = ContextHolder.getContext().getLoginUser();
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
+                .eq(UserDeviceInfo::getFamilyMemberId, bo.getFamilyMemberId())
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
         if (deviceInfo != null) {
@@ -61,6 +61,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         LoginUser user = ContextHolder.getContext().getLoginUser();
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
+                .eq(UserDeviceInfo::getFamilyMemberId, bo.getFamilyMemberId())
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
         if (deviceInfo == null) {

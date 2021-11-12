@@ -1,10 +1,9 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 /**
  * @author zzm
@@ -14,6 +13,12 @@ import java.time.LocalDateTime;
  */
 @Data
 public class MonitorSleepReqBo {
+
+    /**
+     * 家人id
+     */
+    @NotBlank(message = "家人id不能为空")
+    private String familyMemberId;
 
     /**
      * 睡眠计数步数

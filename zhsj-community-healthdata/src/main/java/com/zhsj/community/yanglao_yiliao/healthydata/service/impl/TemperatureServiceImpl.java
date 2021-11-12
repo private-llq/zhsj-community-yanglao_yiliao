@@ -44,6 +44,7 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, user.getAccount())
+                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(Temperature::getCreateTime, localDateTime)
                     .eq(Temperature::getDeleted, true));
             if (temperature != null) {

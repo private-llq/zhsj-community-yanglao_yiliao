@@ -2,6 +2,7 @@ package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -12,6 +13,12 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class MonitorTemperatureReqBo {
+
+    /**
+     * 家人id
+     */
+    @NotBlank(message = "家人id不能为空")
+    private String familyMemberId;
 
     /**
      * 手腕温度

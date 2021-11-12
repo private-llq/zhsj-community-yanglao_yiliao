@@ -13,6 +13,15 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class UserUnbindDeviceReqBo {
 
+    /**
+     * 家人id
+     */
+    @NotBlank(message = "家人id不能为空")
+    private String familyMemberId;
+
+    /**
+     * 用户设备地址
+     */
     @NotBlank(message = "用户设备地址不能为空")
     private String deviceAddress;
 }

@@ -11,6 +11,7 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
+import com.zhsj.community.yanglao_yiliao.healthydata.pojo.UserDeviceInfo;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(HeartRate::getCreateTime, localDateTime)
                     .eq(HeartRate::getDeleted, true));
             if (heartRate != null) {

@@ -32,9 +32,14 @@ public class Temperature {
     private Long id;
 
     /**
-     * 用户id
+     * 当前登录用户id
      */
     private String userUuid;
+
+    /**
+     * 家人id
+     */
+    private String familyMemberId;
 
     /**
      * 手腕温度
@@ -60,6 +65,7 @@ public class Temperature {
     public static Temperature build(LoginUser user, MonitorTemperatureReqBo reqBo, LocalDateTime localDateTime) {
         return Temperature.builder()
                 .userUuid(user.getAccount())
+                .familyMemberId(reqBo.getFamilyMemberId())
                 .tmpHandler(reqBo.getTmpHandler())
                 .tmpForehead(reqBo.getTmpForehead())
                 .createTime(localDateTime)

@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,28 +32,39 @@ public class HeartRate {
      */
     @TableId
     private Long id;
+
     /**
-     * 用户id
+     * 当前登录用户id
      */
     private String userUuid;
+
+    /**
+     * 家人id
+     */
+    private String familyMemberId;
+
     /**
      * 用户当前心率
      */
     private Integer silentHeart;
+
     /**
      * 用户舒张压
      */
     private Integer diastolicPressure;
+
     /**
      * 用户收缩压
      */
     private Integer systolicPressure;
+
     /**
      * 检测心率时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+
     /**
      * 是否删除（0：已删除false，1：未删除true）
      */
@@ -64,6 +74,7 @@ public class HeartRate {
     public static HeartRate build(LoginUser user, MonitorHeartRateReqBo reqBo, LocalDateTime localDateTime) {
         return HeartRate.builder()
                 .userUuid(user.getAccount())
+                .familyMemberId(reqBo.getFamilyMemberId())
                 .silentHeart(reqBo.getSilentHeart())
                 .diastolicPressure(reqBo.getDiastolicPressure())
                 .systolicPressure(reqBo.getSystolicPressure())
