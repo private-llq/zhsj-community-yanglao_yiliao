@@ -25,7 +25,6 @@ public class MonitorSleepReqBo {
      * 睡眠状态（1 开始入睡 2 浅睡 3 深睡 4 清醒 5 快速眼动）
      */
     @NotNull(message = "睡眠状态不能为空")
-    @Range(min = 1,max = 5)
     private Integer sleepStatus;
 
     /**
