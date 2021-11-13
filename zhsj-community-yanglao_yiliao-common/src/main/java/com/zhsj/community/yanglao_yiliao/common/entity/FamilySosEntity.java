@@ -32,6 +32,7 @@ public class FamilySosEntity extends BaseEntity {
      */
     private String uid;
 
+
     /**
      * 被绑定人
      */
