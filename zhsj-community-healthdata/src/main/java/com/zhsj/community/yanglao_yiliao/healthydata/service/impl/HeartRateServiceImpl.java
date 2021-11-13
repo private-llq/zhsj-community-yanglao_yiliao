@@ -10,8 +10,6 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
-import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
-import com.zhsj.community.yanglao_yiliao.healthydata.pojo.UserDeviceInfo;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -41,8 +40,9 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
     public void monitorHeartRate(List<MonitorHeartRateReqBo> list) {
         log.info("Real time monitoring of user heart rate parameters,List<MonitorHeartRateReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        HashSet<MonitorHeartRateReqBo> hashSet = new HashSet<>(list);
         List<HeartRate> arr = new ArrayList<>();
-        for (MonitorHeartRateReqBo reqBo : list) {
+        for (MonitorHeartRateReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())

@@ -1,12 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.util;
 
-import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -35,5 +30,29 @@ public class TimeUtils {
     public static String formatLocalDateTime(@NotNull LocalDateTime localDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return localDateTime.format(formatter);
+    }
+
+    /**
+     * 比较当前系统时间跟传入的时间比较时间先后
+     */
+    public static boolean isBefore(@NotNull Integer hours,
+                                   @NotNull Integer minutes,
+                                   @NotNull Integer second) {
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDate localDate = nowTime.toLocalDate();
+        LocalDateTime endTime = LocalDateTime.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hours, minutes, second);
+        return endTime.isBefore(nowTime);
+    }
+
+    /**
+     * 获取指定时间的LocalDateTime
+     */
+    public static LocalDateTime buildLocalDateTime(@NotNull Integer years,
+                                                   @NotNull Integer months,
+                                                   @NotNull Integer days,
+                                                   @NotNull Integer hours,
+                                                   @NotNull Integer minutes,
+                                                   @NotNull Integer second) {
+        return LocalDateTime.of(years, months, days, hours, minutes, second);
     }
 }

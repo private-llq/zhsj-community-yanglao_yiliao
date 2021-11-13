@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * @author zzm
@@ -13,6 +14,27 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class MonitorSleepReqBo {
+
+    public MonitorSleepReqBo(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MonitorSleepReqBo that = (MonitorSleepReqBo) o;
+        return createTime.equals(that.createTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(createTime);
+    }
 
     /**
      * 家人id

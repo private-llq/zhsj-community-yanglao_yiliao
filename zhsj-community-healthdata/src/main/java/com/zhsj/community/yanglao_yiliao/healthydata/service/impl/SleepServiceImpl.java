@@ -9,9 +9,7 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorSleepReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.SleepMapper;
-import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
-import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.SleepService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -41,8 +40,9 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
     public void monitorSleep(List<MonitorSleepReqBo> list) {
         log.info("Monitor user sleep request parameters, List<MonitorSleepReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        HashSet<MonitorSleepReqBo> hashSet = new HashSet<>(list);
         List<Sleep> arr = new ArrayList<Sleep>();
-        for (MonitorSleepReqBo reqBo : list) {
+        for (MonitorSleepReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
                     .eq(Sleep::getUserUuid, user.getAccount())
