@@ -1,9 +1,12 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * @author zzm
@@ -12,7 +15,30 @@ import javax.validation.constraints.NotNull;
  * @date 2021/11/11 14:02
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MonitorTemperatureReqBo {
+
+    public MonitorTemperatureReqBo(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MonitorTemperatureReqBo that = (MonitorTemperatureReqBo) o;
+        return createTime.equals(that.createTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(createTime);
+    }
 
     /**
      * 家人id

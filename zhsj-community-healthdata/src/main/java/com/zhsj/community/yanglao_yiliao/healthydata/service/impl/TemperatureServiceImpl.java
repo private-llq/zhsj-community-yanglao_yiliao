@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -39,8 +40,9 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
     public void monitorTemperature(List<MonitorTemperatureReqBo> list) {
         log.info("Monitor user temperature request parameters,List<MonitorTemperatureReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        HashSet<MonitorTemperatureReqBo> hashSet = new HashSet<>(list);
         List<Temperature> arr = new ArrayList<Temperature>();
-        for (MonitorTemperatureReqBo reqBo : list) {
+        for (MonitorTemperatureReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, user.getAccount())

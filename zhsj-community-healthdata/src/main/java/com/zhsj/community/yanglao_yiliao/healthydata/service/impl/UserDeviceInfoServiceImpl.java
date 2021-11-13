@@ -1,11 +1,14 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserBindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserUnbindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.UserDeviceInfoMapper;
@@ -36,10 +39,10 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     public void userBindDevice(UserBindDeviceReqBo bo) {
         log.info("Binding user device parameters,UserBindDeviceReqBo = {}", bo);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
                 .eq(UserDeviceInfo::getFamilyMemberId, bo.getFamilyMemberId())
-                .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
         if (deviceInfo != null) {
             log.error("The user has bound the device, userUuid = {}, mDeviceAddress = {}", deviceInfo.getUserUuid(), deviceInfo.getMDeviceAddress());
@@ -70,6 +73,27 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         }
         deviceInfo.setUpdateTime(LocalDateTime.now());
         removeById(deviceInfo.getId());
+    }
+
+    /***************************************************************************************************************************
+     * @description 获取用户绑定设备信息
+     * @author zzm
+     * @date 2021/11/13 13:57
+     * @param reqBo 用户信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo
+     **************************************************************************************************************************/
+    @Override
+    public DeviceInfoRspBo deviceInfo(DeviceInfoReqBo reqBo) {
+        log.info("Get user binding equipment information request parameters, DeviceInfoReqBo = {}", reqBo);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
+                .eq(UserDeviceInfo::getUserUuid, loginUser.getAccount())
+                .eq(UserDeviceInfo::getFamilyMemberId, reqBo.getFamilyMemberId())
+                .eq(UserDeviceInfo::getBind, true));
+        if (deviceInfo == null) {
+            return null;
+        }
+        return BeanUtil.copyProperties(deviceInfo, DeviceInfoRspBo.class);
     }
 
     // ------------------------------------------------inner-----------------------------------------------------------------

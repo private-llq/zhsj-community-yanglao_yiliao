@@ -1,6 +1,5 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.TemperatureService;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

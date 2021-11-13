@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class PageUtil<T> implements Serializable {
+public class PageVo<T> implements Serializable {
 
     /**
      * 当前页
@@ -46,8 +46,8 @@ public class PageUtil<T> implements Serializable {
     /**
      * MyBatis-Plus Page对象转换为PageVO
      */
-    public static <T> PageUtil<T> newPageVO(Page<T> page) {
-        return new PageUtil<T>()
+    public static <T> PageVo<T> newPageVO(Page<T> page) {
+        return new PageVo<T>()
                 .setPageNum(page.getCurrent())
                 .setPageSize(page.getSize())
                 .setPages(page.getPages())
@@ -55,7 +55,7 @@ public class PageUtil<T> implements Serializable {
                 .setList(CollectionUtil.isEmpty(page.getRecords()) ? CollectionUtil.newArrayList() : page.getRecords());
     }
 
-    public PageUtil() {
+    public PageVo() {
         this.list = new ArrayList<>();
         this.pages = 0L;
         this.pageNum = 0L;
@@ -63,7 +63,7 @@ public class PageUtil<T> implements Serializable {
         this.total = 0L;
     }
 
-    public PageUtil(Long pageNum, Long pageSize, Long pages, Long total, List<T> list) {
+    public PageVo(Long pageNum, Long pageSize, Long pages, Long total, List<T> list) {
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         this.pages = pages;
