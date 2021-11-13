@@ -1,6 +1,8 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserBindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserUnbindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.UserDeviceInfo;
@@ -29,4 +31,12 @@ public interface UserDeviceInfoService extends IService<UserDeviceInfo> {
      **************************************************************************************************************************/
     void userUnbindDevice(UserUnbindDeviceReqBo userUnbindDeviceReqBo);
 
+    /***************************************************************************************************************************
+     * @description 获取用户绑定设备信息
+     * @author zzm
+     * @date 2021/11/13 13:57
+     * @param reqBo 用户信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo
+     **************************************************************************************************************************/
+    DeviceInfoRspBo deviceInfo(DeviceInfoReqBo reqBo);
 }

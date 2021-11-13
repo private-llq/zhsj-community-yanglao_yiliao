@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service;
 
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo;
 
@@ -20,4 +21,6 @@ public interface HealthDataService {
      * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo
      **************************************************************************************************************************/
     RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo);
+
+    void heartRateChart(HeartRateChartReqBo reqBo);
 }

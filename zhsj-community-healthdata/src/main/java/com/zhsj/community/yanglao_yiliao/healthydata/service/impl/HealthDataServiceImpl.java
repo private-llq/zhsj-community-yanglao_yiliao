@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
@@ -55,6 +56,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
+
         // 心率
         Page<HeartRate> page = heartRateService.page(
                 new Page<HeartRate>(1, 1),
@@ -62,10 +64,13 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .eq("user_uuid", loginUser.getAccount())
                         .eq("family_member_id", reqBo.getFamilyMemberId())
                         .orderByDesc("create_time"));
-        HeartRate heartRate = page.getRecords().get(0);
-        if (heartRate != null) {
-            healthDataRspBo.setSilentHeart(heartRate.getSilentHeart());
+        List<HeartRate> records = page.getRecords();
+        if (CollectionUtil.isNotEmpty(records)) {
+            Integer silentHeart = records.get(0).getSilentHeart();
+            healthDataRspBo.setSilentHeart(silentHeart);
+            heartRateHealthStatus(healthDataRspBo, silentHeart);
         }
+
         // 体温
         Page<Temperature> tempPage = temperatureService.page(
                 new Page<Temperature>(1, 1),
@@ -73,10 +78,14 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .eq("user_uuid", loginUser.getAccount())
                         .eq("family_member_id", reqBo.getFamilyMemberId())
                         .orderByDesc("create_time"));
-        Temperature temperature = tempPage.getRecords().get(0);
-        if (temperature != null) {
-            healthDataRspBo.setTmpHandler(temperature.getTmpHandler());
-            healthDataRspBo.setTmpForehead(temperature.getTmpForehead());
+        List<Temperature> tempRecords = tempPage.getRecords();
+        if (CollectionUtil.isNotEmpty(tempRecords)) {
+            Double tmpHandler = tempRecords.get(0).getTmpHandler();
+            healthDataRspBo.setTmpHandler(tmpHandler);
+            tmpHandlerHealthStatus(healthDataRspBo, tmpHandler);
+            Double tmpForehead = tempRecords.get(0).getTmpForehead();
+            healthDataRspBo.setTmpForehead(tmpForehead);
+            tmpForeheadHealthStatus(healthDataRspBo, tmpForehead);
         }
 
         // 已过当天11点（以十一点为准）睡眠
@@ -85,7 +94,9 @@ public class HealthDataServiceImpl implements HealthDataService {
             LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth() - 1, HealthDataConstant.GRAB_SLEEP_TIME_TWENTY_ONE, 0, 0);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, toDayElevenClock);
-            healthDataRspBo.setSleepTime(sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP);
+            int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+            healthDataRspBo.setSleepTime(sleepTime);
+            sleepTimeHealthStatus(healthDataRspBo, sleepTime);
         }
         // 未过当天11点（以现在时间为准）睡眠
         if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
@@ -93,11 +104,25 @@ public class HealthDataServiceImpl implements HealthDataService {
             LocalDate localDate = LocalDateTime.now().toLocalDate();
             LocalDateTime yesterdayNineClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth() - 1, HealthDataConstant.GRAB_SLEEP_TIME_TWENTY_ONE, 0, 0);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, now);
-            healthDataRspBo.setSleepTime(sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP);
+            int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+            healthDataRspBo.setSleepTime(sleepTime);
+            sleepTimeHealthStatus(healthDataRspBo, sleepTime);
         }
         return healthDataRspBo;
     }
 
+    @Override
+    public void heartRateChart(HeartRateChartReqBo reqBo) {
+        log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        // 按天查
+
+        // 按周查
+
+        // 按月查
+
+
+    }
 
 
     // --------------------------------------------------inner---------------------------------------------------------------
@@ -123,6 +148,70 @@ public class HealthDataServiceImpl implements HealthDataService {
             }
         }
         return c;
+    }
+
+    /**
+     * 设值心率健康状态
+     */
+    private void heartRateHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
+                                       @NotNull Integer silentHeart) {
+        if (silentHeart >= 60 && silentHeart <= 100) {
+            healthDataRspBo.setSilentHeartHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
+        }
+        if (silentHeart >= 101 && silentHeart <= 160 || silentHeart >= 40 && silentHeart <= 59) {
+            healthDataRspBo.setSilentHeartHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+        if (silentHeart < 40 || silentHeart > 160) {
+            healthDataRspBo.setSilentHeartHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
+        }
+    }
+
+    /**
+     * 设值手腕体温健康状态
+     */
+    private void tmpHandlerHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
+                                        @NotNull Double tmpHandler) {
+        if (tmpHandler >= 36 && tmpHandler <= 37) {
+            healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
+        }
+        if (tmpHandler > 37 && tmpHandler < 38 || tmpHandler > 35 && tmpHandler < 36) {
+            healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+        if (tmpHandler <= 35 || tmpHandler >= 38) {
+            healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
+        }
+    }
+
+    /**
+     * 设值额头体温健康状态
+     */
+    private void tmpForeheadHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
+                                         @NotNull Double tmpForehead) {
+        if (tmpForehead >= 36 && tmpForehead <= 37) {
+            healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
+        }
+        if (tmpForehead > 37 && tmpForehead < 38 || tmpForehead > 35 && tmpForehead < 36) {
+            healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+        if (tmpForehead <= 35 || tmpForehead >= 38) {
+            healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
+        }
+    }
+
+    /**
+     * 设值睡眠时间健康状态
+     */
+    private void sleepTimeHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
+                                       @NotNull Integer sleepTime) {
+        if (sleepTime >= 360) {
+            healthDataRspBo.setSleepHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
+        }
+        if (sleepTime >= 240 && sleepTime < 360) {
+            healthDataRspBo.setSleepHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+        if (sleepTime < 240) {
+            healthDataRspBo.setSleepHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
+        }
     }
 
 }

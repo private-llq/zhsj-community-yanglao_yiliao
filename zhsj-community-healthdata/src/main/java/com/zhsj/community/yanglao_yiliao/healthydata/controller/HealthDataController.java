@@ -27,10 +27,9 @@ public class HealthDataController {
 
     @PostMapping("/realTimeHealthData")
     public R<RealTimeHealthDataRspBo> realTimeHealthData(@RequestBody @Valid RealTimeHealthDataReqBo reqBo) {
-        healthDataService.realTimeHealthData(reqBo);
-        return R.ok();
+        RealTimeHealthDataRspBo healthDataRspBo = healthDataService.realTimeHealthData(reqBo);
+        return R.ok(healthDataRspBo);
     }
-
 
 
 }

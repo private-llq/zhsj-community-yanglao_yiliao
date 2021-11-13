@@ -15,19 +15,38 @@ public class RealTimeHealthDataRspBo {
      * 用户当前心率
      */
     private Integer silentHeart;
+    /**
+     * 用户当前心率健康状态
+     */
+    private Integer silentHeartHealthStatus;
+
 
     /**
      * 睡眠时间（返回分钟数）
      */
     private Integer sleepTime;
+    /**
+     * 睡眠健康状态
+     */
+    private Integer sleepHealthStatus;
+
 
     /**
      * 手腕温度
      */
     private Double tmpHandler;
+    /**
+     * 手腕温度健康状态
+     */
+    private Integer tmpHandlerHealthStatus;
+
 
     /**
      * 额头温度
      */
     private Double tmpForehead;
+    /**
+     * 额头温度健康状态
+     */
+    private Integer tmpForeheadHealthStatus;
 }

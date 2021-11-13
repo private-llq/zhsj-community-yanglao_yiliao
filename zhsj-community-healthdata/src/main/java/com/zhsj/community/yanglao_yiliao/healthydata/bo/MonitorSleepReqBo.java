@@ -1,6 +1,8 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -13,6 +15,8 @@ import java.util.Objects;
  * @date 2021/11/11 15:28
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MonitorSleepReqBo {
 
     public MonitorSleepReqBo(Long createTime) {

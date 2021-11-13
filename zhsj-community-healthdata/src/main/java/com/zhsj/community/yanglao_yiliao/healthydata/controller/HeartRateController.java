@@ -50,4 +50,6 @@ public class HeartRateController {
         heartRateService.batchDeleteHeartRate(list);
         return R.ok();
     }
+
+
 }
