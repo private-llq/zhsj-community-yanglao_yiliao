@@ -8,6 +8,7 @@ import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -43,15 +44,20 @@ public class EventController {
     }
 
     @GetMapping("list")
-    public R list(@RequestParam("month") Integer month,@RequestParam("day") Integer day){
+    public R list(@RequestParam("date")LocalDate date){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        eventService.list(month,day,loginUser);
-        return R.ok();
+        return R.ok(eventService.list(date,loginUser));
     }
 
     @DeleteMapping("delete")
     public R delete(@RequestParam Long id){
         eventService.delete(id);
+        return R.ok();
+    }
+
+    @DeleteMapping("status")
+    public R status(@RequestParam Integer status,@RequestParam Long id){
+        eventService.status(id,status);
         return R.ok();
     }
 }

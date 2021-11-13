@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper">
+    <select id="selectByDate" resultType="com.zhsj.community.yanglao_yiliao.common.entity.EventEntity">
+        SELECT
+	        *
+        FROM
+        	t_event te
+        WHERE
+            ( te.type = 1 AND te.warn_year = #{year} AND te.warn_month = #{month} AND te.warn_day = #{day} and te.deleted=0 and te.uid=#{uid})
+        	OR ( te.type = 2 and te.deleted=0 and te.uid=#{uid})
+        	OR ( te.type = 3 AND te.warn_week = #{week}  and te.deleted=0 and te.uid=#{uid})
+        	OR (te.type = 4 AND te.warn_day = #{day}  and te.deleted=0 and te.uid=#{uid})
+    </select>
+</mapper>
