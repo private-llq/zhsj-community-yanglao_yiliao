@@ -1,4 +1,4 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.common;
+package com.zhsj.community.yanglao_yiliao.old_activity.util;
 
 /**
  * @author liulq
@@ -9,27 +9,25 @@ package com.zhsj.community.yanglao_yiliao.old_activity.common;
  */
 public class RandomUtils {
 
-    private static final String charlist = "0123456789";
+    private static final String CHARLIST = "0123456789";
 
     public static String createRandomString(int len) {
-        String str = new String();
+        StringBuilder str = new StringBuilder();
         for (int i = 0; i < len; i++) {
-            str += charlist.charAt(getRandom(charlist.length()));
+            str.append(CHARLIST.charAt(getRandom(CHARLIST.length())));
         }
-        return str;
+        return str.toString();
     }
 
     public static int getRandom(int mod) {
         if (mod < 1) {
             return 0;
         }
-        int ret = getInt() % mod;
-        return ret;
+        return getInt() % mod;
     }
 
     private static int getInt() {
-        int ret = Math.abs(Long.valueOf(getRandomNumString()).intValue());
-        return ret;
+        return Math.abs(Long.valueOf(getRandomNumString()).intValue());
     }
 
     private static String getRandomNumString() {

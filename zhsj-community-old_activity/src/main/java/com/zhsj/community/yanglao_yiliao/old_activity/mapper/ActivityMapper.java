@@ -2,40 +2,26 @@ package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
-import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * @author liulq
  * @version V1.0
- * @program: zhsj-community-yanglao_yiliao
+ * @program: haj-community-yang_Emiliano
  * @description:
  * @create: 2021-11-10 17:02
  */
+@Repository
 public interface ActivityMapper extends BaseMapper<Activity> {
     /**
      * 查询活动类型
-     * @return
      */
-    @Select("SELECT id,activity_type from t_activity")
-    public ActivityVo getActivityTyped();
+    List<ActivityFrom> getActivityTyped();
 
-
-    /**
-     * 新增发布活动
-     * @return
-     */
-    public List<ActivityVo> addActivity();
-
-
-    /**
-     * 删除发布活动
-     * @return
-     */
-    public boolean deletedActivity();
 
 
 }

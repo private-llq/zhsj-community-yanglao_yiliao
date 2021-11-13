@@ -1,16 +1,19 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
-
-import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,49 +28,46 @@ import java.util.List;
 public class ActivityServiceImpl implements ActivityService {
 
 
-    @Autowired
+    @Resource
     private ActivityMapper activityMapper;
+
 
     /**
      * 查询活动类型
-     * @return
      */
     @Override
-    public ActivityVo geted() {
-        ActivityVo activityType = this.activityMapper.getActivityTyped();
-        return activityType;
+    public List<ActivityFrom> getactivit() {
+        List<ActivityFrom> activityTyped = this.activityMapper.getActivityTyped();
+        return activityTyped;
     }
-
     /**
      * 新增发布活动
-     * @return
      */
     @Override
-    public List<ActivityVo> addActivity() {
-        return null;
+    public int addActivity(String voice,String textContent, String location, String longitude, String latitude, String multipartFile) {
+        Activity activityVo = new Activity();
+        activityVo.setActivityExplain(textContent);
+        activityVo.setVoice(voice);
+        activityVo.setLongitude(longitude);
+        activityVo.setLatitude(latitude);
+        activityVo.setPathUrl(multipartFile);
+        List<ActivityFrom> activityTyped = activityMapper.getActivityTyped();
+        List<Activity>  list = new ArrayList<>();
+        list.add(activityVo);
+        BeanUtils.copyProperties(activityTyped,list);
+        BeanUtils.copyProperties(list,activityVo);
+        return  activityMapper.insert(activityVo);
     }
+
 
     /**
      * 删除发布活动
-     * @return
      */
     @Override
     public int deletedActivity(LoginUser loginUser) {
         log.info("用户的字段：{}",loginUser);
-        int userId = this.activityMapper.deleteById(loginUser.getId());
-        return userId;
+        return this.activityMapper.deleteById(loginUser.getId());
     }
 
-
-
-
-
-    /**
-     *  ***************************************获取当前登录用户**********************************************************
-     *       *****************************************************************************************************
-     */
-    private LoginUser UserAuth() {
-        return ContextHolder.getContext().getLoginUser();
-    }
 
 }
