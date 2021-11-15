@@ -35,6 +35,10 @@ public class ActivityVo {
      */
     private String pathUrl;
     /**
+     *语音
+     */
+    private  String voice;
+    /**
      * 用户昵称
      */
     private  String aUser;

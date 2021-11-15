@@ -4,7 +4,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.common.SexEnum;
+import com.zhsj.community.yanglao_yiliao.old_activity.util.SexEnum;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.UserLocationMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.UserLocationService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,21 +29,18 @@ import java.util.List;
 @Slf4j
 public class UserLocationServiceImpl implements UserLocationService {
 
-    @Autowired
+    @Resource
     private UserLocationMapper userLocationMapper;
 
 
     /**
      * 活动搜索
-     * @param sex
-     * @param distance
-     * @return
      */
     @Override
     public List<UserLocationVo> queryNearUser(String sex, String distance) {
         log.info("传过来的sex{}和距离{}",sex,distance);
         //查询当前用户的地理位置
-        UserLocationVo userLocationVo = this.userLocationMapper.queryByUserId(UserAuth());
+        UserLocationVo userLocationVo = this.userLocationMapper.queryByUserId(userAuth());
         //获取经纬度
         Double latitude = userLocationVo.getLatitude();
         Double longitude = userLocationVo.getLongitude();
@@ -68,8 +66,8 @@ public class UserLocationServiceImpl implements UserLocationService {
         List<UserLocationVo> result = new ArrayList<>();
         for (UserLocationVo locationVo : userLocationVos) {
             //排除自己
-            if (locationVo.getUserId().longValue() == UserAuth().getId().longValue()) {
-                continue;
+            if (locationVo.getUserId().longValue() == userAuth().getId().longValue()) {
+//                continue;
             }
         }
 //       这个写添加好友,等后面再写吧
@@ -79,16 +77,11 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public LoginUser queryByUserId(LoginUser loginUser) {
-        LoginUser user = ContextHolder.getContext().getLoginUser();
-        return user;
+        return ContextHolder.getContext().getLoginUser();
     }
 
     /**
      * 地图
-     * @param longitude
-     * @param latitude
-     * @param range
-     * @return
      */
     @Override
     public List<UserLocationVo> queryUserFromLocation(Double longitude, Double latitude, Integer range) {
@@ -106,11 +99,9 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     /**
      * 查询用户信息
-     * @param queryWrapper
-     * @return
      */
     @Override
-    public List<LoginUser> qqueryUserInfoList(QueryWrapper queryWrapper) {
+    public List queryUserInfoList(QueryWrapper queryWrapper) {
         return this.userLocationMapper.selectList(queryWrapper);
     }
 
@@ -119,7 +110,7 @@ public class UserLocationServiceImpl implements UserLocationService {
      *  ***************************************获取当前登录用户**********************************************************
      *       *****************************************************************************************************
      */
-    private LoginUser UserAuth() {
+    private LoginUser userAuth() {
         return ContextHolder.getContext().getLoginUser();
     }
 

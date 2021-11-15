@@ -3,6 +3,9 @@ package com.zhsj.community.yanglao_yiliao.myself.service;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * @program: zhsj-community-yanglao_yiliao
  * @description: 事件提醒
@@ -33,7 +36,7 @@ public interface IEventService {
      * @Param:
      * @return:
      */
-    void list(Integer month, Integer day, LoginUser loginUser);
+    List<EventEntity> list(LocalDate localDate, LoginUser loginUser);
     /**
      * @Description: 删除
      * @author: Hu
@@ -50,4 +53,13 @@ public interface IEventService {
      * @return:
      */
     EventEntity getById(Long id);
+
+    /**
+     * @Description: 启用停用
+     * @author: Hu
+     * @since: 2021/11/13 17:14
+     * @Param:
+     * @return:
+     */
+    void status(Long id,Integer status);
 }
