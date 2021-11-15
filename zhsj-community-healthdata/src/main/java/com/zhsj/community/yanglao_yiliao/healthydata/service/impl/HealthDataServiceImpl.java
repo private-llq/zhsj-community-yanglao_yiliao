@@ -62,6 +62,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 new QueryWrapper<HeartRate>()
                         .eq("user_uuid", loginUser.getAccount())
                         .eq("family_member_id", reqBo.getFamilyMemberId())
+                        .eq("deleted", true)
                         .orderByDesc("create_time"));
         List<HeartRate> records = page.getRecords();
         if (CollectionUtil.isNotEmpty(records)) {
@@ -76,6 +77,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 new QueryWrapper<Temperature>()
                         .eq("user_uuid", loginUser.getAccount())
                         .eq("family_member_id", reqBo.getFamilyMemberId())
+                        .eq("deleted", true)
                         .orderByDesc("create_time"));
         List<Temperature> tempRecords = tempPage.getRecords();
         if (CollectionUtil.isNotEmpty(tempRecords)) {
@@ -91,7 +93,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
             LocalDate localDate = LocalDateTime.now().toLocalDate();
             LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
-            LocalDateTime yesterdayNineClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth() - 1, HealthDataConstant.GRAB_SLEEP_TIME_TWENTY_ONE, 0, 0);
+            LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, toDayElevenClock);
             int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
             healthDataRspBo.setSleepTime(sleepTime);
@@ -101,7 +103,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
             LocalDateTime now = LocalDateTime.now();
             LocalDate localDate = LocalDateTime.now().toLocalDate();
-            LocalDateTime yesterdayNineClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth() - 1, HealthDataConstant.GRAB_SLEEP_TIME_TWENTY_ONE, 0, 0);
+            LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, now);
             int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
             healthDataRspBo.setSleepTime(sleepTime);
@@ -113,21 +115,99 @@ public class HealthDataServiceImpl implements HealthDataService {
 
     // 查询心率图表信息
     @Override
-    public void heartRateChart(HeartRateChartReqBo reqBo) {
+    public List<HeartRateChartRspBo> heartRateChart(HeartRateChartReqBo reqBo) {
         log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        ArrayList<HeartRateChartRspBo> rspBos = new ArrayList<>();
         // 按天查
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDate localDate = now.toLocalDate();
+            LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+            LocalDateTime todayZeroClockSixHoursAgo = todayZeroClock.plusHours(-6);
+            LocalDateTime todaySixClock = todayZeroClock.plusHours(6);
+            LocalDateTime todayTwelveClock = todayZeroClock.plusHours(12);
+            LocalDateTime todayEighteenClock = todayZeroClock.plusHours(18);
+            LocalDateTime todayTwentyFourClock = todayZeroClock.plusHours(24);
             List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
-                            .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                            .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
-                    /*.gt()
-                    .le()*/);
-
+                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    .ge(HeartRate::getCreateTime, todayZeroClockSixHoursAgo)
+                    .le(HeartRate::getCreateTime, now)
+                    .eq(HeartRate::getDeleted, true)
+                    .orderByAsc(HeartRate::getCreateTime));
+            if (CollectionUtil.isEmpty(rateList)) {
+                return null;
+            }
+            ArrayList<HeartRate> listOne = new ArrayList<>();
+            ArrayList<HeartRate> listTwo = new ArrayList<>();
+            ArrayList<HeartRate> listThree = new ArrayList<>();
+            ArrayList<HeartRate> listFour = new ArrayList<>();
+            ArrayList<HeartRate> listFive = new ArrayList<>();
+            for (HeartRate heartRate : rateList) {
+                LocalDateTime createTime = heartRate.getCreateTime();
+                if (createTime.compareTo(todayZeroClockSixHoursAgo) > 0 && createTime.compareTo(todayZeroClock) < 0) {
+                    listOne.add(heartRate);
+                }
+                if (createTime.compareTo(todayZeroClock) > 0 && createTime.compareTo(todaySixClock) < 0) {
+                    listTwo.add(heartRate);
+                }
+                if (createTime.compareTo(todaySixClock) > 0 && createTime.compareTo(todayTwelveClock) < 0) {
+                    listThree.add(heartRate);
+                }
+                if (createTime.compareTo(todayTwelveClock) > 0 && createTime.compareTo(todayEighteenClock) < 0) {
+                    listFour.add(heartRate);
+                }
+                if (createTime.compareTo(todayEighteenClock) > 0 && createTime.compareTo(todayTwentyFourClock) < 0) {
+                    listFive.add(heartRate);
+                }
+            }
+            if (!listOne.isEmpty()) {
+                int c = 0;
+                for (HeartRate heartRate : listOne) {
+                    c += heartRate.getSilentHeart();
+                }
+                int avg = c / listOne.size();
+                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayZeroClock), TimeUtils.formatLocalDateTimeThird(todayZeroClock), avg));
+            }
+            if (!listTwo.isEmpty()) {
+                int c = 0;
+                for (HeartRate heartRate : listTwo) {
+                    c += heartRate.getSilentHeart();
+                }
+                int avg = c / listTwo.size();
+                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todaySixClock), TimeUtils.formatLocalDateTimeThird(todaySixClock), avg));
+            }
+            if (!listThree.isEmpty()) {
+                int c = 0;
+                for (HeartRate heartRate : listThree) {
+                    c += heartRate.getSilentHeart();
+                }
+                int avg = c / listThree.size();
+                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayTwelveClock), TimeUtils.formatLocalDateTimeThird(todayTwelveClock), avg));
+            }
+            if (!listFour.isEmpty()) {
+                int c = 0;
+                for (HeartRate heartRate : listFour) {
+                    c += heartRate.getSilentHeart();
+                }
+                int avg = c / listFour.size();
+                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayEighteenClock), TimeUtils.formatLocalDateTimeThird(todayEighteenClock), avg));
+            }
+            if (!listFive.isEmpty()) {
+                int c = 0;
+                for (HeartRate heartRate : listFive) {
+                    c += heartRate.getSilentHeart();
+                }
+                int avg = c / listFive.size();
+                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayTwentyFourClock), TimeUtils.formatLocalDateTimeThird(todayTwentyFourClock), avg));
+            }
         }
         // 按周查
 
         // 按月查
+
+        return rspBos;
     }
 
     /***************************************************************************************************************************
@@ -214,7 +294,8 @@ public class HealthDataServiceImpl implements HealthDataService {
                 .eq(Sleep::getUserUuid, loginUser.getAccount())
                 .eq(Sleep::getFamilyMemberId, reqBo.getFamilyMemberId())
                 .ge(Sleep::getCreateTime, yesterdayNineClock)
-                .le(Sleep::getCreateTime, now));
+                .le(Sleep::getCreateTime, now)
+                .eq(Sleep::getDeleted, true));
         if (CollectionUtil.isNotEmpty(sleepList)) {
             for (Sleep sleep : sleepList) {
                 if (HealthDataConstant.SLEEP_STATUS_TWO.equals(sleep.getSleepStatus()) || HealthDataConstant.SLEEP_STATUS_THREE.equals(sleep.getSleepStatus())) {
@@ -302,6 +383,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 .ge(HeartRate::getCreateTime, zeroClock)
                 .le(HeartRate::getCreateTime, now)
                 .notBetween(HeartRate::getSilentHeart, 60, 100)
+                .eq(HeartRate::getDeleted, true)
                 .orderByAsc(HeartRate::getCreateTime));
     }
 

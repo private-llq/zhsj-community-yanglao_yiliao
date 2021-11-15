@@ -23,7 +23,7 @@ public interface HealthDataService {
     RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo);
 
     // 查询心率图表信息
-    void heartRateChart(HeartRateChartReqBo reqBo);
+    List<HeartRateChartRspBo> heartRateChart(HeartRateChartReqBo reqBo);
 
     /***************************************************************************************************************************
      * @description 获取用户心率异常记录列表

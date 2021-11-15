@@ -1,10 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.controller;
 
 import com.zhsj.basecommon.vo.R;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.AbnormalDataRspBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.AbnormalHeartRateRecordReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HealthDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +30,13 @@ public class HealthDataController {
     public R<RealTimeHealthDataRspBo> realTimeHealthData(@RequestBody @Valid RealTimeHealthDataReqBo reqBo) {
         RealTimeHealthDataRspBo healthDataRspBo = healthDataService.realTimeHealthData(reqBo);
         return R.ok(healthDataRspBo);
+    }
+
+    // 查询心率图表信息
+    @PostMapping("/heartRateChart")
+    public R<List<HeartRateChartRspBo>> heartRateChart(@RequestBody @Valid HeartRateChartReqBo reqBo) {
+        List<HeartRateChartRspBo> rspBos = healthDataService.heartRateChart(reqBo);
+        return R.ok(rspBos);
     }
 
     /***************************************************************************************************************************
