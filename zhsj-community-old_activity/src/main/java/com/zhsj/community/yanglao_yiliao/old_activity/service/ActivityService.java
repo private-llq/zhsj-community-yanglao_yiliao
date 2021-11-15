@@ -3,9 +3,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.List;
 
@@ -43,8 +41,6 @@ public interface ActivityService {
      * 删除发布活动
      */
     int deletedActivity(LoginUser loginUser);
-
-
 
 
 }

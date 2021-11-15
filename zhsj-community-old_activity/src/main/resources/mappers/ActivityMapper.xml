@@ -2,8 +2,4 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper">
 
-    <select id="getActivityTyped" resultType="com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom">
-        select id,activity_type from t_activity
-    </select>
-
 </mapper>

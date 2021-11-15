@@ -2,6 +2,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.OSSFile;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
@@ -9,6 +10,7 @@ import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +42,7 @@ public class ActivityServiceImpl implements ActivityService {
         List<ActivityFrom> activityTyped = this.activityMapper.getActivityTyped();
         return activityTyped;
     }
+
     /**
      * 新增发布活动
      */
@@ -68,6 +71,7 @@ public class ActivityServiceImpl implements ActivityService {
         log.info("用户的字段：{}",loginUser);
         return this.activityMapper.deleteById(loginUser.getId());
     }
+
 
 
 }

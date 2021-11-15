@@ -19,6 +19,13 @@ spring:
         min-idle: 10
         max-active: -1
         max-wait: -1
+###minio上传
+#minio:
+#  endpoint: http://localhost:9000 #Minio服务所在地址
+##  bucketName: tcc #存储桶名称
+#  accessKey: minioadmin  #访问的key
+#  secretKey: minioadmin  #访问的秘钥
+
 #数据库
   datasource:
     druid:
