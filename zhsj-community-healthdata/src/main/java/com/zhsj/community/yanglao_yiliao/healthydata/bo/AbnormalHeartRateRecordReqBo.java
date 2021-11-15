@@ -8,11 +8,11 @@ import javax.validation.constraints.NotNull;
 /**
  * @author zzm
  * @version 1.0
- * @Description: 心率统计图表详情请求参数
- * @date 2021/11/13 10:54
+ * @Description: 心率异常记录列表入参
+ * @date 2021/11/15 10:41
  */
 @Data
-public class HeartRateChartReqBo {
+public class AbnormalHeartRateRecordReqBo {
 
     /**
      * 家人id
@@ -25,4 +25,5 @@ public class HeartRateChartReqBo {
      */
     @NotNull(message = "查询时间类型不能为空")
     private Integer timeStatus;
+
 }
