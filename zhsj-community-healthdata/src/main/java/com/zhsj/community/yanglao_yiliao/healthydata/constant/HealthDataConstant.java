@@ -23,7 +23,7 @@ public class HealthDataConstant {
      */
     public static final Integer HEALTH_COLOR_STATUS_RED = 3;
 
-    //--------------------------------------------------sleep---------------------------------------------------------------
+    //--------------------------------------------------sleep status---------------------------------------------------------------
 
     /**
      * 睡眠状态（1 开始入睡 2 浅睡 3 深睡 4 清醒 5 快速眼动）
@@ -45,6 +45,9 @@ public class HealthDataConstant {
      * 睡眠状态（1 开始入睡 2 浅睡 3 深睡 4 清醒 5 快速眼动）
      */
     public static final Integer SLEEP_STATUS_FIVE = 5;
+
+    //--------------------------------------------------grab sleep time spot--------------------------------------------------------
+
     /**
      * 抓取睡眠今天截止的时间点
      */
@@ -62,19 +65,18 @@ public class HealthDataConstant {
      */
     public static final Integer GRAB_SLEEP_TIME_STEP = 10;
 
-
-    //---------------------------------------------chart time-------------------------------------------------------------------
+    //---------------------------------------------chart time status-------------------------------------------------------------------
 
     /**
      * 查询健康图表数据时间类型（以天查）
      */
-    public static final String HEALTH_DATA_SELECT_CHART_TIME_DAY = "day";
+    public static final Integer HEALTH_DATA_SELECT_CHART_TIME_DAY = 1;
     /**
      * 查询健康图表数据时间类型（以周查）
      */
-    public static final String HEALTH_DATA_SELECT_CHART_TIME_WEEK = "week";
+    public static final Integer HEALTH_DATA_SELECT_CHART_TIME_WEEK = 2;
     /**
      * 查询健康图表数据时间类型（以月查）
      */
-    public static final String HEALTH_DATA_SELECT_CHART_TIME_MONTH = "month";
+    public static final Integer HEALTH_DATA_SELECT_CHART_TIME_MONTH = 3;
 }

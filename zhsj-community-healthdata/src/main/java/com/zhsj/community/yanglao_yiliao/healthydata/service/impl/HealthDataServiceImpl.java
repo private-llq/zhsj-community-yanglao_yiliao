@@ -6,10 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
+import com.zhsj.community.yanglao_yiliao.healthydata.dto.TimeValueDto;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
@@ -25,7 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zzm
@@ -108,20 +107,96 @@ public class HealthDataServiceImpl implements HealthDataService {
             healthDataRspBo.setSleepTime(sleepTime);
             sleepTimeHealthStatus(healthDataRspBo, sleepTime);
         }
+        healthDataRspBo.setRefreshDataTime(TimeUtils.formatLocalDateTime(LocalDateTime.now()));
         return healthDataRspBo;
     }
 
+    // 查询心率图表信息
     @Override
     public void heartRateChart(HeartRateChartReqBo reqBo) {
         log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         // 按天查
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                            .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                            .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    /*.gt()
+                    .le()*/);
 
+        }
         // 按周查
 
         // 按月查
+    }
 
-
+    /***************************************************************************************************************************
+     * @description 获取用户心率异常记录列表
+     * @author zzm
+     * @date 2021/11/15 10:43
+     * @param reqBo 用户id，查询时间类型
+     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
+     **************************************************************************************************************************/
+    @Override
+    public List<AbnormalDataRspBo> abnormalHeartRateRecord(AbnormalHeartRateRecordReqBo reqBo) {
+        log.info("Abnormal heart rate recording request parameters, AbnormalHeartRateRecordReqBo = {}", reqBo);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        List<AbnormalDataRspBo> list = new ArrayList<>();
+        // ---By day
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDate localDate = now.toLocalDate();
+            LocalDateTime zeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+            List<HeartRate> rateList = heartRateList(loginUser, reqBo, zeroClock, now);
+            if (CollectionUtil.isEmpty(rateList)) {
+                return null;
+            }
+            List<TimeValueDto> arr = new ArrayList<>();
+            for (HeartRate heartRate : rateList) {
+                TimeValueDto timeValueDto = new TimeValueDto(TimeUtils.formatLocalDateTimeThird(heartRate.getCreateTime()), heartRate.getSilentHeart());
+                arr.add(timeValueDto);
+            }
+            AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(TimeUtils.formatLocalDateTimeSecond(now), arr);
+            list.add(abnormalDataRspBo);
+        }
+        // ---By week
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDate localDate = now.toLocalDate();
+            LocalDateTime localDateTime = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+            LocalDateTime sixDaysAgo = localDateTime.plusDays(-6);
+            List<HeartRate> rateList = heartRateList(loginUser, reqBo, sixDaysAgo, now);
+            if (CollectionUtil.isEmpty(rateList)) {
+                return null;
+            }
+            String today = TimeUtils.formatLocalDateTimeSecond(now);
+            queryAbnormalHeartRateFormat(rateList, today, list);
+            for (int i = 1; i <= 6; i++) {
+                String daysAge = TimeUtils.formatLocalDateTimeSecond(localDateTime.plusDays(-i));
+                queryAbnormalHeartRateFormat(rateList, daysAge, list);
+            }
+        }
+        // ---By month
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDate localDate = now.toLocalDate();
+            LocalDateTime localDateTime = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+            LocalDateTime twentyNineDaysAgo = localDateTime.plusDays(-29);
+            List<HeartRate> rateList = heartRateList(loginUser, reqBo, twentyNineDaysAgo, now);
+            if (CollectionUtil.isEmpty(rateList)) {
+                return null;
+            }
+            String today = TimeUtils.formatLocalDateTimeSecond(now);
+            queryAbnormalHeartRateFormat(rateList, today, list);
+            for (int i = 1; i <= 29; i++) {
+                String daysAge = TimeUtils.formatLocalDateTimeSecond(localDateTime.plusDays(-i));
+                queryAbnormalHeartRateFormat(rateList, daysAge, list);
+            }
+        }
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list;
     }
 
 
@@ -174,10 +249,10 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (tmpHandler >= 36 && tmpHandler <= 37) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpHandler > 37 && tmpHandler < 38 || tmpHandler > 35 && tmpHandler < 36) {
+        if (tmpHandler > 37 && tmpHandler <= 38 || tmpHandler >= 35 && tmpHandler < 36) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpHandler <= 35 || tmpHandler >= 38) {
+        if (tmpHandler < 35 || tmpHandler > 38) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -190,10 +265,10 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (tmpForehead >= 36 && tmpForehead <= 37) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpForehead > 37 && tmpForehead < 38 || tmpForehead > 35 && tmpForehead < 36) {
+        if (tmpForehead > 37 && tmpForehead <= 38 || tmpForehead >= 35 && tmpForehead < 36) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpForehead <= 35 || tmpForehead >= 38) {
+        if (tmpForehead < 35 || tmpForehead > 38) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -211,6 +286,41 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
         if (sleepTime < 240) {
             healthDataRspBo.setSleepHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
+        }
+    }
+
+    /**
+     * 根据条件查询用户心率异常列表
+     */
+    private List<HeartRate> heartRateList(LoginUser loginUser,
+                                          AbnormalHeartRateRecordReqBo reqBo,
+                                          LocalDateTime zeroClock,
+                                          LocalDateTime now) {
+        return heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                .ge(HeartRate::getCreateTime, zeroClock)
+                .le(HeartRate::getCreateTime, now)
+                .notBetween(HeartRate::getSilentHeart, 60, 100)
+                .orderByAsc(HeartRate::getCreateTime));
+    }
+
+    /**
+     * 按周或月查心率异常记录列表格式化返回数据
+     */
+    private void queryAbnormalHeartRateFormat(@NotNull List<HeartRate> rateList,
+                                              @NotNull String timeFormat,
+                                              @NotNull List<AbnormalDataRspBo> list) {
+        List<TimeValueDto> dtoList = new ArrayList<>();
+        for (HeartRate heartRate : rateList) {
+            if (TimeUtils.formatLocalDateTimeSecond(heartRate.getCreateTime()).equals(timeFormat)) {
+                TimeValueDto timeValueDto = new TimeValueDto(TimeUtils.formatLocalDateTimeThird(heartRate.getCreateTime()), heartRate.getSilentHeart());
+                dtoList.add(timeValueDto);
+            }
+        }
+        if (!dtoList.isEmpty()) {
+            AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(timeFormat, dtoList);
+            list.add(abnormalDataRspBo);
         }
     }
 

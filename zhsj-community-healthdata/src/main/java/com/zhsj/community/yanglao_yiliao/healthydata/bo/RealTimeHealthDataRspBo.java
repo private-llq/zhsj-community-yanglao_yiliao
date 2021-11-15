@@ -49,4 +49,9 @@ public class RealTimeHealthDataRspBo {
      * 额头温度健康状态
      */
     private Integer tmpForeheadHealthStatus;
+
+    /**
+     * 跟新数据时间
+     */
+    private String refreshDataTime;
 }
