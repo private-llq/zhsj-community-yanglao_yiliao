@@ -11,5 +11,30 @@
         	OR ( te.type = 2 and te.deleted=0 and te.uid=#{uid})
         	OR ( te.type = 3 AND te.warn_week = #{week}  and te.deleted=0 and te.uid=#{uid})
         	OR (te.type = 4 AND te.warn_day = #{day}  and te.deleted=0 and te.uid=#{uid})
+        ORDER BY te.warn_hour,te.warn_minute ASC
+    </select>
+    <select id="pageList" resultType="com.zhsj.community.yanglao_yiliao.common.entity.EventEntity">
+        SELECT
+	        *
+        FROM
+        	t_event te
+        WHERE
+            ( te.type = 1 AND te.warn_year = #{year} AND te.warn_month = #{month} AND te.warn_day = #{day} and te.deleted=0 and te.uid=#{uid})
+        	OR ( te.type = 2 and te.deleted=0 and te.uid=#{uid})
+        	OR ( te.type = 3 AND te.warn_week = #{week}  and te.deleted=0 and te.uid=#{uid})
+        	OR (te.type = 4 AND te.warn_day = #{day}  and te.deleted=0 and te.uid=#{uid})
+        ORDER BY te.warn_hour,te.warn_minute ASC
+        LIMIT #{page},#{size}
+    </select>
+    <select id="selectByDay" resultType="com.zhsj.community.yanglao_yiliao.common.entity.EventEntity">
+        SELECT
+	        *
+        FROM
+        	t_event te
+        WHERE
+            ( te.deleted=0  and te.type = 1 AND te.warn_year = #{year} AND te.warn_month = #{month} AND te.warn_day = #{day} and te.warn_hour=#{hour} and te.warn_minute=#{minute})
+        	OR ( te.deleted=0  and te.type = 2 and te.warn_hour=#{hour} and te.warn_minute=#{minute} )
+        	OR ( te.deleted=0  and te.type = 3 AND te.warn_week = #{week} and te.warn_hour=#{hour} and te.warn_minute=#{minute})
+        	OR ( te.deleted=0  and te.type = 4 AND te.warn_day = #{day}  and te.warn_hour=#{hour} and te.warn_minute=#{minute})
     </select>
 </mapper>

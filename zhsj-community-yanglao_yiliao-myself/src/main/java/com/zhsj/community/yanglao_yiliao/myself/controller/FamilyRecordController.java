@@ -5,6 +5,7 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
+import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class FamilyRecordController {
      */
     @PostMapping("save")
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         familyRecordEntity.setId(SnowFlake.nextId());
         familyRecordEntity.setUid(loginUser.getCurrentIp());
@@ -64,6 +66,7 @@ public class FamilyRecordController {
      */
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familyRecordService.updateById(familyRecordEntity));
     }
