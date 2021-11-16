@@ -4,11 +4,14 @@ import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -23,40 +26,102 @@ public class EventController {
     @Resource
     private IEventService eventService;
 
+
+    /**
+     * @Description: 单查详情
+     * @author: Hu
+     * @since: 2021/11/15 9:37
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>
+     */
     @GetMapping("getOne")
-    public R getOne(@RequestParam Long id){
-        eventService.getById(id);
-        return R.ok();
+    public R<EventEntity> getOne(@RequestParam Long id){
+        EventEntity eventEntity = eventService.getById(id);
+        return R.ok(eventEntity);
     }
 
+
+    /**
+     * @Description: 新增
+     * @author: Hu
+     * @since: 2021/11/15 9:37
+     * @Param: [eventEntity]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
     @PostMapping("save")
-    public R save(@RequestBody EventEntity eventEntity){
+    public R<Void> save(@RequestBody EventEntity eventEntity){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         eventService.save(eventEntity,loginUser);
         return R.ok();
     }
 
+
+    /**
+     * @Description: 修改
+     * @author: Hu
+     * @since: 2021/11/15 9:36
+     * @Param: [eventEntity]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
     @PutMapping("update")
-    public R update(@RequestBody EventEntity eventEntity){
+    public R<Void> update(@RequestBody EventEntity eventEntity){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         eventService.update(eventEntity,loginUser);
         return R.ok();
     }
 
+
+    /**
+     * @Description: 查询列表
+     * @author: Hu
+     * @since: 2021/11/15 9:36
+     * @Param: [date]
+     * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
+     */
     @GetMapping("list")
-    public R list(@RequestParam("date")LocalDate date){
+    public R<List<EventEntity>> list(@RequestParam("date")LocalDate date){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         return R.ok(eventService.list(date,loginUser));
     }
 
+    /**
+     * @Description: 分页查询
+     * @author: Hu
+     * @since: 2021/11/15 9:36
+     * @Param: [date]
+     * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
+     */
+    @GetMapping("pageList")
+    public R<PageVo<EventEntity>> pageList(@RequestBody BaseQo baseQo){
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        PageVo<EventEntity> pageVo = eventService.pageList(baseQo, loginUser);
+        return R.ok(pageVo);
+    }
+
+
+    /**
+     * @Description: 删除
+     * @author: Hu
+     * @since: 2021/11/15 9:36
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
     @DeleteMapping("delete")
-    public R delete(@RequestParam Long id){
+    public R<Void> delete(@RequestParam Long id){
         eventService.delete(id);
         return R.ok();
     }
 
-    @DeleteMapping("status")
-    public R status(@RequestParam Integer status,@RequestParam Long id){
+
+    /**
+     * @Description: 启用停用
+     * @author: Hu
+     * @since: 2021/11/15 9:36
+     * @Param: [status, id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
+    @GetMapping("status")
+    public R<Void> status(@RequestParam Integer status,@RequestParam Long id){
         eventService.status(id,status);
         return R.ok();
     }

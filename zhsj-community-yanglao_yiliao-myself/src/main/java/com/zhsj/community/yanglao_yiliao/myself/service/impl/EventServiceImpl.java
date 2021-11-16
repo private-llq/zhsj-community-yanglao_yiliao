@@ -7,6 +7,8 @@ import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventFamilyEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventStopEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventFamilyMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
@@ -19,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -120,14 +119,24 @@ public class EventServiceImpl implements IEventService {
      */
     @Override
     public List<EventEntity> list(LocalDate localDate, LoginUser loginUser) {
-        HashMap<Long, EventStopEntity> map = new HashMap<>();
+        List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getCurrentIp());
+        return entityList;
+    }
+
+    @Override
+    public PageVo<EventEntity> pageList(BaseQo baseQo, LoginUser loginUser) {
+        Map<Long, EventStopEntity> map = new HashMap<>();
+
         List<EventStopEntity> entities = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getCurrentIp()));
         if (entities.size()!=0){
             for (EventStopEntity entity : entities) {
                 map.put(entity.getEventId(),entity);
             }
         }
-        List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getCurrentIp());
+        long page = (baseQo.getPage() - 1) * baseQo.getSize();
+        LocalDate localDate = LocalDate.now();
+        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getCurrentIp(),page,baseQo.getSize());
+
         if (entityList.size()!=0){
             for (EventEntity eventEntity : entityList) {
                 if (map.get(eventEntity.getId())!=null) {
@@ -137,10 +146,19 @@ public class EventServiceImpl implements IEventService {
                     eventEntity.setWarnTime(localDate);
                 }
             }
+        } else {
+            entityList = new LinkedList<>();
+            for (int i = 0; i < 3; i++) {
+                EventEntity entity = new EventEntity();
+                entity.setContent("这是一条引导数据！");
+                entity.setStatus(1);
+                entity.setWarnTime(LocalDate.now());
+                entityList.add(entity);
+            }
         }
-        return entityList;
-    }
+        return new PageVo<EventEntity>(baseQo.getPage(),baseQo.getSize(),null,Long.valueOf(entityList.size()),entityList);
 
+    }
 
     /**
      * @Description: 删除
