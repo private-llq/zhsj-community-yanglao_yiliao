@@ -1,8 +1,11 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
+import com.zhsj.community.yanglao_yiliao.healthydata.dto.TitleTimeValueDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author zzm
@@ -16,16 +19,17 @@ import lombok.NoArgsConstructor;
 public class HeartRateChartRspBo {
 
     /**
-     * 时间title
+     * 心率平均值健康状态（1：正常，2：偏低，3：偏高，4：过低，5：过高）
      */
-    private String timeTitle;
-    /**
-     * 时间点
-     */
-    private String timeValue;
-    /**
-     * 时间点对应的心率平均值
-     */
-    private Integer heartRateCounts;
+    private Integer heartRateStatus;
 
+    /**
+     * 心率平均值
+     */
+    private Integer silentHeartAvg;
+
+    /**
+     * 日心率title-time-value
+     */
+    private List<TitleTimeValueDto> list;
 }

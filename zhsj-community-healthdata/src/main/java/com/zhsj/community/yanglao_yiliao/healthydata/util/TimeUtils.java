@@ -3,7 +3,6 @@ package com.zhsj.community.yanglao_yiliao.healthydata.util;
 import javax.validation.constraints.NotNull;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 /**
  * @author zzm
@@ -46,6 +45,30 @@ public class TimeUtils {
      */
     public static String formatLocalDateTimeThird(@NotNull LocalDateTime localDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return localDateTime.format(formatter);
+    }
+
+    /**
+     * 格式化LocalDateTime MM月dd日 HH:mm
+     */
+    public static String formatLocalDateTimeFourth(@NotNull LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM月dd日 HH:mm");
+        return localDateTime.format(formatter);
+    }
+
+    /**
+     * 格式化LocalDateTime yyyy年MM月dd日
+     */
+    public static String formatLocalDateTimeFifth(@NotNull LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+        return localDateTime.format(formatter);
+    }
+
+    /**
+     * 格式化LocalDateTime MM/dd
+     */
+    public static String formatLocalDateTimeSixth(@NotNull LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
         return localDateTime.format(formatter);
     }
 
@@ -104,17 +127,17 @@ public class TimeUtils {
 //        LocalDateTime localDateTime = buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
 //        LocalDateTime localDateTime1 = localDateTime.plusDays(-6);
 //        System.out.println(localDateTime1);
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate localDate = now.toLocalDate();
-        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-        LocalDateTime todayZeroClockSixHoursAgo = todayZeroClock.plusHours(-6);
-        LocalDateTime todaySixClock = todayZeroClock.plusHours(6);
-        LocalDateTime todayTwelveClock = todayZeroClock.plusHours(12);
-        LocalDateTime todayEighteenClock = todayZeroClock.plusHours(18);
-        LocalDateTime todayTwentyFourClock = todayZeroClock.plusHours(24);
-
-        System.out.println(now.compareTo(todayZeroClock));
-        System.out.println(now.compareTo(todayTwentyFourClock));
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDate localDate = now.toLocalDate();
+//        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+//        LocalDateTime todayZeroClockSixHoursAgo = todayZeroClock.plusHours(-6);
+//        LocalDateTime todaySixClock = todayZeroClock.plusHours(6);
+//        LocalDateTime todayTwelveClock = todayZeroClock.plusHours(12);
+//        LocalDateTime todayEighteenClock = todayZeroClock.plusHours(18);
+//        LocalDateTime todayTwentyFourClock = todayZeroClock.plusHours(24);
+//
+//        System.out.println(now.compareTo(todayZeroClock));
+//        System.out.println(now.compareTo(todayTwentyFourClock));
     }
 }

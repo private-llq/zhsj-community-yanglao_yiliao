@@ -22,8 +22,14 @@ public interface HealthDataService {
      **************************************************************************************************************************/
     RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo);
 
-    // 查询心率图表信息
-    List<HeartRateChartRspBo> heartRateChart(HeartRateChartReqBo reqBo);
+    /***************************************************************************************************************************
+     * @description 查询用户心率图表信息
+     * @author zzm
+     * @date 2021/11/16 15:47
+     * @param reqBo 用户信息和时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
+    HeartRateChartRspBo heartRateChart(HeartRateChartReqBo reqBo);
 
     /***************************************************************************************************************************
      * @description 获取用户心率异常记录列表
