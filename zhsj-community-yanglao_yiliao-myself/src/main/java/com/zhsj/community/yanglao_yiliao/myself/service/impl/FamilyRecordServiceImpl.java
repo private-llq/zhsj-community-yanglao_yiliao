@@ -9,10 +9,11 @@ import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -36,6 +37,19 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     @Override
     public List<FamilyRecordEntity> userList(LoginUser loginUser) {
         List<FamilyRecordEntity> list = null;
+        FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getCurrentIp()).eq("relation", 0));
+        if (Objects.isNull(recordEntity)) {
+            FamilyRecordEntity familyRecordEntity = new FamilyRecordEntity();
+            familyRecordEntity.setRelation(0);
+            familyRecordEntity.setRelationText("我自己");
+            familyRecordEntity.setName(loginUser.getNickName());
+            familyRecordEntity.setMobile(loginUser.getPhone());
+            familyRecordEntity.setUid(loginUser.getCurrentIp());
+            familyRecordEntity.setId(SnowFlake.nextId());
+            familyRecordEntity.setCreateTime(LocalDateTime.now());
+            familyRecordMapper.insert(familyRecordEntity);
+        }
+
         list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getCurrentIp()));
         if (list.size()!=0){
             for (FamilyRecordEntity familyRecordEntity : list) {
@@ -44,22 +58,24 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
                 } else {
                     familyRecordEntity.setRelationText("我自己");
                 }
+
+                if (StringUtils.isEmpty(familyRecordEntity.getAvatarUrl())||
+                        StringUtils.isEmpty(familyRecordEntity.getName())||
+                        StringUtils.isEmpty(familyRecordEntity.getIdCard())||
+                        StringUtils.isEmpty(familyRecordEntity.getBirthday())||
+                        StringUtils.isEmpty(familyRecordEntity.getSex())||
+                        StringUtils.isEmpty(familyRecordEntity.getRelation())||
+                        StringUtils.isEmpty(familyRecordEntity.getMobile())) {
+
+                    familyRecordEntity.setStatus(0);
+
+                } else {
+                    familyRecordEntity.setStatus(1);
+                }
             }
             return list;
         }
 
-        FamilyRecordEntity familyRecordEntity = new FamilyRecordEntity();
-        familyRecordEntity.setRelation(0);
-        familyRecordEntity.setRelationText("我自己");
-        familyRecordEntity.setName(loginUser.getNickName());
-        familyRecordEntity.setMobile(loginUser.getPhone());
-        familyRecordEntity.setUid(loginUser.getCurrentIp());
-        familyRecordEntity.setId(SnowFlake.nextId());
-        familyRecordEntity.setCreateTime(LocalDateTime.now());
-        familyRecordMapper.insert(familyRecordEntity);
-
-        list = new LinkedList<>();
-        list.add(familyRecordEntity);
         return list;
     }
 }

@@ -2,6 +2,8 @@ package com.zhsj.community.yanglao_yiliao.myself.service;
 
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -62,4 +64,13 @@ public interface IEventService {
      * @return:
      */
     void status(Long id,Integer status);
+
+    /**
+     * @Description: 分页查列表
+     * @author: Hu
+     * @since: 2021/11/15 10:37
+     * @Param:
+     * @return:
+     */
+    PageVo<EventEntity> pageList(BaseQo baseQo, LoginUser loginUser);
 }

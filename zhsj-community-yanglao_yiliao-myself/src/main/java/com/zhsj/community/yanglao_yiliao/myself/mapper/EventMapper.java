@@ -23,4 +23,22 @@ public interface EventMapper extends BaseMapper<EventEntity> {
      * @return:
      */
     List<EventEntity> selectByDate(@Param("year") int year, @Param("month") int month, @Param("day") int day, @Param("week") int week, @Param("uid") String uid);
+
+    /**
+     * @Description: 分页查询
+     * @author: Hu
+     * @since: 2021/11/15 10:40
+     * @Param:
+     * @return:
+     */
+    List<EventEntity> pageList(@Param("year") int year, @Param("month") int monthValue, @Param("day") int dayOfMonth, @Param("week") int week, @Param("uid") String uid, @Param("page") long page, @Param("size") Long size);
+
+    /**
+     * @Description: 所有当前分钟需要提醒的事件
+     * @author: Hu
+     * @since: 2021/11/15 14:51
+     * @Param:
+     * @return:
+     */
+    List<EventEntity> selectByDay(@Param("year") int year, @Param("month") int month, @Param("week") int week, @Param("day") int day, @Param("hour") int hour, @Param("minute") int minute);
 }
