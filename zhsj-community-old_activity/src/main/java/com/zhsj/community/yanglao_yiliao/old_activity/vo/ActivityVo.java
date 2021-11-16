@@ -39,6 +39,10 @@ public class ActivityVo {
      */
     private  String voice;
     /**
+     * 距离
+     */
+    private  String beatadistancefrom;
+    /**
      * 用户昵称
      */
     private  String aUser;

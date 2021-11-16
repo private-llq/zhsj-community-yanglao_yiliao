@@ -1,9 +1,13 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
-import com.zhsj.baseweb.support.LoginUser;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.PageList;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.PageResult;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
-
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.addActivityFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 
 import java.util.List;
 
@@ -34,13 +38,27 @@ public interface ActivityService {
      * multipartFile：图片
      * voice:语音
      */
-    int addActivity(String voice,String textContent, String location, String longitude, String latitude, String multipartFile);
+    int addActivity(addActivityFrom activityFrom);
 
 
     /**
      * 删除发布活动
+     * @return
      */
-    int deletedActivity(LoginUser loginUser);
+    int deletedActivity(Long id);
+
+    /**
+     * 查询附近的活动或者好友的活动
+     *
+     */
+    List<ActivityVo> listActivities(addActivityFrom addActivityFrom);
+
+
+    /**
+     * 点击头像查询查看活动、个人资料
+     *
+     */
+    IPage<Activity> queryAlbumList(PageResult pageResult);
 
 
 }

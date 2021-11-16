@@ -24,14 +24,5 @@ public interface UserLocationMapper extends BaseMapper<UserLocation> {
      */
     UserLocationVo queryByUserId(LoginUser loginUser);
 
-    /**
-     * 根据地理位置查询用户
-     *
-     */
-    List<UserLocationVo> queryUserFromLocation(Double longitude, Double latitude, Integer range);
 
-    /**
-     * 查询用户信息
-     */
-    List<LoginUser> qqueryUserInfoList(QueryWrapper<LoginUser> queryWrapper);
 }

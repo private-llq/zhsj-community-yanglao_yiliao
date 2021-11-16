@@ -45,6 +45,10 @@ public class Activity implements Serializable {
      */
     private String distance;
     /**
+     * 距离
+     */
+    private  String beatadistancefrom;
+    /**
      *语音
      */
     private  String voice;
