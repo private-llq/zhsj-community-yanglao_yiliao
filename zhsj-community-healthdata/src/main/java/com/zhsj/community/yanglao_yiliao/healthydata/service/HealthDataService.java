@@ -38,5 +38,16 @@ public interface HealthDataService {
      * @param reqBo 用户id，查询时间类型
      * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      **************************************************************************************************************************/
-    List<AbnormalDataRspBo> abnormalHeartRateRecord(AbnormalHeartRateRecordReqBo reqBo);
+    List<AbnormalDataRspBo> abnormalHeartRateRecord(AbnormalDataReqBo reqBo);
+
+
+
+    /***************************************************************************************************************************
+     * @description 根据时间类型获取用户体温异常记录
+     * @author zzm
+     * @date 2021/11/16 17:04
+     * @param reqBo 用户id，查询时间类型
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.AbnormalDataRspBo>
+     **************************************************************************************************************************/
+    List<AbnormalDataRspBo> abnormalTempRecord(AbnormalDataReqBo reqBo);
 }

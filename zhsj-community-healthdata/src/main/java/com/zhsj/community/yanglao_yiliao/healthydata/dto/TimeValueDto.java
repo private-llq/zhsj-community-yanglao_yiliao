@@ -16,9 +16,13 @@ public class TimeValueDto {
      */
     private String time;
     /**
-     * 数据
+     * 返回整数数据
      */
     private Integer data;
+    /**
+     * 返回小数数据
+     */
+    private double decimalData;
 
     public TimeValueDto() {
     }
@@ -26,5 +30,10 @@ public class TimeValueDto {
     public TimeValueDto(String time, Integer data) {
         this.time = time;
         this.data = data;
+    }
+
+    public TimeValueDto(String time, double decimalData) {
+        this.time = time;
+        this.decimalData = decimalData;
     }
 }
