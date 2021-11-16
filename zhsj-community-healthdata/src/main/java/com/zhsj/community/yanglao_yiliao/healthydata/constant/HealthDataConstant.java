@@ -79,4 +79,18 @@ public class HealthDataConstant {
      * 查询健康图表数据时间类型（以月查）
      */
     public static final Integer HEALTH_DATA_SELECT_CHART_TIME_MONTH = 3;
+
+
+    //---------------------------------------------heart rate avg status-------------------------------------------------------------------
+
+    /**
+     * 心率平均值健康状态（0：无数据，1：正常，2：偏低，3：偏高，4：过低，5：过高）
+     */
+    public static final Integer HEART_RATE_STATUS_NOT_HAVE_AVG = 0;
+    public static final Integer HEART_RATE_AVG_STATUS_NORMAL = 1;
+    public static final Integer HEART_RATE_AVG_STATUS_LOW = 2;
+    public static final Integer HEART_RATE_AVG_STATUS_HIGH = 3;
+    public static final Integer HEART_RATE_AVG_STATUS_LOWER = 4;
+    public static final Integer HEART_RATE_AVG_STATUS_HIGHER = 5;
+
 }

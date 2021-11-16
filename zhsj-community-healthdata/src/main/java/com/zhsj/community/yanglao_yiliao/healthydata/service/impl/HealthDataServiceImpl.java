@@ -9,6 +9,7 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.TimeValueDto;
+import com.zhsj.community.yanglao_yiliao.healthydata.dto.TitleTimeValueDto;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
@@ -113,100 +114,86 @@ public class HealthDataServiceImpl implements HealthDataService {
         return healthDataRspBo;
     }
 
-    // 查询心率图表信息
+    /***************************************************************************************************************************
+     * @description 查询用户心率图表信息
+     * @author zzm
+     * @date 2021/11/16 15:47
+     * @param reqBo 用户信息和时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
     @Override
-    public List<HeartRateChartRspBo> heartRateChart(HeartRateChartReqBo reqBo) {
+    public HeartRateChartRspBo heartRateChart(HeartRateChartReqBo reqBo) {
         log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        ArrayList<HeartRateChartRspBo> rspBos = new ArrayList<>();
-        // 按天查
+        HeartRateChartRspBo rspBos = new HeartRateChartRspBo();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = now.toLocalDate();
+        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+        // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDate localDate = now.toLocalDate();
-            LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-            LocalDateTime todayZeroClockSixHoursAgo = todayZeroClock.plusHours(-6);
-            LocalDateTime todaySixClock = todayZeroClock.plusHours(6);
-            LocalDateTime todayTwelveClock = todayZeroClock.plusHours(12);
-            LocalDateTime todayEighteenClock = todayZeroClock.plusHours(18);
-            LocalDateTime todayTwentyFourClock = todayZeroClock.plusHours(24);
-            List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
-                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
-                    .ge(HeartRate::getCreateTime, todayZeroClockSixHoursAgo)
-                    .le(HeartRate::getCreateTime, now)
-                    .eq(HeartRate::getDeleted, true)
-                    .orderByAsc(HeartRate::getCreateTime));
-            if (CollectionUtil.isEmpty(rateList)) {
-                return null;
+            Map<Integer, List<HeartRate>> map = new HashMap<>();
+            for (int i = -6; i <= 24; i += 6) {
+                List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                        .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                        .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                        .ge(HeartRate::getCreateTime, todayZeroClock.plusHours(i))
+                        .le(HeartRate::getCreateTime, todayZeroClock.plusHours(i + 6))
+                        .eq(HeartRate::getDeleted, true)
+                        .orderByAsc(HeartRate::getCreateTime));
+                map.put(i + 6, rateList);
             }
-            ArrayList<HeartRate> listOne = new ArrayList<>();
-            ArrayList<HeartRate> listTwo = new ArrayList<>();
-            ArrayList<HeartRate> listThree = new ArrayList<>();
-            ArrayList<HeartRate> listFour = new ArrayList<>();
-            ArrayList<HeartRate> listFive = new ArrayList<>();
-            for (HeartRate heartRate : rateList) {
-                LocalDateTime createTime = heartRate.getCreateTime();
-                if (createTime.compareTo(todayZeroClockSixHoursAgo) > 0 && createTime.compareTo(todayZeroClock) < 0) {
-                    listOne.add(heartRate);
-                }
-                if (createTime.compareTo(todayZeroClock) > 0 && createTime.compareTo(todaySixClock) < 0) {
-                    listTwo.add(heartRate);
-                }
-                if (createTime.compareTo(todaySixClock) > 0 && createTime.compareTo(todayTwelveClock) < 0) {
-                    listThree.add(heartRate);
-                }
-                if (createTime.compareTo(todayTwelveClock) > 0 && createTime.compareTo(todayEighteenClock) < 0) {
-                    listFour.add(heartRate);
-                }
-                if (createTime.compareTo(todayEighteenClock) > 0 && createTime.compareTo(todayTwentyFourClock) < 0) {
-                    listFive.add(heartRate);
+            int k = 0;
+            int totalAvg = 0;
+            List<TitleTimeValueDto> list = new ArrayList<>();
+            for (int i = 0; i <= 24; i += 6) {
+                List<HeartRate> rateList = map.get(i);
+                if (!rateList.isEmpty()) {
+                    int c1 = 0;
+                    int avg1 = 0;
+                    for (HeartRate heartRate : rateList) {
+                        c1 += heartRate.getSilentHeart();
+                    }
+                    avg1 = c1 / rateList.size();
+                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), avg1));
+
+                    k += 1;
+                    totalAvg += avg1;
+                } else {
+                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), 0));
                 }
             }
-            if (!listOne.isEmpty()) {
-                int c = 0;
-                for (HeartRate heartRate : listOne) {
-                    c += heartRate.getSilentHeart();
+            rspBos.setList(list);
+            if (k != 0) {
+                int dayHeartRateAvg = totalAvg / k;
+                rspBos.setSilentHeartAvg(dayHeartRateAvg);
+                if (dayHeartRateAvg >= 60 && dayHeartRateAvg <= 100) {
+                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
                 }
-                int avg = c / listOne.size();
-                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayZeroClock), TimeUtils.formatLocalDateTimeThird(todayZeroClock), avg));
-            }
-            if (!listTwo.isEmpty()) {
-                int c = 0;
-                for (HeartRate heartRate : listTwo) {
-                    c += heartRate.getSilentHeart();
+                if (dayHeartRateAvg >= 40 && dayHeartRateAvg <= 59) {
+                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOW);
                 }
-                int avg = c / listTwo.size();
-                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todaySixClock), TimeUtils.formatLocalDateTimeThird(todaySixClock), avg));
-            }
-            if (!listThree.isEmpty()) {
-                int c = 0;
-                for (HeartRate heartRate : listThree) {
-                    c += heartRate.getSilentHeart();
+                if (dayHeartRateAvg >= 101 && dayHeartRateAvg <= 160) {
+                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGH);
                 }
-                int avg = c / listThree.size();
-                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayTwelveClock), TimeUtils.formatLocalDateTimeThird(todayTwelveClock), avg));
-            }
-            if (!listFour.isEmpty()) {
-                int c = 0;
-                for (HeartRate heartRate : listFour) {
-                    c += heartRate.getSilentHeart();
+                if (dayHeartRateAvg < 40) {
+                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
                 }
-                int avg = c / listFour.size();
-                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayEighteenClock), TimeUtils.formatLocalDateTimeThird(todayEighteenClock), avg));
-            }
-            if (!listFive.isEmpty()) {
-                int c = 0;
-                for (HeartRate heartRate : listFive) {
-                    c += heartRate.getSilentHeart();
+                if (dayHeartRateAvg > 160) {
+                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
                 }
-                int avg = c / listFive.size();
-                rspBos.add(new HeartRateChartRspBo(TimeUtils.formatLocalDateTime(todayTwentyFourClock), TimeUtils.formatLocalDateTimeThird(todayTwentyFourClock), avg));
+            } else {
+                rspBos.setSilentHeartAvg(0);
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_STATUS_NOT_HAVE_AVG);
             }
         }
-        // 按周查
-
-        // 按月查
-
+        // --- By week
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+            buildHeartRateChartByDay(rspBos,todayZeroClock,loginUser,reqBo,6);
+        }
+        // --- By month
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
+            buildHeartRateChartByDay(rspBos,todayZeroClock,loginUser,reqBo,29);
+        }
         return rspBos;
     }
 
@@ -222,7 +209,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         log.info("Abnormal heart rate recording request parameters, AbnormalHeartRateRecordReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<AbnormalDataRspBo> list = new ArrayList<>();
-        // ---By day
+        // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             LocalDateTime now = LocalDateTime.now();
             LocalDate localDate = now.toLocalDate();
@@ -239,7 +226,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(TimeUtils.formatLocalDateTimeSecond(now), arr);
             list.add(abnormalDataRspBo);
         }
-        // ---By week
+        // --- By week
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
             LocalDateTime now = LocalDateTime.now();
             LocalDate localDate = now.toLocalDate();
@@ -256,7 +243,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 queryAbnormalHeartRateFormat(rateList, daysAge, list);
             }
         }
-        // ---By month
+        // --- By month
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
             LocalDateTime now = LocalDateTime.now();
             LocalDate localDate = now.toLocalDate();
@@ -403,6 +390,71 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (!dtoList.isEmpty()) {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(timeFormat, dtoList);
             list.add(abnormalDataRspBo);
+        }
+    }
+
+    /**
+     * 通过以天为单位构建心率图表数据（过去7天，过去30天）
+     */
+    private void buildHeartRateChartByDay(@NotNull HeartRateChartRspBo rspBos,
+                                          @NotNull LocalDateTime todayZeroClock,
+                                          @NotNull LoginUser loginUser,
+                                          @NotNull HeartRateChartReqBo reqBo,
+                                          @NotNull Integer num
+    ) {
+        Map<Integer, List<HeartRate>> map = new HashMap<>();
+        for (int i = -num; i <= 0; i++) {
+            List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    .ge(HeartRate::getCreateTime, todayZeroClock.plusDays(i))
+                    .le(HeartRate::getCreateTime, todayZeroClock.plusDays(i + 1))
+                    .eq(HeartRate::getDeleted, true)
+                    .orderByAsc(HeartRate::getCreateTime));
+            map.put(i, rateList);
+        }
+        int k = 0;
+        int totalAvg = 0;
+        List<TitleTimeValueDto> list = new ArrayList<>();
+        for (int i = -num; i <= 0; i++) {
+            List<HeartRate> rateList = map.get(i);
+            if (!rateList.isEmpty()) {
+                int c1 = 0;
+                int avg1;
+                for (HeartRate heartRate : rateList) {
+                    c1 += heartRate.getSilentHeart();
+                }
+                avg1 = c1 / rateList.size();
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
+
+                k += 1;
+                totalAvg += avg1;
+            } else {
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
+            }
+        }
+        rspBos.setList(list);
+        if (k != 0) {
+            int dayHeartRateAvg = totalAvg / k;
+            rspBos.setSilentHeartAvg(dayHeartRateAvg);
+            if (dayHeartRateAvg >= 60 && dayHeartRateAvg <= 100) {
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
+            }
+            if (dayHeartRateAvg >= 40 && dayHeartRateAvg <= 59) {
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOW);
+            }
+            if (dayHeartRateAvg >= 101 && dayHeartRateAvg <= 160) {
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGH);
+            }
+            if (dayHeartRateAvg < 40) {
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
+            }
+            if (dayHeartRateAvg > 160) {
+                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
+            }
+        } else {
+            rspBos.setSilentHeartAvg(0);
+            rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_STATUS_NOT_HAVE_AVG);
         }
     }
 

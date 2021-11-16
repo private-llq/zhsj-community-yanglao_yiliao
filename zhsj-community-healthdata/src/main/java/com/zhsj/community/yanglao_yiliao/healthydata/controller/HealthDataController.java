@@ -32,10 +32,16 @@ public class HealthDataController {
         return R.ok(healthDataRspBo);
     }
 
-    // 查询心率图表信息
+    /***************************************************************************************************************************
+     * @description 查询用户心率图表信息
+     * @author zzm
+     * @date 2021/11/16 15:47
+     * @param reqBo 用户信息和时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
     @PostMapping("/heartRateChart")
-    public R<List<HeartRateChartRspBo>> heartRateChart(@RequestBody @Valid HeartRateChartReqBo reqBo) {
-        List<HeartRateChartRspBo> rspBos = healthDataService.heartRateChart(reqBo);
+    public R<HeartRateChartRspBo> heartRateChart(@RequestBody @Valid HeartRateChartReqBo reqBo) {
+        HeartRateChartRspBo rspBos = healthDataService.heartRateChart(reqBo);
         return R.ok(rspBos);
     }
 
