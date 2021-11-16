@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -44,6 +45,10 @@ public class Activity implements Serializable {
      */
     private String distance;
     /**
+     *语音
+     */
+    private  String voice;
+    /**
      * 图片路径
      */
     private String pathUrl;
@@ -51,6 +56,14 @@ public class Activity implements Serializable {
      * 用户昵称
      */
     private  String aUser;
+    /**
+     * 经度
+     */
+    private String longitude;
+    /**
+     * 维度
+     */
+    private String latitude;
     /**
      * 性别
      */

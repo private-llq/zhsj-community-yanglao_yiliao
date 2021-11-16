@@ -2,8 +2,10 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
-
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,23 +23,26 @@ public interface ActivityService {
 
     /**
      * 查询具体的活动
-     * @return
      */
-    public ActivityVo geted();
+    List<ActivityFrom> getactivit();
 
 
     /**
      * 新增活动
-     * @return
+     * textContent:文字动态
+     * location：位置名称
+     * longitude：经度
+     * latitude: 纬度
+     * multipartFile：图片
+     * voice:语音
      */
-    public List<ActivityVo> addActivity();
+    int addActivity(String voice,String textContent, String location, String longitude, String latitude, String multipartFile);
 
 
     /**
      * 删除发布活动
-     * @return
      */
-    public int deletedActivity(LoginUser loginUser);
+    int deletedActivity(LoginUser loginUser);
 
 
 

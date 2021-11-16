@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -15,10 +16,10 @@ import java.util.List;
  * @description:
  * @create: 2021-11-11 15:10
  */
+@Repository
 public interface UserLocationMapper extends BaseMapper<UserLocation> {
     /**
      * 查询用户地理位置
-     * @param loginUser
      *
      */
     UserLocationVo queryByUserId(LoginUser loginUser);
@@ -26,16 +27,11 @@ public interface UserLocationMapper extends BaseMapper<UserLocation> {
     /**
      * 根据地理位置查询用户
      *
-     * @param longitude
-     * @param range
-     * @param latitude
-     * @return
      */
     List<UserLocationVo> queryUserFromLocation(Double longitude, Double latitude, Integer range);
 
     /**
      * 查询用户信息
-     * @param queryWrapper
      */
     List<LoginUser> qqueryUserInfoList(QueryWrapper<LoginUser> queryWrapper);
 }
