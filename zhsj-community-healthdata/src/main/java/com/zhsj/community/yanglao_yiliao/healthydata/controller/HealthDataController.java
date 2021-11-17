@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author zzm
@@ -26,6 +25,13 @@ public class HealthDataController {
     @Autowired
     private HealthDataService healthDataService;
 
+    /***************************************************************************************************************************
+     * @description 获取用户实时健康数据
+     * @author zzm
+     * @date 2021/11/12 14:13
+     * @param reqBo 用户信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.RealTimeHealthDataRspBo
+     **************************************************************************************************************************/
     @PostMapping("/realTimeHealthData")
     public R<RealTimeHealthDataRspBo> realTimeHealthData(@RequestBody @Valid RealTimeHealthDataReqBo reqBo) {
         RealTimeHealthDataRspBo healthDataRspBo = healthDataService.realTimeHealthData(reqBo);
@@ -53,8 +59,21 @@ public class HealthDataController {
      * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      **************************************************************************************************************************/
     @PostMapping("/abnormalHeartRateRecord")
-    public R<List<AbnormalDataRspBo>> abnormalHeartRateRecord(@RequestBody @Valid AbnormalHeartRateRecordReqBo reqBo) {
+    public R<List<AbnormalDataRspBo>> abnormalHeartRateRecord(@RequestBody @Valid AbnormalDataReqBo reqBo) {
         List<AbnormalDataRspBo> rspBoList = healthDataService.abnormalHeartRateRecord(reqBo);
+        return R.ok(rspBoList);
+    }
+
+    /***************************************************************************************************************************
+     * @description 根据时间类型获取用户体温异常记录
+     * @author zzm
+     * @date 2021/11/16 17:04
+     * @param reqBo 用户id，查询时间类型
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.AbnormalDataRspBo>
+     **************************************************************************************************************************/
+    @PostMapping("/abnormalTempRecord")
+    public R<List<AbnormalDataRspBo>> abnormalTempRecord(@RequestBody @Valid AbnormalDataReqBo reqBo) {
+        List<AbnormalDataRspBo> rspBoList = healthDataService.abnormalTempRecord(reqBo);
         return R.ok(rspBoList);
     }
 }

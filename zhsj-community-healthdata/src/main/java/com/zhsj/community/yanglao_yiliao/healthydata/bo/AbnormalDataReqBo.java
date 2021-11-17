@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * @date 2021/11/15 10:41
  */
 @Data
-public class AbnormalHeartRateRecordReqBo {
+public class AbnormalDataReqBo {
 
     /**
      * 家人id
