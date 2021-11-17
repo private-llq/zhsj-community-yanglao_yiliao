@@ -164,26 +164,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             }
             rspBos.setList(list);
             if (k != 0) {
-                int dayHeartRateAvg = totalAvg / k;
-                rspBos.setSilentHeartAvg(dayHeartRateAvg);
-                if (dayHeartRateAvg >= 60 && dayHeartRateAvg <= 100) {
-                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
-                }
-                if (dayHeartRateAvg >= 40 && dayHeartRateAvg <= 59) {
-                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOW);
-                }
-                if (dayHeartRateAvg >= 101 && dayHeartRateAvg <= 160) {
-                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGH);
-                }
-                if (dayHeartRateAvg < 40) {
-                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
-                }
-                if (dayHeartRateAvg > 160) {
-                    rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
-                }
-            } else {
-                rspBos.setSilentHeartAvg(0);
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_STATUS_NOT_HAVE_AVG);
+                buildHeartRateAvgAndStatus(totalAvg, k, rspBos);
             }
         }
         // --- By week
@@ -258,6 +239,70 @@ public class HealthDataServiceImpl implements HealthDataService {
             return null;
         }
         return list;
+    }
+
+    /***************************************************************************************************************************
+     * @description 查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    @Override
+    public TempChartRspBo tempChart(TempChartReqBo reqBo) {
+        log.info("Get temp chart request parameters, TempChartReqBo = {}", reqBo);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        TempChartRspBo rspBos = new TempChartRspBo();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = now.toLocalDate();
+        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+        // --- By day
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            Map<Integer, List<Temperature>> map = new HashMap<>();
+            for (int i = -6; i <= 24; i += 6) {
+                List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                        .eq(Temperature::getUserUuid, loginUser.getAccount())
+                        .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
+                        .ge(Temperature::getCreateTime, todayZeroClock.plusHours(i))
+                        .le(Temperature::getCreateTime, todayZeroClock.plusHours(i + 6))
+                        .eq(Temperature::getDeleted, true)
+                        .orderByAsc(Temperature::getCreateTime));
+                map.put(i + 6, tempList);
+            }
+            int k = 0;
+            int totalAvg = 0;
+            List<TitleTimeValueDto> list = new ArrayList<>();
+            for (int i = 0; i <= 24; i += 6) {
+                List<Temperature> temperatureList = map.get(i);
+                if (!temperatureList.isEmpty()) {
+                    int c1 = 0;
+                    int avg1 = 0;
+                    for (Temperature temperature : temperatureList) {
+                        c1 += temperature.getTmpHandler();
+                    }
+                    avg1 = c1 / temperatureList.size();
+                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), avg1));
+
+                    k += 1;
+                    totalAvg += avg1;
+                } else {
+                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), 0));
+                }
+            }
+            rspBos.setList(list);
+            if (k != 0) {
+                buildTempAvgAndStatus(totalAvg, k, rspBos);
+            }
+        }
+        // --- By week
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+            buildTempChartByDay(rspBos, todayZeroClock, loginUser, reqBo, 6);
+        }
+        // --- By month
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
+            buildTempChartByDay(rspBos, todayZeroClock, loginUser, reqBo, 29);
+        }
+        return rspBos;
     }
 
     /***************************************************************************************************************************
@@ -528,27 +573,93 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
         rspBos.setList(list);
         if (k != 0) {
-            int dayHeartRateAvg = totalAvg / k;
-            rspBos.setSilentHeartAvg(dayHeartRateAvg);
-            if (dayHeartRateAvg >= 60 && dayHeartRateAvg <= 100) {
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
-            }
-            if (dayHeartRateAvg >= 40 && dayHeartRateAvg <= 59) {
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOW);
-            }
-            if (dayHeartRateAvg >= 101 && dayHeartRateAvg <= 160) {
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGH);
-            }
-            if (dayHeartRateAvg < 40) {
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
-            }
-            if (dayHeartRateAvg > 160) {
-                rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
-            }
-        } else {
-            rspBos.setSilentHeartAvg(0);
-            rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_STATUS_NOT_HAVE_AVG);
+            buildHeartRateAvgAndStatus(totalAvg, k, rspBos);
         }
     }
+
+    /**
+     * 构建用户心率平均值和健康状态并设值返回
+     */
+    private void buildHeartRateAvgAndStatus(@NotNull Integer totalAvg,
+                                            @NotNull Integer k,
+                                            @NotNull HeartRateChartRspBo rspBos) {
+        int dayHeartRateAvg = totalAvg / k;
+        rspBos.setSilentHeartAvg(dayHeartRateAvg);
+        if (dayHeartRateAvg >= 60 && dayHeartRateAvg <= 100) {
+            rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
+        }
+        if (dayHeartRateAvg < 60) {
+            rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
+        }
+        if (dayHeartRateAvg > 100) {
+            rspBos.setHeartRateStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
+        }
+    }
+
+    /**
+     * 通过以天为单位构建体温图表数据（过去7天，过去30天）
+     */
+    private void buildTempChartByDay(@NotNull TempChartRspBo rspBos,
+                                     @NotNull LocalDateTime todayZeroClock,
+                                     @NotNull LoginUser loginUser,
+                                     @NotNull TempChartReqBo reqBo,
+                                     @NotNull Integer num
+    ) {
+        Map<Integer, List<Temperature>> map = new HashMap<>();
+        for (int i = -num; i <= 0; i++) {
+            List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                    .eq(Temperature::getUserUuid, loginUser.getAccount())
+                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    .ge(Temperature::getCreateTime, todayZeroClock.plusDays(i))
+                    .le(Temperature::getCreateTime, todayZeroClock.plusDays(i + 1))
+                    .eq(Temperature::getDeleted, true)
+                    .orderByAsc(Temperature::getCreateTime));
+            map.put(i, temperatureList);
+        }
+        int k = 0;
+        int totalAvg = 0;
+        List<TitleTimeValueDto> list = new ArrayList<>();
+        for (int i = -num; i <= 0; i++) {
+            List<Temperature> tempList = map.get(i);
+            if (!tempList.isEmpty()) {
+                int c1 = 0;
+                int avg1;
+                for (Temperature temperature : tempList) {
+                    c1 += temperature.getTmpHandler();
+                }
+                avg1 = c1 / tempList.size();
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
+
+                k += 1;
+                totalAvg += avg1;
+            } else {
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
+            }
+        }
+        rspBos.setList(list);
+        if (k != 0) {
+            buildTempAvgAndStatus(totalAvg, k, rspBos);
+        }
+    }
+
+    /**
+     * 构建用户体温平均值和健康状态并设值返回
+     */
+    private void buildTempAvgAndStatus(@NotNull Integer totalAvg,
+                                       @NotNull Integer k,
+                                       @NotNull TempChartRspBo rspBos) {
+        int dayHeartRateAvg = totalAvg / k;
+        rspBos.setTemptAvg(dayHeartRateAvg);
+        if (dayHeartRateAvg >= 36 && dayHeartRateAvg <= 37) {
+            rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
+        }
+        if (dayHeartRateAvg < 36) {
+            rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
+        }
+        if (dayHeartRateAvg > 37) {
+            rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
+        }
+    }
+
 
 }

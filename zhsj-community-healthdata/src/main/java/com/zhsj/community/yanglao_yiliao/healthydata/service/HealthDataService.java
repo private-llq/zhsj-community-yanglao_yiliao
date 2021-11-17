@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service;
 
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
+import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 
 import java.util.List;
 
@@ -40,7 +41,14 @@ public interface HealthDataService {
      **************************************************************************************************************************/
     List<AbnormalDataRspBo> abnormalHeartRateRecord(AbnormalDataReqBo reqBo);
 
-
+    /***************************************************************************************************************************
+     * @description 查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    TempChartRspBo tempChart(TempChartReqBo reqBo);
 
     /***************************************************************************************************************************
      * @description 根据时间类型获取用户体温异常记录
