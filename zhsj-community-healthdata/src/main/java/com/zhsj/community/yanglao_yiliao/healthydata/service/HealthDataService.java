@@ -1,7 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service;
 
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
-import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 
 import java.util.List;
 
@@ -58,4 +57,13 @@ public interface HealthDataService {
      * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.AbnormalDataRspBo>
      **************************************************************************************************************************/
     List<AbnormalDataRspBo> abnormalTempRecord(AbnormalDataReqBo reqBo);
+
+    /***************************************************************************************************************************
+     * @description 查询用户睡眠图表信息
+     * @author zzm
+     * @date 2021/11/17 15:30
+     * @param reqBo 用户信息、时间信息
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.SleepChartRspBo>
+     **************************************************************************************************************************/
+    SleepChartRspBo sleepChart(SleepChartReqBo reqBo);
 }
