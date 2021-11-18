@@ -52,6 +52,10 @@ public class UserLocation implements Serializable {
      * 昵称
      */
     private String nickname;
+    /**
+     * 距离
+     */
+    private  String beatadistancefrom;
 
     /**
      * 创建时间
@@ -71,7 +75,7 @@ public class UserLocation implements Serializable {
      * 逻辑删除  0 否 | 1 是
      */
     @TableLogic
-    private Long deleted;
+    private int deleted;
 
 
 }

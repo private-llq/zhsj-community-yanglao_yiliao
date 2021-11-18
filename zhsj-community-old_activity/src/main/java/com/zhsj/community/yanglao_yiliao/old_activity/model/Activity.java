@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author liulq
@@ -44,6 +45,7 @@ public class Activity implements Serializable {
      * 附近人的距离
      */
     private String distance;
+
     /**
      *语音
      */
@@ -55,15 +57,15 @@ public class Activity implements Serializable {
     /**
      * 用户昵称
      */
-    private  String aUser;
+    private  String nickname;
     /**
      * 经度
      */
-    private String longitude;
+    private Double longitude;
     /**
      * 维度
      */
-    private String latitude;
+    private Double latitude;
     /**
      * 性别
      */
@@ -95,7 +97,7 @@ public class Activity implements Serializable {
      * 逻辑删除  0 否 | 1 是
      */
     @TableLogic
-    private Long deleted;
+    private int deleted;
 
 
 }

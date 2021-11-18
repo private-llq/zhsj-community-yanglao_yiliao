@@ -22,9 +22,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.minio</groupId>
-            <artifactId>minio</artifactId>
-            <version>7.1.4</version>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <version>3.0.0.RELEASE</version>
         </dependency>
     </dependencies>
 

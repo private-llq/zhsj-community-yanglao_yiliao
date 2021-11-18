@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * @author liulq
  * @version V1.0
  * @program: zhsj-community-yanglao_yiliao
- * @description:
+ * @description: 活动的扩展类
  * @create: 2021-11-10 17:11
  */
 @Data
@@ -38,10 +38,11 @@ public class ActivityVo {
      *语音
      */
     private  String voice;
+
     /**
      * 用户昵称
      */
-    private  String aUser;
+    private  String nickname;
     /**
      * 附近人的距离
      */
@@ -58,10 +59,18 @@ public class ActivityVo {
      * 用户id
      */
     private  String uId;
+    /**
+     * 经度
+     */
+    private Double longitude;
+    /**
+     * 维度
+     */
+    private Double latitude;
 
     /**
      * 逻辑删除  0 否 | 1 是
      */
     @TableLogic
-    private Long deleted;
+    private int deleted;
 }
