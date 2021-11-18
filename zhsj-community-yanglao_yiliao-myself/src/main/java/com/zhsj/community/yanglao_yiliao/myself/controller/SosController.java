@@ -37,15 +37,16 @@ public class SosController {
 
 
     /**
-     * @Description: bu
+     * @Description: 紧急救援
      * @author: Hu
      * @since: 2021/11/12 11:07
      * @Param: []
      * @return: com.zhsj.basecommon.vo.R
      */
     @GetMapping
-    public R sos(){
+    public R sos(@RequestParam Long familyId){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        familySosService.sos(loginUser,familyId);
         return R.ok();
     }
 

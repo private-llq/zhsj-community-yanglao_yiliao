@@ -21,7 +21,7 @@ public class FamilyRecordEntity extends BaseEntity {
     /**
      * 关系
      */
-    @Range(min = 0,max = 6, message = "关系不存在",groups = {FamilyValidate.class})
+    @Range(min = 1,max = 5, message = "关系不存在",groups = {FamilyValidate.class})
     private Integer relation;
     /**
      * 关系文本

@@ -21,4 +21,13 @@ public interface IFamilySosService extends IService<FamilySosEntity> {
      * @return: [java.util.Map]
      */
     Map<String, Object> selectByUid(LoginUser loginUser,Long familyId);
+
+    /**
+     * @Description: 紧急救援
+     * @author: Hu
+     * @since: 2021/11/18 14:51
+     * @Param:
+     * @return:
+     */
+    void sos(LoginUser loginUser,Long familyId);
 }

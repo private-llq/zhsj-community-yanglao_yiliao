@@ -31,6 +31,20 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     private AgencySosMapper agencySosMapper;
 
 
+    @Override
+    public void sos(LoginUser loginUser,Long familyId) {
+        List<FamilySosEntity> sosEntities = familySosMapper.selectList(new QueryWrapper<FamilySosEntity>().eq("family_id", familyId));
+        if (sosEntities.size()!=0){
+            for (FamilySosEntity sosEntity : sosEntities) {
+                //发送短信
+            }
+        }
+        AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("family_id", familyId));
+        if (sosEntity != null) {
+            //查询机构  发送短信
+        }
+    }
+
     /**
      * @Description: 查询sos家属和机构信息
      * @author: Hu
