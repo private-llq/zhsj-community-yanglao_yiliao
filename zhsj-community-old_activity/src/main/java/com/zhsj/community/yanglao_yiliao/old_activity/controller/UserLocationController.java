@@ -13,7 +13,7 @@ import java.util.List;
  * @author liulq
  * @version V1.0
  * @program: haj-community-yang_yiliao
- * @description:
+ * @description: 距离相关的接口
  * @create: 2021-11-11 15:13
  */
 @RestController

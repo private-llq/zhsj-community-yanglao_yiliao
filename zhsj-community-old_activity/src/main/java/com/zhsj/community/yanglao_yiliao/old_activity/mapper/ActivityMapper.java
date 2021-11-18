@@ -13,7 +13,7 @@ import java.util.List;
  * @author liulq
  * @version V1.0
  * @program: haj-community-yang_Emiliano
- * @description:
+ * @description: 活动的mapper层
  * @create: 2021-11-10 17:02
  */
 @Repository
