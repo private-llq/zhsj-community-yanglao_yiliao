@@ -1,3 +1,4 @@
+#端口
 server:
   port: 20851
 #网关
@@ -6,7 +7,7 @@ spring:
     tokenUri: 192.168.12.49:8090/zhsj/base/api
   application:
     name: community-old_activity-service
-#配置reis
+#配置redis
   redis:
     database: 0
     host: 192.168.12.49
@@ -19,7 +20,7 @@ spring:
         min-idle: 10
         max-active: -1
         max-wait: -1
-#数据库
+#数据库mysql
   datasource:
     druid:
       username: root

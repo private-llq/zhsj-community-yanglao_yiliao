@@ -13,6 +13,10 @@ import java.util.List;
 
 /**
  * @author liulq
+ * @version V1.0
+ * @program: zhsj-community-yanglao_yiliao
+ * @description: 距离的扩展类
+ * @create: 2021-11-11 17:11
  */
 @Data
 @NoArgsConstructor
@@ -20,27 +24,43 @@ import java.util.List;
 public class UserLocationVo implements Serializable {
 
     private String id;
-    //用户id
+    /**
+     * 用户id
+     */
     private Long userId;
-    //经度
-    private Double longitude;
-    //维度
-    private Double latitude;
-    //位置描述
-    private String address;
-    //昵称
+    /**
+     * 经度
+     */
+    private double longitude;
+    /**
+     * 维度
+     */
+    private double latitude;
+
+    /**
+     * 昵称
+     */
     private String nickname;
+    /**
+     * 距离
+     */
+    private  String beatadistancefrom;
+    /**
+     * 位置描述
+     */
+    private String address;
 
 
 
     public static UserLocationVo format(UserLocation userLocation) {
 
         UserLocationVo userLocationVo = new UserLocationVo();
-        userLocationVo.setAddress(userLocation.getAddress());
         userLocationVo.setUserId(userLocation.getUserId());
         userLocationVo.setLongitude(userLocation.getLongitude());
         userLocationVo.setLatitude(userLocation.getLatitude());
         userLocationVo.setNickname(userLocation.getNickname());
+        userLocationVo.setAddress(userLocation.getAddress());
+        userLocationVo.setBeatadistancefrom(userLocation.getBeatadistancefrom());
         return userLocationVo;
     }
 

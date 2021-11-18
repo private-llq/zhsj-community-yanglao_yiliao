@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.addActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author liulq
  * @version V1.0
  * @program: haj-community-yang_Emiliano
- * @description:
+ * @description: 活动相关的接口
  * @create: 2021-11-10 17:03
  */
 @RestController
@@ -44,8 +45,8 @@ public class ActivityController {
     @DeleteMapping("delete")
     public Result deleteActivity(@RequestParam Long id) {
         log.info("id{}", id);
-        int i = this.activityService.deletedActivity(id);
-        return Result.ok("删除成功" + i);
+        this.activityService.deletedActivity(id);
+        return Result.ok();
     }
 
     /**
@@ -62,17 +63,35 @@ public class ActivityController {
      * 点击头像查询查看活动、个人资料
      *
      */
-    @GetMapping()
-    public Result pageActivity(PageResult pageResult) {
+    @GetMapping("pageList")
+    public Result pageActivity(@RequestBody PageResult pageResult) {
         log.info("页数：",pageResult);
         IPage<Activity> activityIPage = this.activityService.queryAlbumList(pageResult);
         return Result.ok(activityIPage);
     }
 
+    /**
+     *编辑资料
+     *
+     */
+    @PutMapping("update")
+    public Result  updateUserInfoByUserId(@RequestBody  ActivityVo activityVo){
+        log.info("参数{}",activityVo);
+        int i = this.activityService.updateUserInfo(activityVo);
+        return Result.ok(i);
+    }
 
 
-
-
+    /**
+     * 查询附近的活动或者好友的活动
+     *
+     */
+    @GetMapping("select")
+    public Result   selectActivity(@RequestBody addActivityFrom activity){
+      log.info("活动参数是：",activity);
+        List<Activity> activities = this.activityService.listActivities(activity);
+        return  Result.ok(activities);
+    }
 
 
 }

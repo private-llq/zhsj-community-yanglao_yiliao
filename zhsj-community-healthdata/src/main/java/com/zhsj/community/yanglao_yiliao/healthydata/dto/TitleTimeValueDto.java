@@ -26,5 +26,5 @@ public class TitleTimeValueDto {
     /**
      * 时间点对应的心率平均值
      */
-    private Integer heartRateCounts;
+    private Integer healthData;
 }

@@ -26,7 +26,7 @@ import java.util.List;
  * @author liulq
  * @version V1.0
  * @program: zhsj-community-yanglao_yiliao
- * @description:
+ * @description: 距离的实现类
  * @create: 2021-11-11 15:10
  */
 @Service

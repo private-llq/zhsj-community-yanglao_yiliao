@@ -65,6 +65,19 @@ public class HealthDataController {
     }
 
     /***************************************************************************************************************************
+     * @description 查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    @PostMapping("/tempChart")
+    public R<TempChartRspBo> tempChart(@RequestBody @Valid TempChartReqBo reqBo) {
+        TempChartRspBo tempChartRspBo = healthDataService.tempChart(reqBo);
+        return R.ok(tempChartRspBo);
+    }
+
+    /***************************************************************************************************************************
      * @description 根据时间类型获取用户体温异常记录
      * @author zzm
      * @date 2021/11/16 17:04
@@ -75,5 +88,18 @@ public class HealthDataController {
     public R<List<AbnormalDataRspBo>> abnormalTempRecord(@RequestBody @Valid AbnormalDataReqBo reqBo) {
         List<AbnormalDataRspBo> rspBoList = healthDataService.abnormalTempRecord(reqBo);
         return R.ok(rspBoList);
+    }
+
+    /***************************************************************************************************************************
+     * @description 根据用户按时间类型查询用户睡眠图表信息
+     * @author zzm
+     * @date 2021/11/17 15:30
+     * @param reqBo 用户信息、时间信息
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.SleepChartRspBo>
+     **************************************************************************************************************************/
+    @PostMapping("/sleepChart")
+    public R<SleepChartRspBo> sleepChart(@RequestBody @Valid SleepChartReqBo reqBo) {
+        SleepChartRspBo sleepChartRspBos = healthDataService.sleepChart(reqBo);
+        return R.ok(sleepChartRspBos);
     }
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
 
 /**
  * @author liulq
@@ -40,22 +40,22 @@ public class addActivityFrom {
     /**
      * 图片路径
      */
-    private List<String> pathUrl;
+    private String pathUrl;
     /**
      * 经度
      */
     @NotNull(message = "经度不能为空")
-    private String longitude;
+    private Double longitude;
     /**
      * 维度
      */
     @NotNull(message = "纬度不能为空")
-    private String latitude;
+    private Double latitude;
     /**
      * 距离
      */
     @NotNull(message = "距离不能为空")
-    private  String beatadistancefrom;
+    private  String distance;
 
 
 
