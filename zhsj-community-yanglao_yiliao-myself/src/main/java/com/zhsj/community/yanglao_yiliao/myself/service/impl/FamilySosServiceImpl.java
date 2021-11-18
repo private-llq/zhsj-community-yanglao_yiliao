@@ -41,8 +41,8 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     @Override
     public Map<String, Object> selectByUid(LoginUser loginUser,Long familyId) {
         Map<String, Object> map = new HashMap<>(2);
-        List<FamilySosEntity> entityList = familySosMapper.selectList(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getCurrentIp()).eq("family_id",familyId));
-        AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getCurrentIp()).eq("family_id",familyId));
+        List<FamilySosEntity> entityList = familySosMapper.selectList(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getAccount()).eq("family_id",familyId));
+        AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getAccount()).eq("family_id",familyId));
         if (sosEntity!=null){
             //查询机构
         }

@@ -39,7 +39,7 @@ public class FamilyRecordController {
         ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         familyRecordEntity.setId(SnowFlake.nextId());
-        familyRecordEntity.setUid(loginUser.getCurrentIp());
+        familyRecordEntity.setUid(loginUser.getAccount());
         familyRecordEntity.setCreateTime(LocalDateTime.now());
         return R.ok(familyRecordService.save(familyRecordEntity));
     }

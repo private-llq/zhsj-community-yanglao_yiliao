@@ -62,7 +62,7 @@ public class FamilyRecordEntity extends BaseEntity {
     private String avatarUrl;
 
     /**
-     * 头像地址
+     * 信息完善状态0未完善，1已完善
      */
     @TableField(exist = false)
     private Integer status;

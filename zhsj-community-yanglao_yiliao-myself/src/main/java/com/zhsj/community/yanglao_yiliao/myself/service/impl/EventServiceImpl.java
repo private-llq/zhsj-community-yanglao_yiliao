@@ -57,7 +57,7 @@ public class EventServiceImpl implements IEventService {
     @Transactional(rollbackFor = Exception.class)
     public void save(EventEntity eventEntity, LoginUser loginUser) {
         eventEntity.setId(SnowFlake.nextId());
-        eventEntity.setUid(loginUser.getCurrentIp());
+        eventEntity.setUid(loginUser.getAccount());
         eventEntity.setCreateTime(LocalDateTime.now());
         eventEntity.setWarnYear(eventEntity.getWarnTime().getYear());
         eventEntity.setWarnMonth(eventEntity.getWarnTime().getMonthValue());
@@ -66,16 +66,19 @@ public class EventServiceImpl implements IEventService {
         eventMapper.insert(eventEntity);
 
 
-        List<EventFamilyEntity> families = eventEntity.getFamilies();
-        if (families.size()!=0){
-            for (EventFamilyEntity family : families) {
-                family.setId(SnowFlake.nextId());
-                family.setEventId(eventEntity.getId());
-                family.setUid(eventEntity.getUid());
-                family.setCreateTime(LocalDateTime.now());
-            }
-            eventFamilyMapper.saveAll(families);
+        //添加事件提醒家人
+        EventFamilyEntity entity;
+        LinkedList<EventFamilyEntity> list = new LinkedList<>();
+        for (Long family : eventEntity.getFamilies()) {
+            entity = new EventFamilyEntity();
+            entity.setFamilyId(family);
+            entity.setId(SnowFlake.nextId());
+            entity.setEventId(eventEntity.getId());
+            entity.setUid(eventEntity.getUid());
+            entity.setCreateTime(LocalDateTime.now());
+            list.add(entity);
         }
+        eventFamilyMapper.saveAll(list);
     }
 
 
@@ -89,6 +92,7 @@ public class EventServiceImpl implements IEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(EventEntity eventEntity, LoginUser loginUser) {
+        eventEntity.setUid(loginUser.getAccount());
         eventEntity.setWarnYear(eventEntity.getWarnTime().getYear());
         eventEntity.setWarnMonth(eventEntity.getWarnTime().getMonthValue());
         eventEntity.setWarnDay(eventEntity.getWarnTime().getDayOfMonth());
@@ -96,17 +100,20 @@ public class EventServiceImpl implements IEventService {
         eventEntity.setUpdateTime(LocalDateTime.now());
         eventMapper.updateById(eventEntity);
 
-        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getCurrentIp()));
-        List<EventFamilyEntity> families = eventEntity.getFamilies();
-        if (families.size()!=0){
-            for (EventFamilyEntity family : families) {
-                family.setId(SnowFlake.nextId());
-                family.setEventId(eventEntity.getId());
-                family.setUid(eventEntity.getUid());
-                family.setCreateTime(LocalDateTime.now());
-            }
-            eventFamilyMapper.saveAll(families);
+        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getAccount()));
+
+        EventFamilyEntity entity;
+        LinkedList<EventFamilyEntity> list = new LinkedList<>();
+        for (Long family : eventEntity.getFamilies()) {
+            entity = new EventFamilyEntity();
+            entity.setFamilyId(family);
+            entity.setId(SnowFlake.nextId());
+            entity.setEventId(eventEntity.getId());
+            entity.setUid(eventEntity.getUid());
+            entity.setCreateTime(LocalDateTime.now());
+            list.add(entity);
         }
+        eventFamilyMapper.saveAll(list);
     }
 
 
@@ -119,7 +126,7 @@ public class EventServiceImpl implements IEventService {
      */
     @Override
     public List<EventEntity> list(LocalDate localDate, LoginUser loginUser) {
-        List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getCurrentIp());
+        List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount());
         return entityList;
     }
 
@@ -127,7 +134,7 @@ public class EventServiceImpl implements IEventService {
     public PageVo<EventEntity> pageList(BaseQo baseQo, LoginUser loginUser) {
         Map<Long, EventStopEntity> map = new HashMap<>();
 
-        List<EventStopEntity> entities = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getCurrentIp()));
+        List<EventStopEntity> entities = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getAccount()));
         if (entities.size()!=0){
             for (EventStopEntity entity : entities) {
                 map.put(entity.getEventId(),entity);
@@ -135,7 +142,7 @@ public class EventServiceImpl implements IEventService {
         }
         long page = (baseQo.getPage() - 1) * baseQo.getSize();
         LocalDate localDate = LocalDate.now();
-        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getCurrentIp(),page,baseQo.getSize());
+        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount(),page,baseQo.getSize());
 
         if (entityList.size()!=0){
             for (EventEntity eventEntity : entityList) {
