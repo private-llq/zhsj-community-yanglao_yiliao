@@ -1,7 +1,5 @@
 package com.zhsj.community.yanglao_yiliao.myself.controller;
 
-import com.zhsj.basecommon.constant.BaseConstant;
-import com.zhsj.basecommon.interfaces.IBaseSmsRpcService;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
@@ -9,7 +7,6 @@ import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +26,8 @@ public class FamilyRecordController {
     @Autowired
     private IFamilyRecordService familyRecordService;
 
-    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
-    private IBaseSmsRpcService baseSmsRpcService;
+//    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
+//    private IBaseSmsRpcService baseSmsRpcService;
 
 
     /**
@@ -42,7 +39,7 @@ public class FamilyRecordController {
      */
     @PostMapping("save")
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.AddFamilyValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         familyRecordEntity.setId(SnowFlake.nextId());
         familyRecordEntity.setUid(loginUser.getAccount());
@@ -71,7 +68,7 @@ public class FamilyRecordController {
      */
     @GetMapping("sendCode")
     public R<Void> code(@RequestParam String mobile){
-        baseSmsRpcService.sendVerificationCode(mobile);
+//        baseSmsRpcService.sendVerificationCode(mobile);
         return R.ok();
     }
 
@@ -85,7 +82,7 @@ public class FamilyRecordController {
      */
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.UpdateFamilyValidate.class);
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familyRecordService.updateById(familyRecordEntity));
     }
