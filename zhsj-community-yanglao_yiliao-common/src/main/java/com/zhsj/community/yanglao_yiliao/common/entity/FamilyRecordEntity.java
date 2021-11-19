@@ -21,7 +21,7 @@ public class FamilyRecordEntity extends BaseEntity {
     /**
      * 关系
      */
-    @Range(min = 0,max = 6, message = "关系不存在",groups = {FamilyValidate.class})
+    @Range(min = 1,max = 5, message = "关系不存在",groups = {UpdateFamilyValidate.class})
     private Integer relation;
     /**
      * 关系文本
@@ -31,13 +31,13 @@ public class FamilyRecordEntity extends BaseEntity {
     /**
      * 姓名
      */
-    @NotBlank(message = "姓名不能为空！",groups = {FamilyValidate.class})
+    @NotBlank(message = "姓名不能为空！",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
     private String name;
     /**
      * 电话
      */
-    @NotBlank(message = "姓名不能为空！",groups = {FamilyValidate.class})
-    @Pattern(regexp = "^1[3|4|5|7|8][0-9]{9}$", message = "请输入一个正确的手机号码 电信丨联通丨移动!",groups = {FamilyValidate.class})
+    @NotBlank(message = "姓名不能为空！",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
+    @Pattern(regexp = "^1[3|4|5|7|8][0-9]{9}$", message = "请输入一个正确的手机号码 电信丨联通丨移动!",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
     private String mobile;
     /**
      * 性别
@@ -50,6 +50,7 @@ public class FamilyRecordEntity extends BaseEntity {
     /**
      * 身份证号
      */
+    @Pattern(regexp = "(^\\d{18}$)|(^\\d{15}$)", message = "请输入一个正确身份证号码",groups = {UpdateFamilyValidate.class})
     private String idCard;
     /**
      * 用户uid
@@ -62,11 +63,20 @@ public class FamilyRecordEntity extends BaseEntity {
     private String avatarUrl;
 
     /**
-     * 头像地址
+     * 信息完善状态0未完善，1已完善
      */
     @TableField(exist = false)
     private Integer status;
 
-    public interface FamilyValidate{}
+    /**
+     * 验证码
+     */
+    @TableField(exist = false)
+    @NotBlank(message = "姓名不能为空！",groups = {AddFamilyValidate.class})
+    private String code;
+
+    public interface UpdateFamilyValidate{}
+
+    public interface AddFamilyValidate{}
 
 }

@@ -37,15 +37,16 @@ public class SosController {
 
 
     /**
-     * @Description: 紧急发送求救
+     * @Description: 紧急救援
      * @author: Hu
      * @since: 2021/11/12 11:07
      * @Param: []
      * @return: com.zhsj.basecommon.vo.R
      */
     @GetMapping
-    public R sos(){
+    public R sos(@RequestParam Long familyId){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        familySosService.sos(loginUser,familyId);
         return R.ok();
     }
 
@@ -76,11 +77,11 @@ public class SosController {
     public R<Boolean> saveFamily(@RequestBody FamilySosEntity familySosEntity){
         ValidatorUtils.validateEntity(familySosEntity,FamilySosEntity.SosValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getCurrentIp()));
-        if (list.size()>=NUMBER) {
+        List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getAccount()));
+        if (list.size()>NUMBER) {
             return R.fail("个人最大添加数量3！");
         }
-        familySosEntity.setUid(loginUser.getCurrentIp());
+        familySosEntity.setUid(loginUser.getAccount());
         familySosEntity.setId(SnowFlake.nextId());
         familySosEntity.setCreateTime(LocalDateTime.now());
         return R.ok(familySosService.save(familySosEntity));
@@ -97,13 +98,13 @@ public class SosController {
     @PostMapping("saveAgency")
     public R<Boolean> saveAgency(@RequestBody AgencySosEntity agencySosEntity){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<AgencySosEntity> list = agencySosService.list(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getCurrentIp()));
+        List<AgencySosEntity> list = agencySosService.list(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getAccount()));
         if (list!=null){
             return R.fail("机构最大添加数量1！");
         }
         agencySosEntity.setId(SnowFlake.nextId());
         agencySosEntity.setCreateTime(LocalDateTime.now());
-        agencySosEntity.setUid(loginUser.getCurrentIp());
+        agencySosEntity.setUid(loginUser.getAccount());
         return R.ok(agencySosService.save(agencySosEntity));
     }
 

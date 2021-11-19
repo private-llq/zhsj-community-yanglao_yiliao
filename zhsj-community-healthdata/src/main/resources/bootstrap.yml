@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    config:
+      discovery:
+        service-id: base-config-server
+        enabled: true
+      name: application-healthdata
+      profile: dev
+  main:
+    allow-bean-definition-overriding: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.12.49:36366/eureka
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}

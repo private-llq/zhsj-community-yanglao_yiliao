@@ -26,6 +26,9 @@ public class FamilyRecordController {
     @Autowired
     private IFamilyRecordService familyRecordService;
 
+//    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
+//    private IBaseSmsRpcService baseSmsRpcService;
+
 
     /**
      * @Description: 新增
@@ -36,10 +39,10 @@ public class FamilyRecordController {
      */
     @PostMapping("save")
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.AddFamilyValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         familyRecordEntity.setId(SnowFlake.nextId());
-        familyRecordEntity.setUid(loginUser.getCurrentIp());
+        familyRecordEntity.setUid(loginUser.getAccount());
         familyRecordEntity.setCreateTime(LocalDateTime.now());
         return R.ok(familyRecordService.save(familyRecordEntity));
     }
@@ -56,6 +59,19 @@ public class FamilyRecordController {
         return R.ok(familyRecordService.getById(id));
     }
 
+    /**
+     * @Description: 发送短信验证码
+     * @author: Hu
+     * @since: 2021/11/10 14:03
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>
+     */
+    @GetMapping("sendCode")
+    public R<Void> code(@RequestParam String mobile){
+//        baseSmsRpcService.sendVerificationCode(mobile);
+        return R.ok();
+    }
+
 
     /**
      * @Description: 修改
@@ -66,7 +82,7 @@ public class FamilyRecordController {
      */
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.FamilyValidate.class);
+        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.UpdateFamilyValidate.class);
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familyRecordService.updateById(familyRecordEntity));
     }

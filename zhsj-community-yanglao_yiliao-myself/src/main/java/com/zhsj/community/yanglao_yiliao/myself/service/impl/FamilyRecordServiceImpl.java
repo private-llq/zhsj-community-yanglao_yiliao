@@ -37,26 +37,28 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     @Override
     public List<FamilyRecordEntity> userList(LoginUser loginUser) {
         List<FamilyRecordEntity> list = null;
-        FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getCurrentIp()).eq("relation", 0));
+        FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()).eq("relation", 0));
         if (Objects.isNull(recordEntity)) {
             FamilyRecordEntity familyRecordEntity = new FamilyRecordEntity();
             familyRecordEntity.setRelation(0);
             familyRecordEntity.setRelationText("我自己");
             familyRecordEntity.setName(loginUser.getNickName());
             familyRecordEntity.setMobile(loginUser.getPhone());
-            familyRecordEntity.setUid(loginUser.getCurrentIp());
+            familyRecordEntity.setUid(loginUser.getAccount());
             familyRecordEntity.setId(SnowFlake.nextId());
             familyRecordEntity.setCreateTime(LocalDateTime.now());
             familyRecordMapper.insert(familyRecordEntity);
         }
 
-        list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getCurrentIp()));
+        list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()));
         if (list.size()!=0){
             for (FamilyRecordEntity familyRecordEntity : list) {
-                if (familyRecordEntity.getRelation()!=0){
-                    familyRecordEntity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(familyRecordEntity.getRelation()));
-                } else {
-                    familyRecordEntity.setRelationText("我自己");
+                if (familyRecordEntity.getRelation()!=null){
+                    if (familyRecordEntity.getRelation()!=0){
+                        familyRecordEntity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(familyRecordEntity.getRelation()));
+                    } else {
+                        familyRecordEntity.setRelationText("我自己");
+                    }
                 }
 
                 if (StringUtils.isEmpty(familyRecordEntity.getAvatarUrl())||

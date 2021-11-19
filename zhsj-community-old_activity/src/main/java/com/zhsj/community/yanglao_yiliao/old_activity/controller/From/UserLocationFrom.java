@@ -4,7 +4,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.controller.From;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -22,10 +21,6 @@ public class UserLocationFrom implements Serializable {
      *用户id
      */
     private Long userId;
-    /**
-     *x:经度 y:纬度
-     */
-    private GeoJsonPoint location;
     /**
      * x:经度
      */
@@ -47,6 +42,9 @@ public class UserLocationFrom implements Serializable {
     @NotNull(message = "距离不能为空")
     private  String beatadistancefrom;
 
-
+    /**
+     * 限制
+     */
+    private  Integer limit;
 
 }
