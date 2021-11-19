@@ -397,13 +397,13 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDate nowLocalDate = nowLocalDateTime.toLocalDate();
         // --- BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            // 已过当天11点（以十一点为准）睡眠
+            // 已过当天11点（以十一点为准）
             if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
                 LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
                 LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
                 byDayBuildSleepChart(loginUser, reqBo, sleepChartRspBo, yesterdayNineClock, toDayElevenClock);
             }
-            // 未过当天11点（以现在时间为准）睡眠
+            // 未过当天11点（以现在时间为准）
             if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
                 LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
                 byDayBuildSleepChart(loginUser, reqBo, sleepChartRspBo, yesterdayNineClock, nowLocalDateTime);
@@ -417,7 +417,8 @@ public class HealthDataServiceImpl implements HealthDataService {
             int sevenDayTotalSleepTime = 0;
             List<SleepTitleTimeValueDto> arr = new ArrayList<>();
 
-            for (int i = reqBo.getPageTurnStatus() * 6; i <= reqBo.getPageTurnStatus() * 6 + 6; i++) {        // -6->0  -13->-7 -20->-14    // -1  -2  -3
+            for (int i = reqBo.getPageTurnStatus() * 6 + (reqBo.getPageTurnStatus() + 1); i <= reqBo.getPageTurnStatus() * 6 + 6 + (reqBo.getPageTurnStatus() + 1); i++) {        // -6->0  -13->-7 -20->-14    // -1  -2  -3
+                // -1(-6,0) -2(-12-1,-6-1) -3(-18-2,-12-2)
                 LocalDateTime time1 = yesterdayNineClock.plusDays(i); // -6 -12 -18
                 LocalDateTime time2 = toDayElevenClock.plusDays(i);   // -6 -12 -18
                 SleepTitleTimeValueDto sleepTitleTimeValueDto = new SleepTitleTimeValueDto();
@@ -432,6 +433,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 sevenDayTotalSleepTime += c;
 
             }
+
             LocalDateTime time3 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6);
             LocalDateTime time4 = toDayElevenClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + 6);
             List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, time3, time4);
