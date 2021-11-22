@@ -9,6 +9,7 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.SleepTitleTimeValueDto;
+import com.zhsj.community.yanglao_yiliao.healthydata.dto.TempTitleTimeValueDto;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.TimeValueDto;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.TitleTimeValueDto;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
@@ -267,8 +268,8 @@ public class HealthDataServiceImpl implements HealthDataService {
         // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             int k = 0;
-            int totalAvg = 0;
-            List<TitleTimeValueDto> list = new ArrayList<>();
+            double totalAvg = 0;
+            List<TempTitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
                 List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
                         .eq(Temperature::getUserUuid, loginUser.getAccount())
@@ -278,8 +279,8 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .eq(Temperature::getDeleted, true)
                         .orderByAsc(Temperature::getCreateTime));
                 if (!temperatureList.isEmpty()) {
-                    int c1 = 0;
-                    int avg1 = 0;
+                    double c1 = 0;
+                    double avg1 = 0;
                     for (Temperature temperature : temperatureList) {
                         c1 += temperature.getTmpHandler();
                     }
@@ -287,16 +288,16 @@ public class HealthDataServiceImpl implements HealthDataService {
                     k += 1;
                     totalAvg += avg1;
                     if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), avg1));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), String.format("%.1f",avg1)));
                     } else {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), avg1));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), String.format("%.1f",avg1)));
                         break;
                     }
                 } else {
                     if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), 0));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), "0.0"));
                     } else {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), 0));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0.0"));
                         break;
                     }
                 }
@@ -726,8 +727,8 @@ public class HealthDataServiceImpl implements HealthDataService {
                                      @NotNull Integer num
     ) {
         int k = 0;
-        int totalAvg = 0;
-        List<TitleTimeValueDto> list = new ArrayList<>();
+        double totalAvg = 0;
+        List<TempTitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
             List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, loginUser.getAccount())
@@ -737,17 +738,17 @@ public class HealthDataServiceImpl implements HealthDataService {
                     .eq(Temperature::getDeleted, true)
                     .orderByAsc(Temperature::getCreateTime));
             if (!tempList.isEmpty()) {
-                int c1 = 0;
-                int avg1;
+                double c1 = 0;
+                double avg1;
                 for (Temperature temperature : tempList) {
                     c1 += temperature.getTmpHandler();
                 }
                 avg1 = c1 / tempList.size();
                 k += 1;
                 totalAvg += avg1;
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), String.format("%.1f",avg1)));
             } else {
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), "0.0"));
             }
         }
         rspBos.setList(list);
@@ -759,11 +760,11 @@ public class HealthDataServiceImpl implements HealthDataService {
     /**
      * 构建用户体温平均值和健康状态并设值返回
      */
-    private void buildTempAvgAndStatus(@NotNull Integer totalAvg,
+    private void buildTempAvgAndStatus(@NotNull Double totalAvg,
                                        @NotNull Integer k,
                                        @NotNull TempChartRspBo rspBos) {
-        int dayHeartRateAvg = totalAvg / k;
-        rspBos.setTemptAvg(dayHeartRateAvg);
+        double dayHeartRateAvg = totalAvg / k;
+        rspBos.setTemptAvg(String.format("%.1f",dayHeartRateAvg));
         if (dayHeartRateAvg >= 36 && dayHeartRateAvg <= 37) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
         }
