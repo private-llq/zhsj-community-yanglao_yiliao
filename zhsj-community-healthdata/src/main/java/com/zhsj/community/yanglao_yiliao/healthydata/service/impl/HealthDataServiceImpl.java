@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
-import java.net.ContentHandler;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,8 +58,9 @@ public class HealthDataServiceImpl implements HealthDataService {
         log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
-
-        // 心率
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = now.toLocalDate();
+        // HEART RATE
         Page<HeartRate> page = heartRateService.page(
                 new Page<HeartRate>(1, 1),
                 new QueryWrapper<HeartRate>()
@@ -74,8 +74,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             healthDataRspBo.setSilentHeart(silentHeart);
             heartRateHealthStatus(healthDataRspBo, silentHeart);
         }
-
-        // 体温
+        // TEMP
         Page<Temperature> tempPage = temperatureService.page(
                 new Page<Temperature>(1, 1),
                 new QueryWrapper<Temperature>()
@@ -92,28 +91,30 @@ public class HealthDataServiceImpl implements HealthDataService {
             healthDataRspBo.setTmpForehead(tmpForehead);
             tmpForeheadHealthStatus(healthDataRspBo, tmpForehead);
         }
-
-        // 已过当天11点（以十一点为准）睡眠
+        // SLEEP 已过当天11点（以十一点为准）
         if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-            LocalDate localDate = LocalDateTime.now().toLocalDate();
             LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, toDayElevenClock);
-            int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-            healthDataRspBo.setSleepTime(sleepTime);
-            sleepTimeHealthStatus(healthDataRspBo, sleepTime);
+            if (sleepCount != 0) {
+                int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+                healthDataRspBo.setSleepTime(sleepTime);
+                sleepTimeHealthStatus(healthDataRspBo, sleepTime);
+            }
         }
-        // 未过当天11点（以现在时间为准）睡眠
+        // SLEEP 未过当天11点（以现在时间为准）
         if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDate localDate = LocalDateTime.now().toLocalDate();
             LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
             int sleepCount = buildSleepTimeCounts(loginUser, reqBo, yesterdayNineClock, now);
-            int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-            healthDataRspBo.setSleepTime(sleepTime);
-            sleepTimeHealthStatus(healthDataRspBo, sleepTime);
+            if (sleepCount != 0) {
+                int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+                healthDataRspBo.setSleepTime(sleepTime);
+                sleepTimeHealthStatus(healthDataRspBo, sleepTime);
+            }
         }
         healthDataRspBo.setRefreshDataTime(TimeUtils.formatLocalDateTime(LocalDateTime.now()));
+        buildTotalHealthStatus(healthDataRspBo);
+
         return healthDataRspBo;
     }
 
@@ -134,7 +135,9 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
         // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            Map<Integer, List<HeartRate>> map = new HashMap<>();
+            int k = 0;
+            int totalAvg = 0;
+            List<TitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
                 List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
                         .eq(HeartRate::getUserUuid, loginUser.getAccount())
@@ -143,13 +146,6 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .le(HeartRate::getCreateTime, todayZeroClock.plusHours(i + 6))
                         .eq(HeartRate::getDeleted, true)
                         .orderByAsc(HeartRate::getCreateTime));
-                map.put(i + 6, rateList);
-            }
-            int k = 0;
-            int totalAvg = 0;
-            List<TitleTimeValueDto> list = new ArrayList<>();
-            for (int i = 0; i <= 24; i += 6) {
-                List<HeartRate> rateList = map.get(i);
                 if (!rateList.isEmpty()) {
                     int c1 = 0;
                     int avg1 = 0;
@@ -157,12 +153,21 @@ public class HealthDataServiceImpl implements HealthDataService {
                         c1 += heartRate.getSilentHeart();
                     }
                     avg1 = c1 / rateList.size();
-                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), avg1));
-
                     k += 1;
                     totalAvg += avg1;
+                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), avg1));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), avg1));
+                        break;
+                    }
                 } else {
-                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), 0));
+                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), 0));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), 0));
+                        break;
+                    }
                 }
             }
             rspBos.setList(list);
@@ -261,22 +266,17 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
         // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            Map<Integer, List<Temperature>> map = new HashMap<>();
+            int k = 0;
+            int totalAvg = 0;
+            List<TitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
-                List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
                         .eq(Temperature::getUserUuid, loginUser.getAccount())
                         .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
                         .ge(Temperature::getCreateTime, todayZeroClock.plusHours(i))
                         .le(Temperature::getCreateTime, todayZeroClock.plusHours(i + 6))
                         .eq(Temperature::getDeleted, true)
                         .orderByAsc(Temperature::getCreateTime));
-                map.put(i + 6, tempList);
-            }
-            int k = 0;
-            int totalAvg = 0;
-            List<TitleTimeValueDto> list = new ArrayList<>();
-            for (int i = 0; i <= 24; i += 6) {
-                List<Temperature> temperatureList = map.get(i);
                 if (!temperatureList.isEmpty()) {
                     int c1 = 0;
                     int avg1 = 0;
@@ -284,12 +284,21 @@ public class HealthDataServiceImpl implements HealthDataService {
                         c1 += temperature.getTmpHandler();
                     }
                     avg1 = c1 / temperatureList.size();
-                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), avg1));
-
                     k += 1;
                     totalAvg += avg1;
+                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), avg1));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), avg1));
+                        break;
+                    }
                 } else {
-                    list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i)), 0));
+                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), 0));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), 0));
+                        break;
+                    }
                 }
             }
             rspBos.setList(list);
@@ -387,13 +396,13 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDate nowLocalDate = nowLocalDateTime.toLocalDate();
         // --- BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            // 已过当天11点（以十一点为准）睡眠
+            // 已过当天11点（以十一点为准）
             if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
                 LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
                 LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
                 byDayBuildSleepChart(loginUser, reqBo, sleepChartRspBo, yesterdayNineClock, toDayElevenClock);
             }
-            // 未过当天11点（以现在时间为准）睡眠
+            // 未过当天11点（以现在时间为准）
             if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
                 LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
                 byDayBuildSleepChart(loginUser, reqBo, sleepChartRspBo, yesterdayNineClock, nowLocalDateTime);
@@ -401,14 +410,16 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
         // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+
             LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sevenDayTotalSleepTime = 0;
             List<SleepTitleTimeValueDto> arr = new ArrayList<>();
 
-            for (int i = -6; i <= 0; i++) {
-                LocalDateTime time1 = yesterdayNineClock.plusDays(-reqBo.getPageTurnStatus() * i);
-                LocalDateTime time2 = toDayElevenClock.plusDays(-reqBo.getPageTurnStatus() * i);
+            for (int i = reqBo.getPageTurnStatus() * 6 + (reqBo.getPageTurnStatus() + 1); i <= reqBo.getPageTurnStatus() * 6 + 6 + (reqBo.getPageTurnStatus() + 1); i++) {        // -6->0  -13->-7 -20->-14    // -1  -2  -3
+                // -1(-6,0) -2(-12-1,-6-1) -3(-18-2,-12-2)
+                LocalDateTime time1 = yesterdayNineClock.plusDays(i); // -6 -12 -18
+                LocalDateTime time2 = toDayElevenClock.plusDays(i);   // -6 -12 -18
                 SleepTitleTimeValueDto sleepTitleTimeValueDto = new SleepTitleTimeValueDto();
                 sleepTitleTimeValueDto.setTimeTitle(TimeUtils.formatLocalDateTimeFifth(time1)).setTimeValue(TimeUtils.formatLocalDateTimeSixth(time1));
                 List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, time1, time2);
@@ -417,7 +428,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                     arr.add(sleepTitleTimeValueDto);
                     continue;
                 }
-                commonBuildSleepChart(sleepList, sevenDayTotalSleepTime, sleepTitleTimeValueDto, arr);
+                Integer c = commonBuildSleepChart(sleepList, sleepTitleTimeValueDto, arr);
+                sevenDayTotalSleepTime += c;
+
             }
 
             LocalDateTime time3 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6);
@@ -439,77 +452,6 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
 
         return sleepChartRspBo;
-    }
-
-    /**
-     * 查询用户睡眠数据
-     */
-    private List<Sleep> selectSleepChartData(LoginUser loginUser, SleepChartReqBo reqBo, LocalDateTime time1, LocalDateTime time2) {
-        return sleepService.list(new LambdaQueryWrapper<Sleep>()
-                .eq(Sleep::getUserUuid, loginUser.getAccount())
-                .eq(Sleep::getFamilyMemberId, reqBo.getFamilyMemberId())
-                .ge(Sleep::getCreateTime, time1)
-                .le(Sleep::getCreateTime, time2)
-                .eq(Sleep::getDeleted, true));
-    }
-
-    /**
-     * 用户睡眠图表信息公共构建部分
-     */
-    private void commonBuildSleepChart(@NotNull List<Sleep> sleepList,
-                                       Integer sevenDayTotalSleepTime,
-                                       @NotNull SleepTitleTimeValueDto sleepTitleTimeValueDto,
-                                       @NotNull List<SleepTitleTimeValueDto> arr) {
-        int light = 0;
-        int deep = 0;
-        int wakeUp = 0;
-        for (Sleep sleep : sleepList) {
-            if (HealthDataConstant.SLEEP_STATUS_TWO.equals(sleep.getSleepStatus())) {
-                light++;
-            }
-            if (HealthDataConstant.SLEEP_STATUS_THREE.equals(sleep.getSleepStatus())) {
-                deep++;
-            }
-            if (HealthDataConstant.SLEEP_STATUS_FOUR.equals(sleep.getSleepStatus())) {
-                wakeUp++;
-            }
-        }
-        int lightSleepTime = light * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-        int deepSleepTime = deep * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-        int wakeUpSleepTime = wakeUp * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-        if (sevenDayTotalSleepTime != null) {
-            sevenDayTotalSleepTime += lightSleepTime;
-            sevenDayTotalSleepTime += deepSleepTime;
-        }
-        double sleepScore = (deepSleepTime / (2.5 * 60)) * 0.4 + (lightSleepTime / (5.5 * 60)) * 0.6;
-        DecimalFormat df = new DecimalFormat("#");
-        String formatSleepScore = df.format(sleepScore * 100);
-        sleepTitleTimeValueDto.setDeepSleepTime(deepSleepTime).setLightSleepTime(lightSleepTime).setWakeUpTime(wakeUpSleepTime).setSleepScore(formatSleepScore).setTotalSleepTime(lightSleepTime + deepSleepTime);
-        arr.add(sleepTitleTimeValueDto);
-    }
-
-    /**
-     * 通过天构建用户睡眠图表信息
-     */
-    private void byDayBuildSleepChart(
-            @NotNull LoginUser loginUser,
-            @NotNull SleepChartReqBo reqBo,
-            @NotNull SleepChartRspBo sleepChartRspBo,
-            @NotNull LocalDateTime yesterdayNineClock,
-            @NotNull LocalDateTime toDayClock) {
-        List<SleepTitleTimeValueDto> arr = new ArrayList<>();
-        SleepTitleTimeValueDto sleepTitleTimeValueDto = new SleepTitleTimeValueDto();
-        sleepTitleTimeValueDto.setTimeTitle(TimeUtils.formatLocalDateTimeFifth(yesterdayNineClock)).setTimeValue(TimeUtils.formatLocalDateTimeSixth(yesterdayNineClock));
-
-        List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, yesterdayNineClock, toDayClock);
-        if (CollectionUtil.isEmpty(sleepList)) {
-            sleepTitleTimeValueDto.setDeepSleepTime(0).setLightSleepTime(0).setWakeUpTime(0).setSleepScore("0").setTotalSleepTime(0);
-            arr.add(sleepTitleTimeValueDto);
-            sleepChartRspBo.setList(arr);
-            return;
-        }
-        commonBuildSleepChart(sleepList, null, sleepTitleTimeValueDto, arr);
-        sleepChartRspBo.setList(arr);
     }
 
 
@@ -604,6 +546,46 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /**
+     * 构建用户总的身体健康状态
+     */
+    private void buildTotalHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo) {
+        int score = 10;
+        if (healthDataRspBo.getSilentHeartHealthStatus() != null) {
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getSilentHeartHealthStatus())) {
+                score -= 2;
+            }
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getSilentHeartHealthStatus())) {
+                score -= 3;
+            }
+        }
+        if (healthDataRspBo.getTmpHandlerHealthStatus() != null) {
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getTmpHandlerHealthStatus())) {
+                score -= 2;
+            }
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getTmpHandlerHealthStatus())) {
+                score -= 3;
+            }
+        }
+        if (healthDataRspBo.getSleepHealthStatus() != null) {
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getSleepHealthStatus())) {
+                score -= 2;
+            }
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getSleepHealthStatus())) {
+                score -= 3;
+            }
+        }
+        if (score >= 8 && score <= 10) {
+            healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
+        }
+        if (score >= 5 && score <= 7) {
+            healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+        if (score >= 1 && score <= 4) {
+            healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+        }
+    }
+
+    /**
      * 根据条件查询用户心率异常列表
      */
     private List<HeartRate> heartRateList(@NotNull LoginUser loginUser,
@@ -684,7 +666,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                                           @NotNull HeartRateChartReqBo reqBo,
                                           @NotNull Integer num
     ) {
-        Map<Integer, List<HeartRate>> map = new HashMap<>();
+        int k = 0;
+        int totalAvg = 0;
+        List<TitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
             List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())
@@ -693,13 +677,6 @@ public class HealthDataServiceImpl implements HealthDataService {
                     .le(HeartRate::getCreateTime, todayZeroClock.plusDays(i + 1))
                     .eq(HeartRate::getDeleted, true)
                     .orderByAsc(HeartRate::getCreateTime));
-            map.put(i, rateList);
-        }
-        int k = 0;
-        int totalAvg = 0;
-        List<TitleTimeValueDto> list = new ArrayList<>();
-        for (int i = -num; i <= 0; i++) {
-            List<HeartRate> rateList = map.get(i);
             if (!rateList.isEmpty()) {
                 int c1 = 0;
                 int avg1;
@@ -707,10 +684,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                     c1 += heartRate.getSilentHeart();
                 }
                 avg1 = c1 / rateList.size();
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
-
                 k += 1;
                 totalAvg += avg1;
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
             } else {
                 list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
             }
@@ -749,22 +725,17 @@ public class HealthDataServiceImpl implements HealthDataService {
                                      @NotNull TempChartReqBo reqBo,
                                      @NotNull Integer num
     ) {
-        Map<Integer, List<Temperature>> map = new HashMap<>();
+        int k = 0;
+        int totalAvg = 0;
+        List<TitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
-            List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+            List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, loginUser.getAccount())
                     .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .ge(Temperature::getCreateTime, todayZeroClock.plusDays(i))
                     .le(Temperature::getCreateTime, todayZeroClock.plusDays(i + 1))
                     .eq(Temperature::getDeleted, true)
                     .orderByAsc(Temperature::getCreateTime));
-            map.put(i, temperatureList);
-        }
-        int k = 0;
-        int totalAvg = 0;
-        List<TitleTimeValueDto> list = new ArrayList<>();
-        for (int i = -num; i <= 0; i++) {
-            List<Temperature> tempList = map.get(i);
             if (!tempList.isEmpty()) {
                 int c1 = 0;
                 int avg1;
@@ -772,10 +743,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                     c1 += temperature.getTmpHandler();
                 }
                 avg1 = c1 / tempList.size();
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
-
                 k += 1;
                 totalAvg += avg1;
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
             } else {
                 list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
             }
@@ -805,5 +775,73 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
     }
 
+    /**
+     * 查询用户睡眠数据
+     */
+    private List<Sleep> selectSleepChartData(LoginUser loginUser, SleepChartReqBo reqBo, LocalDateTime time1, LocalDateTime time2) {
+        return sleepService.list(new LambdaQueryWrapper<Sleep>()
+                .eq(Sleep::getUserUuid, loginUser.getAccount())
+                .eq(Sleep::getFamilyMemberId, reqBo.getFamilyMemberId())
+                .ge(Sleep::getCreateTime, time1)
+                .le(Sleep::getCreateTime, time2)
+                .eq(Sleep::getDeleted, true));
+    }
 
+    /**
+     * 用户睡眠图表信息公共构建部分
+     */
+    private Integer commonBuildSleepChart(@NotNull List<Sleep> sleepList,
+                                          @NotNull SleepTitleTimeValueDto sleepTitleTimeValueDto,
+                                          @NotNull List<SleepTitleTimeValueDto> arr) {
+        int sevenDayTotalSleepTime = 0;
+        int light = 0;
+        int deep = 0;
+        int wakeUp = 0;
+        for (Sleep sleep : sleepList) {
+            if (HealthDataConstant.SLEEP_STATUS_TWO.equals(sleep.getSleepStatus())) {
+                light++;
+            }
+            if (HealthDataConstant.SLEEP_STATUS_THREE.equals(sleep.getSleepStatus())) {
+                deep++;
+            }
+            if (HealthDataConstant.SLEEP_STATUS_FOUR.equals(sleep.getSleepStatus())) {
+                wakeUp++;
+            }
+        }
+        int lightSleepTime = light * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+        int deepSleepTime = deep * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+        int wakeUpSleepTime = wakeUp * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
+        sevenDayTotalSleepTime += lightSleepTime;
+        sevenDayTotalSleepTime += deepSleepTime;
+        double sleepScore = (deepSleepTime / (2.5 * 60)) * 0.4 + (lightSleepTime / (5.5 * 60)) * 0.6;
+        DecimalFormat df = new DecimalFormat("#");
+        String formatSleepScore = df.format(sleepScore * 100);
+        sleepTitleTimeValueDto.setDeepSleepTime(deepSleepTime).setLightSleepTime(lightSleepTime).setWakeUpTime(wakeUpSleepTime).setSleepScore(formatSleepScore).setTotalSleepTime(lightSleepTime + deepSleepTime);
+        arr.add(sleepTitleTimeValueDto);
+        return sevenDayTotalSleepTime;
+    }
+
+    /**
+     * 通过天构建用户睡眠图表信息
+     */
+    private void byDayBuildSleepChart(
+            @NotNull LoginUser loginUser,
+            @NotNull SleepChartReqBo reqBo,
+            @NotNull SleepChartRspBo sleepChartRspBo,
+            @NotNull LocalDateTime yesterdayNineClock,
+            @NotNull LocalDateTime toDayClock) {
+        List<SleepTitleTimeValueDto> arr = new ArrayList<>();
+        SleepTitleTimeValueDto sleepTitleTimeValueDto = new SleepTitleTimeValueDto();
+        sleepTitleTimeValueDto.setTimeTitle(TimeUtils.formatLocalDateTimeFifth(yesterdayNineClock)).setTimeValue(TimeUtils.formatLocalDateTimeSixth(yesterdayNineClock));
+
+        List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, yesterdayNineClock, toDayClock);
+        if (CollectionUtil.isEmpty(sleepList)) {
+            sleepTitleTimeValueDto.setDeepSleepTime(0).setLightSleepTime(0).setWakeUpTime(0).setSleepScore("0").setTotalSleepTime(0);
+            arr.add(sleepTitleTimeValueDto);
+            sleepChartRspBo.setList(arr);
+            return;
+        }
+        commonBuildSleepChart(sleepList, sleepTitleTimeValueDto, arr);
+        sleepChartRspBo.setList(arr);
+    }
 }

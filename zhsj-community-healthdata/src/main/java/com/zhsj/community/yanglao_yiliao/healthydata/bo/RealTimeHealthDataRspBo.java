@@ -54,4 +54,9 @@ public class RealTimeHealthDataRspBo {
      * 跟新数据时间
      */
     private String refreshDataTime;
+
+    /**
+     * 用户整体身体健康状态
+     */
+    private Integer userTotalHealthStatus;
 }

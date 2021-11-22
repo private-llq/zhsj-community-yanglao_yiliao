@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,11 +25,13 @@ public class SleepChartReqBo {
      * 查询健康图表数据时间类型（以天:1、周:2）
      */
     @NotNull(message = "查询时间类型不能为空")
+    @Range(min = 1, max = 2)
     private Integer timeStatus;
 
     /**
      * 按周查询睡眠上下周翻页状态（pageTurnStatus默认：-1，按天查询不传此参数）
      */
-    private Integer pageTurnStatus;
+    @Range(min = -10000, max = -1)
+    private Integer pageTurnStatus = -1;
 
 }
