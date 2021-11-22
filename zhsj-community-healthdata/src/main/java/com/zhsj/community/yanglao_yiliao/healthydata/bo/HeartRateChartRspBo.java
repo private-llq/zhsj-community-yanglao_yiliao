@@ -19,7 +19,7 @@ import java.util.List;
 public class HeartRateChartRspBo {
 
     /**
-     * 心率平均值健康状态（1：正常，2：偏低，3：偏高，4：过低，5：过高）
+     * 心率平均值健康状态（1：正常，2：偏低，3：偏高）
      */
     private Integer heartRateStatus;
 

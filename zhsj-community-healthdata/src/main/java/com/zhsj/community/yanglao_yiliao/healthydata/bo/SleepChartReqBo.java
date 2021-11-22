@@ -31,7 +31,7 @@ public class SleepChartReqBo {
     /**
      * 按周查询睡眠上下周翻页状态（pageTurnStatus默认：-1，按天查询不传此参数）
      */
-    @Range(min = -100000, max = -1)
+    @Range(min = -10000, max = -1)
     private Integer pageTurnStatus = -1;
 
 }
