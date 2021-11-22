@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.common.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -19,6 +20,12 @@ public class AgencySosEntity extends BaseEntity {
      */
     @NotNull(message = "机构不能为空！")
     private Long agencyId;
+
+    @TableField(exist = false)
+    private String agencyText;
+    @TableField(exist = false)
+    private String agencyMobile;
+
     /**
      * 用户uid
      */

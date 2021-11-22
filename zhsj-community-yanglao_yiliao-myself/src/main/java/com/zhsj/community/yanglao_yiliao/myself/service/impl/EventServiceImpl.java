@@ -7,8 +7,6 @@ import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventFamilyEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventStopEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
-import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
-import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventFamilyMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
@@ -131,7 +129,7 @@ public class EventServiceImpl implements IEventService {
     }
 
     @Override
-    public PageVo<EventEntity> pageList(BaseQo baseQo, LoginUser loginUser) {
+    public List<EventEntity> pageList(LoginUser loginUser) {
         Map<Long, EventStopEntity> map = new HashMap<>();
 
         List<EventStopEntity> entities = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getAccount()));
@@ -140,9 +138,8 @@ public class EventServiceImpl implements IEventService {
                 map.put(entity.getEventId(),entity);
             }
         }
-        long page = (baseQo.getPage() - 1) * baseQo.getSize();
         LocalDate localDate = LocalDate.now();
-        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount(),page,baseQo.getSize());
+        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount());
 
         if (entityList.size()!=0){
             for (EventEntity eventEntity : entityList) {
@@ -163,7 +160,7 @@ public class EventServiceImpl implements IEventService {
                 entityList.add(entity);
             }
         }
-        return new PageVo<EventEntity>(baseQo.getPage(),baseQo.getSize(),null,Long.valueOf(entityList.size()),entityList);
+        return entityList;
 
     }
 
