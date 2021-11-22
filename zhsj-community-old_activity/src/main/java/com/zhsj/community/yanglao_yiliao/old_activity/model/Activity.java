@@ -10,10 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author liulq
@@ -77,7 +75,7 @@ public class Activity implements Serializable {
     /**
      * 用户id
      */
-    private  String uId;
+    private  Long uId;
 
     /**
      * 创建时间

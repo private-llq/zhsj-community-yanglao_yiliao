@@ -20,17 +20,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserLocationMapper extends BaseMapper<UserLocation> {
-    /**
-     * 查询用户地理位置
-     *
-     */
-    UserLocationVo queryByUserId();
 
     /**
      * 获取匹配到用户的信息
-     * @param
-     * @return MatchedUserDTO
+     *
      */
-    @Select("SELECT user_id, user_name, birthday, sex, introduction, head_image_url FROM User WHERE user_id=#{userId}")
-    UserLocationFrom getMatchedUserInfo(Integer uId);
+//    @Select("SELECT user_id, user_name, birthday, sex, introduction, head_image_url FROM User WHERE user_id=#{userId}")
+//    UserLocationFrom getMatchedUserInfo(Integer uId);
 }

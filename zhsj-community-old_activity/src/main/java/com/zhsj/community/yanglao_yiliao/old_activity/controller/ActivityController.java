@@ -1,16 +1,19 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.addActivityFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -43,9 +46,9 @@ public class ActivityController {
      * 删除活动
      */
     @DeleteMapping("delete")
-    public Result deleteActivity(@RequestParam Long id) {
-        log.info("id{}", id);
-        this.activityService.deletedActivity(id);
+    public Result deleteActivity(@RequestParam Long uid) {
+        log.info("id{}", uid);
+        this.activityService.deletedActivity(uid);
         return Result.ok();
     }
 
@@ -53,7 +56,7 @@ public class ActivityController {
      * 新增活动
      */
     @PostMapping("add")
-    public Result addActivity(@RequestBody addActivityFrom addActivityFrom) {
+    public Result addActivity(@RequestBody @Validated addActivityFrom addActivityFrom) {
         log.info("获取参数{}", addActivityFrom);
         int i = this.activityService.addActivity(addActivityFrom);
         return Result.ok(i);
@@ -66,8 +69,8 @@ public class ActivityController {
     @GetMapping("pageList")
     public Result pageActivity(@RequestBody PageResult pageResult) {
         log.info("页数：",pageResult);
-        IPage<Activity> activityIPage = this.activityService.queryAlbumList(pageResult);
-        return Result.ok(activityIPage);
+        Page<Activity> activityPage = this.activityService.queryAlbumList(pageResult);
+        return Result.ok(activityPage);
     }
 
     /**
@@ -75,9 +78,9 @@ public class ActivityController {
      *
      */
     @PutMapping("update")
-    public Result  updateUserInfoByUserId(@RequestBody  ActivityVo activityVo){
-        log.info("参数{}",activityVo);
-        int i = this.activityService.updateUserInfo(activityVo);
+    public Result  updateUserInfoByUserId(@RequestBody ActivityUpdateFrom addActivityUpdateFrom){
+        log.info("参数{}",addActivityUpdateFrom);
+        int i = this.activityService.updateUserInfo(addActivityUpdateFrom);
         return Result.ok(i);
     }
 
@@ -85,12 +88,12 @@ public class ActivityController {
     /**
      * 查询附近的活动或者好友的活动
      *
+     * @return
      */
     @GetMapping("select")
-    public Result   selectActivity(@RequestBody addActivityFrom activity){
-      log.info("活动参数是：",activity);
-        List<Activity> activities = this.activityService.listActivities(activity);
-        return  Result.ok(activities);
+    public Result selectActivity(@RequestBody  @Validated UserLocationFrom userLocationFrom){
+        HashSet<LinkedList<UserLocation>> linkedLists = this.activityService.listActivities(userLocationFrom);
+        return  Result.ok(linkedLists);
     }
 
 

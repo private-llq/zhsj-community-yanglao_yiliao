@@ -126,6 +126,7 @@ public class UserLocationServiceImpl implements UserLocationService {
         return redisTemplate
                 .opsForGeo()
                 .radius(CACHE_KEY, new Circle(center, radius), commandArgs);
+
     }
 
 
@@ -170,7 +171,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public List<UserLocationVo> listNearbyUsers(Double latitude, Double longitude, Integer limit){
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results = userLocationService.listLocationsInRadius(latitude,
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = this.userLocationService.listLocationsInRadius(latitude,
                 longitude, DEFAULT_RADIUS, RADIUS_METRIC, limit > MAX_LIMIT ? MAX_LIMIT : limit);
         return geoResultToVO(results);
     }
@@ -181,9 +182,8 @@ public class UserLocationServiceImpl implements UserLocationService {
             throw new IllegalArgumentException();
         }
         String member = userId.toString();
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results = userLocationService.listLocationsInRadius(member,
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = this.userLocationService.listLocationsInRadius(member,
                 DEFAULT_RADIUS, RADIUS_METRIC, limit > MAX_LIMIT ? MAX_LIMIT : limit);
-
         return geoResultToVO(results);
     }
 
@@ -204,8 +204,8 @@ public class UserLocationServiceImpl implements UserLocationService {
             double latitude = result.getContent().getPoint().getY();
             double longitude = result.getContent().getPoint().getX();
 
-            UserLocationFrom userDTO = userLocationMapper.getMatchedUserInfo(uId);
-            if (userDTO != null) {
+//            UserLocationFrom userDTO = this.userLocationMapper.getMatchedUserInfo(uId);
+//            if (userDTO != null) {
 //                String username = userDTO.getUser_name();
 //                int gender = userDTO.getSex();
 //                String birthday = userDTO.getBirthday();
@@ -213,8 +213,10 @@ public class UserLocationServiceImpl implements UserLocationService {
 //                String portraitUrl = userDTO.getHead_image_url();
 //                NearbyUserVO userVO = new NearbyUserVO(uId, username, gender, birthday, description, portraitUrl, distance, latitude, longitude);
 //                nearbyUsers.add(userVO);
-            }
 
+
+
+//            }
         });
         return nearbyUsers;
     }

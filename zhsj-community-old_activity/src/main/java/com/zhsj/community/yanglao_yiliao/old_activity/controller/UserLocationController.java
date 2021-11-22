@@ -7,8 +7,8 @@ import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.UserLocati
 import com.zhsj.community.yanglao_yiliao.old_activity.service.UserLocationService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +22,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("userLocation")
 @Slf4j
-public class UserLocationController {
+public class  UserLocationController {
 
-    @Resource
+    @Autowired
     private UserLocationService userLocationService;
 
 
@@ -38,7 +38,7 @@ public class UserLocationController {
         log.info("userLocationFrom的值：{}",userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         String member = user.getId().toString();
-        return userLocationService.saveUserLocation(member, userLocationFrom.getLatitude(), userLocationFrom.getLongitude());
+        return this.userLocationService.saveUserLocation(member, userLocationFrom.getLatitude(), userLocationFrom.getLongitude());
     }
 
 
@@ -51,7 +51,7 @@ public class UserLocationController {
     public List<UserLocationVo> listNearbyUsered(@RequestBody UserLocationFrom userLocationFrom){
         log.info("userLocationFrom的值是：{}",userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
-        return userLocationService.listNearbyUsersed(user.getId(),userLocationFrom.getLimit());
+        return this.userLocationService.listNearbyUsersed(user.getId(),userLocationFrom.getLimit());
     }
 
 
@@ -64,7 +64,7 @@ public class UserLocationController {
     @GetMapping("/nearby")
     public List<UserLocationVo> listNearbyUsers(@RequestBody UserLocationFrom userLocationFrom){
         log.info("userLocationFrom的值是1：{}",userLocationFrom);
-        return userLocationService.listNearbyUsers(userLocationFrom.getLatitude(),userLocationFrom.getLongitude(),userLocationFrom.getLimit());
+        return this.userLocationService.listNearbyUsers(userLocationFrom.getLatitude(),userLocationFrom.getLongitude(),userLocationFrom.getLimit());
     }
 
 
@@ -79,7 +79,7 @@ public class UserLocationController {
                                      @RequestParam(value = "otherUserId") Integer otherUserId){
         log.info("userId: {}",userId,"otherUserId:{}",otherUserId);
         try{
-            return userLocationService.getDistanceBetween(userId, otherUserId);
+            return this.userLocationService.getDistanceBetween(userId, otherUserId);
         }
         catch (IllegalArgumentException e){
             log.error("距离参数错误");
@@ -97,7 +97,7 @@ public class UserLocationController {
     public Map<String, Double> getUserLocation(@PathVariable("userId") Integer userId){
         log.info("userid的值：{}",userId);
         try{
-            return userLocationService.getUserLocation(userId);
+            return this.userLocationService.getUserLocation(userId);
         }
         catch (IllegalArgumentException e){
             log.error("获取坐标参数错误");
@@ -113,7 +113,7 @@ public class UserLocationController {
     @DeleteMapping("/delete")
     public Boolean deleteUserLocation(@RequestParam("userId") Integer userId){
         log.info("userid的值：{}",userId);
-        return userLocationService.deleteUserLocation(userId);
+        return this.userLocationService.deleteUserLocation(userId);
     }
 
 
