@@ -4,10 +4,12 @@ package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
+
 
 
 /**
@@ -63,5 +65,16 @@ public class UserLocationVo implements Serializable {
     @TableLogic
     private int deleted;
 
+    public UserLocationVo(String username, String address, Long uId, double latitude, double longitude, String userFriend, int deleted) {
+        ActivityVo activityVo = new ActivityVo();
+        activityVo.setNickname(username);
+        activityVo.setUId(uId);
+        activityVo.setLatitude(latitude);
+        activityVo.setLongitude(longitude);
+        UserLocation userLocation = new UserLocation();
+        userLocation.setAddress(address);
+        userLocation.setDeleted(deleted);
+        userLocation.setUserFriend(userFriend);
+    }
 
 }
