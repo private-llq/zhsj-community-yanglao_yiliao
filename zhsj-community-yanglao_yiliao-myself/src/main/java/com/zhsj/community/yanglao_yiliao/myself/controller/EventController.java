@@ -4,10 +4,9 @@ import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
-import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
-import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -81,7 +80,7 @@ public class EventController {
      * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
      */
     @GetMapping("list")
-    public R<List<EventEntity>> list(@RequestParam("date") LocalDate date) {
+    public R<List<EventEntity>> list(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         return R.ok(eventService.list(date, loginUser));
     }
@@ -94,10 +93,10 @@ public class EventController {
      * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
      */
     @GetMapping("pageList")
-    public R<PageVo<EventEntity>> pageList(@RequestBody BaseQo baseQo) {
+    public R<List<EventEntity>> pageList() {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        PageVo<EventEntity> pageVo = eventService.pageList(baseQo, loginUser);
-        return R.ok(pageVo);
+        List<EventEntity> list = eventService.pageList(loginUser);
+        return R.ok(list);
     }
 
 

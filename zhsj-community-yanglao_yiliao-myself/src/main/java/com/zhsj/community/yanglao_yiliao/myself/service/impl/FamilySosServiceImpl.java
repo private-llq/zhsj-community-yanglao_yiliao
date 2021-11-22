@@ -59,9 +59,15 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
         AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getAccount()).eq("family_id",familyId));
         if (sosEntity!=null){
             //查询机构
+        } else {
+            sosEntity = new AgencySosEntity();
+            sosEntity.setAgencyId(123L);
+            sosEntity.setAgencyText("流光福诊所");
+            sosEntity.setAgencyMobile("15102345678");
+            sosEntity.setFamilyId(familyId);
         }
-        map.put("familyList",map);
-        map.put("agency",null);
+        map.put("familyList",entityList);
+        map.put("agency",sosEntity);
         return map;
     }
 }

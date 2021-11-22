@@ -31,7 +31,7 @@ public interface EventMapper extends BaseMapper<EventEntity> {
      * @Param:
      * @return:
      */
-    List<EventEntity> pageList(@Param("year") int year, @Param("month") int monthValue, @Param("day") int dayOfMonth, @Param("week") int week, @Param("uid") String uid, @Param("page") long page, @Param("size") Long size);
+    List<EventEntity> pageList(@Param("year") int year, @Param("month") int monthValue, @Param("day") int dayOfMonth, @Param("week") int week, @Param("uid") String uid);
 
     /**
      * @Description: 所有当前分钟需要提醒的事件

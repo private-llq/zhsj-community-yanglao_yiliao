@@ -2,22 +2,22 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.PageResult;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.addActivityFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.*;
+import com.zhsj.community.yanglao_yiliao.old_activity.exception.BootException;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.mapper.UserLocationMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -31,8 +31,11 @@ import java.util.*;
 @Slf4j
 public class ActivityServiceImpl implements ActivityService {
 
-    @Resource
+    @Autowired
     private ActivityMapper activityMapper;
+
+    @Autowired
+    private UserLocationMapper userLocationMapper;
 
 
     /**
@@ -56,6 +59,11 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setActivityExplain(addActivityFrom.getActivityExplain());
         activity.setVoice(addActivityFrom.getVoice());
         activity.setLatitude(addActivityFrom.getLatitude());
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        activity.setSex(addActivityFrom.getSex());
+        activity.setAge(addActivityFrom.getAge());
+        activity.setNickname(user.getNickName());
+        activity.setUId(user.getId());
         //用逗号隔开分别存
         ArrayList<String> strings = ImagesList(addActivityFrom.getPathUrl());
         for (String s:strings){
@@ -73,6 +81,7 @@ public class ActivityServiceImpl implements ActivityService {
      *
      */
     public static ArrayList<String> ImagesList(String images) {
+        log.info("图片：{}",images);
         ArrayList<String> urls = new ArrayList<>();
         String[] split = images.split(",");
         if (split.length > 1) {
@@ -91,46 +100,62 @@ public class ActivityServiceImpl implements ActivityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deletedActivity(Long id) {
-        log.info("用户id{}", id);
+    public void deletedActivity(Long uid) {
+        log.info("用户id{}", uid);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         this.activityMapper.delete(new QueryWrapper<Activity>().eq("u_id",user.getId()));
-        this.activityMapper.deleteById(id);
+        this.activityMapper.deleteById(uid);
     }
 
     /**
      * 查询附近的活动或者好友的活动
      *
+     * @return
      */
     @Override
-    public List<Activity> listActivities(addActivityFrom addActivityFrom) {
-        log.info("addActivityFrom的值{}",addActivityFrom);
+    public HashSet<LinkedList<UserLocation>> listActivities(UserLocationFrom userLocationFrom) {
         //根据距离查询活动
-        List<Activity> activities = this.activityMapper.selectList(new QueryWrapper<Activity>()
-                .eq("distance", addActivityFrom.getDistance()).orderByAsc(addActivityFrom.getDistance()));
-        //
+        UserLocation userLocation = this.userLocationMapper.selectOne(new QueryWrapper<UserLocation>()
+                .eq("address", userLocationFrom.getAddress()).orderByAsc());
+        //根据好友去查询是否是好友
+        UserLocation userFriend = this.userLocationMapper.selectOne(new QueryWrapper<UserLocation>()
+                .eq("user_friend", userLocationFrom.getUserFriend()).orderByAsc());
+        if (userFriend.getUserFriend() == "1"){
+            throw  new BootException("你们不是好友");
+        }
+        UserLocation userLocationFrom1 = new UserLocation();
+        UserLocationFrom userLocationFrom2 = new UserLocationFrom();
+        BeanUtils.copyProperties(userLocationFrom1,userLocationFrom2);
+        LinkedList<UserLocation> linkedList = new LinkedList<>();
+        linkedList.add(userLocation);
+        linkedList.add(userFriend);
 
+        HashSet<LinkedList<UserLocation>> hset = new HashSet<>();
+        hset.add(linkedList);
 
-
-        return activities;
+        ArrayList<Object> objects = new ArrayList<>();
+        objects.add(hset);
+        return  hset;
     }
 
     /**
      * 点击头像查询查看活动、个人资料
      *
+     * @return
      */
     @Override
-    public IPage<Activity> queryAlbumList(PageResult pageResult) {
+    public Page<Activity> queryAlbumList(PageResult pageResult) {
         PageResult pageResulted = new PageResult();
         pageResulted.setPage(pageResult.getPage());
         pageResulted.setPagesize(pageResult.getPagesize());
         pageResulted.setCounts(0);
         pageResulted.setPages(0);
+        LoginUser user = ContextHolder.getContext().getLoginUser();
         QueryWrapper<Activity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("deleted", 0);
+        queryWrapper.eq("deleted", 0).eq("u_id",user.getId());
         Page<Activity> page = new Page<>(pageResult.getCounts(), pageResult.getPagesize());
         Page<Activity> paged = this.activityMapper.selectPage(page, queryWrapper);
-        return paged;
+        return  paged;
     }
 
 
@@ -140,13 +165,14 @@ public class ActivityServiceImpl implements ActivityService {
      *
      */
     @Override
-    public int updateUserInfo(ActivityVo activityVo) {
+    public int updateUserInfo(ActivityUpdateFrom activityUpdateFrom) {
         Activity activity = new Activity();
-        activity.setNickname(activityVo.getNickname());
-        activity.setSex(activityVo.getSex());
-        activity.setAge(activityVo.getAge());
+        activity.setNickname(activityUpdateFrom.getNickname());
+        activity.setSex(activityUpdateFrom.getSex());
+        activity.setAge(activityUpdateFrom.getAge());
         QueryWrapper<Activity> query =new QueryWrapper<>();
-        query.eq("u_id",activityVo.getUId());
+        LoginUser user = ContextHolder.getContext().getLoginUser();
+        query.eq("u_id",user.getId());
         int update = this.activityMapper.update(activity, query);
         return update;
     }

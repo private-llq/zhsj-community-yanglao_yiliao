@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -37,6 +37,11 @@ public class UserLocation implements Serializable {
      */
     private Long userId;
     /**
+     * 活动id
+     */
+    private Long aId;
+
+    /**
      * 经度
      */
     private Double longitude;
@@ -53,10 +58,9 @@ public class UserLocation implements Serializable {
      */
     private String nickname;
     /**
-     * 距离
+     * 是否是好友 0 否 | 1 是
      */
-    private  String beatadistancefrom;
-
+    private  String userFriend;
     /**
      * 创建时间
      */

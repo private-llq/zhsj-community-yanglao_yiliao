@@ -1,13 +1,14 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.PageResult;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.addActivityFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityVo;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -44,27 +45,29 @@ public interface ActivityService {
      * 删除发布活动
      *
      */
-    void deletedActivity(Long id);
+    void deletedActivity(Long uid);
 
     /**
      * 查询附近的活动或者好友的活动
      *
+     * @return
      */
-    List<Activity> listActivities(addActivityFrom addActivityFrom);
+    HashSet<LinkedList<UserLocation>> listActivities(UserLocationFrom userLocationFrom);
 
 
     /**
      * 点击头像查询查看活动、个人资料
      *
+     * @return
      */
-    IPage<Activity> queryAlbumList(PageResult pageResult);
+    Page<Activity> queryAlbumList(PageResult pageResult);
 
 
 
     /**
      * 更新用户信息
-     * @return
+     *
      */
-    int updateUserInfo(ActivityVo activityVo);
+    int updateUserInfo(ActivityUpdateFrom activityUpdateFrom);
 
 }

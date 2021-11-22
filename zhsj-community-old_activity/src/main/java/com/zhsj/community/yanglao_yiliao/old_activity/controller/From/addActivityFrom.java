@@ -25,6 +25,10 @@ public class addActivityFrom {
     @NotNull(message = "id不能为空")
     private Long id;
     /**
+     * 用户id
+     */
+    private  Long uId;
+    /**
      * 活动类型
      */
     @NotNull(message = "活动类型不能为空")
@@ -57,6 +61,18 @@ public class addActivityFrom {
     @NotNull(message = "距离不能为空")
     private  String distance;
 
+    /**
+     * 性别
+     */
+    private  String sex;
+    /**
+     * 年龄
+     */
+    private  String age;
+    /**
+     * 用户昵称
+     */
+    private  String nickname;
 
 
 

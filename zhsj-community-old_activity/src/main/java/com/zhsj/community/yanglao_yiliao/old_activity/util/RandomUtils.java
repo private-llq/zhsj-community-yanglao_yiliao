@@ -38,4 +38,17 @@ public class RandomUtils {
         }
         return dStr;
     }
+
+    public static void main(String[] args) {
+        String randomString = createRandomString(10);
+        String randomNumString = getRandomNumString();
+        int random = getRandom(10);
+        int anInt = getInt();
+        System.out.println(random);
+        System.out.println(anInt);
+        System.out.println(randomString);
+        System.out.println(randomNumString);
+
+
+    }
 }

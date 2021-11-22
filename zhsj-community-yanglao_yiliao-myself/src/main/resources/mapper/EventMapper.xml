@@ -24,7 +24,6 @@
         	OR ( te.type = 3 AND te.warn_week = #{week}  and te.deleted=0 and te.uid=#{uid})
         	OR (te.type = 4 AND te.warn_day = #{day}  and te.deleted=0 and te.uid=#{uid})
         ORDER BY te.warn_hour,te.warn_minute ASC
-        LIMIT #{page},#{size}
     </select>
     <select id="selectByDay" resultType="com.zhsj.community.yanglao_yiliao.common.entity.EventEntity">
         SELECT
