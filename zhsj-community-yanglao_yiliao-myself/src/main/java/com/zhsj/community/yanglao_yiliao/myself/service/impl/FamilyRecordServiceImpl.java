@@ -63,7 +63,6 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
 
                 if (StringUtils.isEmpty(familyRecordEntity.getAvatarUrl())||
                         StringUtils.isEmpty(familyRecordEntity.getName())||
-                        StringUtils.isEmpty(familyRecordEntity.getIdCard())||
                         StringUtils.isEmpty(familyRecordEntity.getBirthday())||
                         StringUtils.isEmpty(familyRecordEntity.getSex())||
                         StringUtils.isEmpty(familyRecordEntity.getRelation())||

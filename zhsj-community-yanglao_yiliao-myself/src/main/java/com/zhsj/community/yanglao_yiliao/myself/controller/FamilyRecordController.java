@@ -9,11 +9,14 @@ import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
+import com.zhsj.community.yanglao_yiliao.myself.utils.MinioUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,6 +34,8 @@ public class FamilyRecordController {
 
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
     private IBaseSmsRpcService baseSmsRpcService;
+
+    private final String[] img ={"jpg","png","jpeg"};
 
 
     /**
@@ -60,6 +65,27 @@ public class FamilyRecordController {
     @GetMapping("getOne")
     public R<FamilyRecordEntity> getOne(@RequestParam Long id){
         return R.ok(familyRecordService.getById(id));
+    }
+
+
+
+
+    /**
+     * @Description: 头像上传
+     * @author: Hu
+     * @since: 2021/11/23 10:10
+     * @Param: [file]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.String>
+     */
+    @PostMapping("upload")
+    public R<String> upload(@RequestParam MultipartFile file){
+        String originalFilename = file.getOriginalFilename();
+        String s = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        if (!Arrays.asList(img).contains(s)) {
+            return R.fail("请上传图片！可用后缀"+ Arrays.toString(img));
+        }
+        String upload = MinioUtils.upload(file, "portrait");
+        return R.ok(upload);
     }
 
     /**
