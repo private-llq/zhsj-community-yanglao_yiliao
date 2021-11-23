@@ -10,7 +10,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
-
 import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -68,7 +67,7 @@ public class ActivityController {
      */
     @GetMapping("pageList")
     public Result pageActivity(@RequestBody PageResult pageResult) {
-        log.info("页数：",pageResult);
+        log.info("页数{}",pageResult);
         Page<Activity> activityPage = this.activityService.queryAlbumList(pageResult);
         return Result.ok(activityPage);
     }
@@ -88,10 +87,11 @@ public class ActivityController {
     /**
      * 查询附近的活动或者好友的活动
      *
-     * @return
+     *
      */
     @GetMapping("select")
     public Result selectActivity(@RequestBody  @Validated UserLocationFrom userLocationFrom){
+        log.info("附近的人参数{}",userLocationFrom);
         HashSet<LinkedList<UserLocation>> linkedLists = this.activityService.listActivities(userLocationFrom);
         return  Result.ok(linkedLists);
     }

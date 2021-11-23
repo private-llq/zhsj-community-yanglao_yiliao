@@ -35,8 +35,6 @@ public class UserLocationServiceImpl implements UserLocationService {
     @Autowired
     private  UserLocationService userLocationService;
 
-//    @Autowired
-//    private IBaseUserInfoRpcService iBaseUserInfoRpcService;
 
     /**
      * 最大获取数量：20
@@ -72,6 +70,7 @@ public class UserLocationServiceImpl implements UserLocationService {
      * @return 是否合法
      */
     private Boolean invalidCoordinates(Double latitude, Double longitude){
+        log.info("经纬度{}{}",latitude,longitude);
         return latitude == null ||
                 longitude == null ||
                 Math.abs(latitude) > 90 ||
@@ -81,6 +80,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public Boolean saveUserLocation(String member, Double latitude, Double longitude) {
+        log.info("距离和经纬度{}{}{}",member,latitude,longitude);
         if(member == null  || member.isEmpty() || invalidCoordinates(latitude, longitude)){
             return false;
         }
@@ -99,6 +99,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public GeoResults<RedisGeoCommands.GeoLocation<String>> listLocationsInRadius(String member, Double distance, Metric metric, int limit) {
+        log.info("距离和经纬度和限制{}{}{}{}",member,distance,metric,limit);
         if(member == null || member.isEmpty() || distance == null || distance <= 0 || metric == null || limit <= 0){
             return null;
         }
@@ -118,6 +119,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public GeoResults<RedisGeoCommands.GeoLocation<String>> listLocationsInRadius(Double latitude, Double longitude, Double distance, Metric metric, int limit) {
+        log.info("经纬度和距离{}{}{}{}",latitude,longitude,distance,metric,limit);
         if(invalidCoordinates(latitude, longitude) || distance == null || distance <= 0 || metric == null || limit <= 0){
             return null;
         }
@@ -140,6 +142,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public Double getDistanceBetween(Integer userId, Integer otherUserId){
+        log.info("userid{}{}",userId,otherUserId);
         if(userId == null || otherUserId == null || userId <= 0 || otherUserId <= 0){
             throw new IllegalArgumentException();
         }
@@ -154,9 +157,10 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public Map<String, Double> getUserLocation(Integer userId) {
-   //获取用户信息
-        LoginUser user = ContextHolder.getContext().getLoginUser();
-        List<Point> points = redisTemplate.opsForGeo().position(CACHE_KEY, user.getId().toString());
+        log.info("userid是{}",userId);
+          //获取用户信息
+//        LoginUser user = ContextHolder.getContext().getLoginUser();
+        List<Point> points = redisTemplate.opsForGeo().position(CACHE_KEY, userAuth().getId().toString());
         if(points == null){
             return null;
         }
@@ -168,6 +172,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public Boolean deleteUserLocation(Integer userId) {
+        log.info("userid的值是{}",userId);
         if(userId == null || userId < 0){
             return false;
         }
@@ -177,6 +182,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public List<UserLocationVo> listNearbyUsers(Double latitude, Double longitude, Integer limit){
+        log.info("经纬度和限制的值{}{}{}",latitude,longitude,limit);
         GeoResults<RedisGeoCommands.GeoLocation<String>> results = this.userLocationService.listLocationsInRadius(latitude,
                 longitude, DEFAULT_RADIUS, RADIUS_METRIC, limit > MAX_LIMIT ? MAX_LIMIT : limit);
         return geoResultToVO(results);
@@ -184,6 +190,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public List<UserLocationVo> listNearbyUsersed(Long userId, Integer limit) {
+        log.info("userid和limit的值{}{}",userId,limit);
         if(userId == null || limit == null || limit <= 0){
             throw new IllegalArgumentException();
         }
@@ -195,6 +202,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public UserLocation listUserLocation(Long uId) {
+        log.info("用户id的值{}",uId);
         UserLocation userLocation = this.userLocationMapper.selectOne(new QueryWrapper<UserLocation>().select().eq("u_id", uId));
         return userLocation;
     }
@@ -206,6 +214,7 @@ public class UserLocationServiceImpl implements UserLocationService {
      * @return 附近用户VO集合
      */
     private List<UserLocationVo> geoResultToVO(GeoResults<RedisGeoCommands.GeoLocation<String>> results){
+        log.info("结果集{}",results);
         if(results == null){
             return null;
         }
