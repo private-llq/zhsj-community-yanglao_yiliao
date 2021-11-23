@@ -1,10 +1,13 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.io.Serializable;
+
 
 
 /**
@@ -17,10 +20,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityVo {
+public class ActivityVo implements Serializable {
     /**
      * 主键id
      */
+    @TableId
     private Long id;
     /**
      * 活动类型
@@ -31,22 +35,30 @@ public class ActivityVo {
      */
     private String activityExplain;
     /**
-     * 图片路径
+     * 附近人的距离
      */
-    private String pathUrl;
+    private String distance;
+
     /**
      *语音
      */
     private  String voice;
-
+    /**
+     * 图片路径
+     */
+    private String pathUrl;
     /**
      * 用户昵称
      */
     private  String nickname;
     /**
-     * 附近人的距离
+     * 经度
      */
-    private String distance;
+    private Double longitude;
+    /**
+     * 维度
+     */
+    private Double latitude;
     /**
      * 性别
      */
@@ -58,15 +70,8 @@ public class ActivityVo {
     /**
      * 用户id
      */
-    private  String uId;
-    /**
-     * 经度
-     */
-    private Double longitude;
-    /**
-     * 维度
-     */
-    private Double latitude;
+    private  Long uId;
+
 
     /**
      * 逻辑删除  0 否 | 1 是

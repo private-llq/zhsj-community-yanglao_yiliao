@@ -1,6 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
-import com.zhsj.community.yanglao_yiliao.healthydata.dto.TitleTimeValueDto;
+import com.zhsj.community.yanglao_yiliao.healthydata.dto.TempTitleTimeValueDto;
 import lombok.Data;
 
 import java.util.List;
@@ -22,10 +22,10 @@ public class TempChartRspBo {
     /**
      * 体温平均值
      */
-    private Integer temptAvg;
+    private String temptAvg;
 
     /**
      * list<日体温 = title + time + value>
      */
-    private List<TitleTimeValueDto> list;
+    private List<TempTitleTimeValueDto> list;
 }

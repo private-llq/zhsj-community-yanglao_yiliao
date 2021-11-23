@@ -2,14 +2,15 @@ package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
 
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
+
 
 /**
  * @author liulq
@@ -23,52 +24,57 @@ import java.util.List;
 @AllArgsConstructor
 public class UserLocationVo implements Serializable {
 
-    private String id;
+    /**
+     * 主键id
+     */
+    @TableId
+    private Long id;
     /**
      * 用户id
      */
     private Long userId;
     /**
+     * 活动id
+     */
+    private Long aId;
+
+    /**
      * 经度
      */
-    private double longitude;
+    private Double longitude;
     /**
      * 维度
      */
-    private double latitude;
-
+    private Double latitude;
+    /**
+     * 位置描述
+     */
+    private String address;
     /**
      * 昵称
      */
     private String nickname;
     /**
-     * 距离
+     * 是否是好友 0 否 | 1 是
      */
-    private  String beatadistancefrom;
+    private  String userFriend;
+
     /**
-     * 位置描述
+     * 逻辑删除  0 否 | 1 是
      */
-    private String address;
+    @TableLogic
+    private int deleted;
 
-
-
-    public static UserLocationVo format(UserLocation userLocation) {
-
-        UserLocationVo userLocationVo = new UserLocationVo();
-        userLocationVo.setUserId(userLocation.getUserId());
-        userLocationVo.setLongitude(userLocation.getLongitude());
-        userLocationVo.setLatitude(userLocation.getLatitude());
-        userLocationVo.setNickname(userLocation.getNickname());
-        userLocationVo.setAddress(userLocation.getAddress());
-        userLocationVo.setBeatadistancefrom(userLocation.getBeatadistancefrom());
-        return userLocationVo;
+    public UserLocationVo(String username, String address, Long uId, double latitude, double longitude, String userFriend, int deleted) {
+        ActivityVo activityVo = new ActivityVo();
+        activityVo.setNickname(username);
+        activityVo.setUId(uId);
+        activityVo.setLatitude(latitude);
+        activityVo.setLongitude(longitude);
+        UserLocation userLocation = new UserLocation();
+        userLocation.setAddress(address);
+        userLocation.setDeleted(deleted);
+        userLocation.setUserFriend(userFriend);
     }
 
-    public static List<UserLocationVo> formatToList(List<UserLocation> userLocations) {
-        List<UserLocationVo> list = new ArrayList<>();
-        for (UserLocation userLocation : userLocations) {
-            list.add(format(userLocation));
-        }
-        return list;
-    }
 }

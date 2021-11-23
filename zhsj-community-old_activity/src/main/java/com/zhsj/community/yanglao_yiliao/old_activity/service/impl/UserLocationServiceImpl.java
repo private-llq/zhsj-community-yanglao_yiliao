@@ -1,17 +1,20 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.UserLocationFrom;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.UserLocationMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.UserLocationService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
+
 import java.util.*;
 
 /**
@@ -26,11 +29,14 @@ import java.util.*;
 public class UserLocationServiceImpl implements UserLocationService {
 
 
-    @Resource
+    @Autowired
     private UserLocationMapper userLocationMapper;
 
-    @Resource
+    @Autowired
     private  UserLocationService userLocationService;
+
+//    @Autowired
+//    private IBaseUserInfoRpcService iBaseUserInfoRpcService;
 
     /**
      * 最大获取数量：20
@@ -126,6 +132,7 @@ public class UserLocationServiceImpl implements UserLocationService {
         return redisTemplate
                 .opsForGeo()
                 .radius(CACHE_KEY, new Circle(center, radius), commandArgs);
+
     }
 
 
@@ -170,7 +177,7 @@ public class UserLocationServiceImpl implements UserLocationService {
 
     @Override
     public List<UserLocationVo> listNearbyUsers(Double latitude, Double longitude, Integer limit){
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results = userLocationService.listLocationsInRadius(latitude,
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = this.userLocationService.listLocationsInRadius(latitude,
                 longitude, DEFAULT_RADIUS, RADIUS_METRIC, limit > MAX_LIMIT ? MAX_LIMIT : limit);
         return geoResultToVO(results);
     }
@@ -181,10 +188,15 @@ public class UserLocationServiceImpl implements UserLocationService {
             throw new IllegalArgumentException();
         }
         String member = userId.toString();
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results = userLocationService.listLocationsInRadius(member,
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = this.userLocationService.listLocationsInRadius(member,
                 DEFAULT_RADIUS, RADIUS_METRIC, limit > MAX_LIMIT ? MAX_LIMIT : limit);
-
         return geoResultToVO(results);
+    }
+
+    @Override
+    public UserLocation listUserLocation(Long uId) {
+        UserLocation userLocation = this.userLocationMapper.selectOne(new QueryWrapper<UserLocation>().select().eq("u_id", uId));
+        return userLocation;
     }
 
 
@@ -199,22 +211,19 @@ public class UserLocationServiceImpl implements UserLocationService {
         }
         List<UserLocationVo> nearbyUsers = new ArrayList<>();
         results.forEach((result)-> {
-            double distance = result.getDistance().getValue();
-            Integer uId = Integer.valueOf(result.getContent().getName());
             double latitude = result.getContent().getPoint().getY();
             double longitude = result.getContent().getPoint().getX();
-
-            UserLocationFrom userDTO = userLocationMapper.getMatchedUserInfo(uId);
-            if (userDTO != null) {
-//                String username = userDTO.getUser_name();
-//                int gender = userDTO.getSex();
-//                String birthday = userDTO.getBirthday();
-//                String description = userDTO.getIntroduction();
-//                String portraitUrl = userDTO.getHead_image_url();
-//                NearbyUserVO userVO = new NearbyUserVO(uId, username, gender, birthday, description, portraitUrl, distance, latitude, longitude);
-//                nearbyUsers.add(userVO);
+            LoginUser user = ContextHolder.getContext().getLoginUser();
+//            String member = user.getId().toString();
+            UserLocation userLocation = this.listUserLocation(user.getId());
+            if (userLocation != null) {
+                String username = userLocation.getNickname();
+                String address = userLocation.getAddress();
+                String userFriend = userLocation.getUserFriend();
+                int deleted = userLocation.getDeleted();
+                UserLocationVo userVO = new UserLocationVo(username,address,user.getId(),latitude,longitude,userFriend,deleted);
+                nearbyUsers.add(userVO);
             }
-
         });
         return nearbyUsers;
     }

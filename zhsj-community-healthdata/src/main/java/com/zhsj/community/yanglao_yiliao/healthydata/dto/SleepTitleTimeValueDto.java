@@ -29,6 +29,11 @@ public class SleepTitleTimeValueDto {
     private String timeValue;
 
     /**
+     * 时间点对应的星期
+     */
+    private String timeWeek;
+
+    /**
      * 时间点对应的深睡时长
      */
     private Integer deepSleepTime;

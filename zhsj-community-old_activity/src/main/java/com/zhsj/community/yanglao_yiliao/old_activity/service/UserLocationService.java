@@ -1,8 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.UserLocationFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Metric;
@@ -95,4 +93,10 @@ public interface UserLocationService {
      */
     List<UserLocationVo> listNearbyUsersed(Long userId, Integer limit);
 
+    /**
+     * 返回前端的数据
+     * @param uId
+     * @return
+     */
+    UserLocation listUserLocation(Long uId);
 }
