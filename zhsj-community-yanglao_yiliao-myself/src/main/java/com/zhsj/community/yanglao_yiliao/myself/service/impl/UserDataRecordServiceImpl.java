@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.myself.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.DataRecordMapper;
@@ -23,9 +24,17 @@ public class UserDataRecordServiceImpl extends ServiceImpl<UserDataRecordMapper,
     @Resource
     private DataRecordMapper dataRecordMapper;
 
-    @Override
-    public void getList() {
 
+    /**
+     * @Description: 查询我的健康档案列表
+     * @author: Hu
+     * @since: 2021/11/23 14:41
+     * @Param: [loginUser]
+     * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
+     */
+    @Override
+    public List<UserDataRecordEntity> getList(LoginUser loginUser) {
+        return dataRecordMapper.getList(loginUser.getAccount());
     }
 
     /**

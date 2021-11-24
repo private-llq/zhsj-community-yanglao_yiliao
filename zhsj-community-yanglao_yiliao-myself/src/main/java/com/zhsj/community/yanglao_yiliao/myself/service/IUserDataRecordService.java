@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.myself.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity;
 
@@ -23,11 +24,11 @@ public interface IUserDataRecordService extends IService<UserDataRecordEntity> {
     List<DataRecordEntity> treeForm();
 
     /**
-     * @Description: 查询列表
+     * @Description: 查询我的健康档案列表
      * @author: Hu
-     * @since: 2021/11/23 9:17
-     * @Param:
-     * @return:
+     * @since: 2021/11/23 14:41
+     * @Param: [loginUser]
+     * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
      */
-    void getList();
+    List<UserDataRecordEntity> getList(LoginUser loginUser);
 }
