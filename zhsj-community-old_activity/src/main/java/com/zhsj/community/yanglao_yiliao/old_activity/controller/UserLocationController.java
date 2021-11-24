@@ -77,7 +77,7 @@ public class  UserLocationController {
     @GetMapping("/distance")
     public Double getDistanceBetween(@RequestParam(value = "userId") Integer userId,
                                      @RequestParam(value = "otherUserId") Integer otherUserId){
-        log.info("userId: {}",userId,"otherUserId:{}",otherUserId);
+        log.info("userId:{}",userId,"otherUserId:{}",otherUserId);
         try{
             return this.userLocationService.getDistanceBetween(userId, otherUserId);
         }
