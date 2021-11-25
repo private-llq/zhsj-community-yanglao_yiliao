@@ -124,7 +124,33 @@ public class EventServiceImpl implements IEventService {
      */
     @Override
     public List<EventEntity> list(LocalDate localDate, LoginUser loginUser) {
+        Map<Long, EventStopEntity> map = new HashMap<>();
+        Map<String, Object> paramMap;
+        //封装所有关闭的事件提醒
+        List<EventStopEntity> stopEntityList = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getAccount()));
+        if (stopEntityList.size()!=0){
+            for (EventStopEntity entity : stopEntityList) {
+                map.put(entity.getEventId(),entity);
+            }
+        }
         List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount());
+        for (EventEntity entity : entityList) {
+            //状态
+            if (map.get(entity.getId())!=null) {
+                entity.setStatus(0);
+            }
+            //封装提醒家人信息
+            Set<Long> longSet = eventFamilyMapper.getByFamilyId(entity.getId());
+            List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(longSet);
+            if (entities.size()!=0){
+                for (FamilyRecordEntity recordEntity : entities) {
+                    paramMap = new HashMap<>(2);
+                    paramMap.put("id",recordEntity.getId());
+                    paramMap.put("name",recordEntity.getName());
+                    entity.getRecords().add(paramMap);
+                }
+            }
+        }
         return entityList;
     }
 

@@ -63,7 +63,7 @@ public class EventController {
      * @Param: [eventEntity]
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
-    @PutMapping("update")
+    @PutMapping(value = "update")
     public R<Void> update(@RequestBody EventEntity eventEntity) {
         ValidatorUtils.validateEntity(eventEntity, EventEntity.EventValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
@@ -79,7 +79,7 @@ public class EventController {
      * @Param: [date]
      * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
      */
-    @GetMapping("list")
+    @GetMapping(value = "list")
     public R<List<EventEntity>> list(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         return R.ok(eventService.list(date, loginUser));

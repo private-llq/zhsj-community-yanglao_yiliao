@@ -26,6 +26,12 @@ public class EventEntity extends BaseEntity {
      * 用户uid
      */
     private String uid;
+
+    /**
+     * 苹果透传字段
+     */
+    private String notiId;
+
     /**
      * 1单次提醒，2每天提醒，3每周提醒，4每月提醒
      */

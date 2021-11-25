@@ -64,6 +64,7 @@ public class FamilyRecordController {
      */
     @GetMapping("getOne")
     public R<FamilyRecordEntity> getOne(@RequestParam Long id){
+        FamilyRecordEntity entity = familyRecordService.getById(id);
         return R.ok(familyRecordService.getById(id));
     }
 
@@ -111,7 +112,12 @@ public class FamilyRecordController {
      */
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
+        FamilyRecordEntity entity = familyRecordService.getById(familyRecordEntity.getId());
         ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.UpdateFamilyValidate.class);
+        if (entity.getRelation()==0&&familyRecordEntity.getRelation()!=0){
+            return R.fail("自己的关系不能修改！");
+        }
+        familyRecordEntity.setMobile(null);
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familyRecordService.updateById(familyRecordEntity));
     }
