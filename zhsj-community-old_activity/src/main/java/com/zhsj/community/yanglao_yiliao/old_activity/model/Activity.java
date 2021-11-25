@@ -1,11 +1,11 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.po;
+package com.zhsj.community.yanglao_yiliao.old_activity.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.jo.ActivityReqBo;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,9 +45,17 @@ public class Activity {
     private String activityTypeCode;
 
     /**
+     * 活动类型名称
+     */
+    private String activityTypeName;
+    /**
      * 图片地址3张，逗号分割
      */
     private String picUrl;
+    /**
+     * 语音的url
+     */
+    private  String voiceUrl;
 
     /**
      * 当前登录用户id
@@ -111,3 +119,4 @@ public class Activity {
                 .build();
     }
 }
+

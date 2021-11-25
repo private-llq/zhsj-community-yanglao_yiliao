@@ -1,4 +1,4 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.po;
+package com.zhsj.community.yanglao_yiliao.old_activity.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;

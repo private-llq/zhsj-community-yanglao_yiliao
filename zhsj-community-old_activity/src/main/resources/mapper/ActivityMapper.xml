@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper">
 
-    <select id="queryNearbyActivityList" parameterType="com.zhsj.community.yanglao_yiliao.old_activity.jo.ActivityReqBo"
-            resultType="com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityDto">
+    <select id="queryNearbyActivityList" parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo"
+            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
         select t.*,fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) as dist
         from t_activity t
         where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt;#{dist}

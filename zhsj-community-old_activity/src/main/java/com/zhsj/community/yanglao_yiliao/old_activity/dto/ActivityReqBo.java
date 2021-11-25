@@ -1,6 +1,8 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.jo;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
@@ -11,6 +13,8 @@ import javax.validation.constraints.NotNull;
  * @date 2021/11/23 19:41
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ActivityReqBo {
 
     /**

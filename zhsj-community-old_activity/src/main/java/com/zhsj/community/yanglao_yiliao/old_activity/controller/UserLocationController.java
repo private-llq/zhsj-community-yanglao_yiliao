@@ -3,7 +3,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.UserLocationFrom;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.UserLocationDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.UserLocationService;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class  UserLocationController {
      * @return 更新状态
      */
     @PostMapping("save")
-    public Boolean saveUserLocation(@RequestBody UserLocationFrom userLocationFrom){
+    public Boolean saveUserLocation(@RequestBody UserLocationDto userLocationFrom){
         log.info("userLocationFrom的值：{}",userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         String member = user.getId().toString();
@@ -48,7 +48,7 @@ public class  UserLocationController {
      * @return 附近用户集合
      */
     @GetMapping("/nearby/{userId}")
-    public List<UserLocationVo> listNearbyUsered(@RequestBody UserLocationFrom userLocationFrom){
+    public List<UserLocationVo> listNearbyUsered(@RequestBody UserLocationDto userLocationFrom){
         log.info("userLocationFrom的值是：{}",userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         return this.userLocationService.listNearbyUsersed(user.getId(),userLocationFrom.getLimit());
@@ -62,7 +62,7 @@ public class  UserLocationController {
      * @return 附近用户集合
      */
     @GetMapping("/nearby")
-    public List<UserLocationVo> listNearbyUsers(@RequestBody UserLocationFrom userLocationFrom){
+    public List<UserLocationVo> listNearbyUsers(@RequestBody UserLocationDto userLocationFrom){
         log.info("userLocationFrom的值是1：{}",userLocationFrom);
         return this.userLocationService.listNearbyUsers(userLocationFrom.getLatitude(),userLocationFrom.getLongitude(),userLocationFrom.getLimit());
     }
