@@ -25,7 +25,6 @@ public class UserDataRecordController {
     private IUserDataRecordService userDataRecordService;
 
 
-
     /**
      * @Description: 查询健康档案树形菜单
      * @author: Hu
@@ -39,10 +38,18 @@ public class UserDataRecordController {
     }
 
 
+    /**
+     * @Description: 查询我的健康档案列表
+     * @author: Hu
+     * @since: 2021/11/23 14:41
+     * @Param: [loginUser]
+     * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
+     */
     @GetMapping("list")
-    public R list(){
-        userDataRecordService.getList();
-        return R.ok();
+    public R<List<UserDataRecordEntity>> list(){
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        List<UserDataRecordEntity> list = userDataRecordService.getList(loginUser);
+        return R.ok(list);
     }
 
     /**
@@ -73,7 +80,5 @@ public class UserDataRecordController {
         userDataRecordService.removeById(id);
         return R.ok();
     }
-
-
 
 }

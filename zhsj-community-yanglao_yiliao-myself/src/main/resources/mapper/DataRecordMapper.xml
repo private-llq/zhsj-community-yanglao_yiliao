@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhsj.community.yanglao_yiliao.myself.mapper.DataRecordMapper">
+    <select id="getList" resultType="com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity">
+        SELECT
+        	tu.id,
+        	tu.description,
+        	tu.create_time,
+        	( SELECT content FROM t_data_record td WHERE tu.data_record_id = td.id ) AS sonContent,
+        	(
+        	SELECT
+        		content
+        	FROM
+        		t_data_record td
+        	WHERE
+        	id = ( SELECT pid FROM t_data_record tdr WHERE tu.data_record_id = tdr.id )) AS sireContent
+        FROM
+        	t_user_data_record tu
+        WHERE
+        	tu.uid = #{uid}
+    </select>
+</mapper>

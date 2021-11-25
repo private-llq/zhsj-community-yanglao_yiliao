@@ -47,6 +47,7 @@ public class ActivityServiceImpl implements ActivityService {
         return activityTyped;
     }
 
+
     /**
      * 新增发布活动
      */
@@ -114,6 +115,7 @@ public class ActivityServiceImpl implements ActivityService {
      */
     @Override
     public HashSet<LinkedList<UserLocation>> listActivities(UserLocationFrom userLocationFrom) {
+        log.info("附近的参数{}",userLocationFrom);
         //根据距离查询活动
         UserLocation userLocation = this.userLocationMapper.selectOne(new QueryWrapper<UserLocation>()
                 .eq("address", userLocationFrom.getAddress()).orderByAsc());
@@ -145,6 +147,7 @@ public class ActivityServiceImpl implements ActivityService {
      */
     @Override
     public Page<Activity> queryAlbumList(PageResult pageResult) {
+        log.info("page{}",pageResult);
         PageResult pageResulted = new PageResult();
         pageResulted.setPage(pageResult.getPage());
         pageResulted.setPagesize(pageResult.getPagesize());
@@ -166,6 +169,7 @@ public class ActivityServiceImpl implements ActivityService {
      */
     @Override
     public int updateUserInfo(ActivityUpdateFrom activityUpdateFrom) {
+        log.info("编辑{}",activityUpdateFrom);
         Activity activity = new Activity();
         activity.setNickname(activityUpdateFrom.getNickname());
         activity.setSex(activityUpdateFrom.getSex());

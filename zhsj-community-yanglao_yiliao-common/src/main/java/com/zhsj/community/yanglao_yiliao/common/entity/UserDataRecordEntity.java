@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.common.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -25,5 +26,15 @@ public class UserDataRecordEntity extends BaseEntity {
      */
     private String uid;
 
+    /**
+     * 子集类容
+     */
+    @TableField(exist = false)
+    private String sonContent;
 
+    /**
+     * 父级类容
+     */
+    @TableField(exist = false)
+    private String sireContent;
 }
