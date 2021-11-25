@@ -2,8 +2,10 @@ package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.jo.ActivityReqBo;
+import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.controller.From.ActivityFrom;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.po.Activity;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +23,11 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     /**
      * 查询活动类型
      */
-    @Select("select id,activity_type from t_activity")
+    @Select("select id,activity_type_name,activity_type_code from t_activity_type")
     List<ActivityFrom> getActivityTyped();
 
+
+    // 查找所有
+    public List<ActivityDto> queryNearbyActivityList(ActivityReqBo reqBo);
 
 }
