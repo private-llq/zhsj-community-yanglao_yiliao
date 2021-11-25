@@ -1,6 +1,6 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.controller.From;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
-import com.zhsj.community.yanglao_yiliao.old_activity.po.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

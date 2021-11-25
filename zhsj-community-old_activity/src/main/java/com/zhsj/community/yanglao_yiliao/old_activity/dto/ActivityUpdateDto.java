@@ -1,4 +1,4 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.controller.From;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityUpdateFrom {
+public class ActivityUpdateDto {
     /**
      * 性别
      */

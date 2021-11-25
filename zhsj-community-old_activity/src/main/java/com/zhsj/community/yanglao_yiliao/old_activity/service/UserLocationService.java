@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public interface UserLocationService {
 
-                  /**============================================================================== */
+
     /**
      * 保存地理信息
      */
@@ -27,11 +27,6 @@ public interface UserLocationService {
 
     /**
      * 查询缓存项
-     * @param member
-     * @param distance
-     * @param metric
-     * @param limit
-     * @return
      */
     GeoResults<RedisGeoCommands.GeoLocation<String>> listLocationsInRadius(String member, Double distance,
                                                                            Metric metric, int limit);
@@ -39,12 +34,7 @@ public interface UserLocationService {
 
     /**
      *列出给定坐标附近一定范围内的所有用户
-     * @param latitude
-     * @param longitude
-     * @param distance
-     * @param metric
-     * @param limit
-     * @return
+     *
      */
     GeoResults<RedisGeoCommands.GeoLocation<String>> listLocationsInRadius(Double latitude, Double longitude,
                                                                            Double distance, Metric metric, int limit);
@@ -52,7 +42,6 @@ public interface UserLocationService {
 
     /**
      * 获取两个用户之间的距离
-     *
      *
      */
     Double getDistanceBetween(Integer userId, Integer otherUserId);
@@ -67,8 +56,7 @@ public interface UserLocationService {
 
     /**
      * 删除用户坐标
-     * @param userId
-     * @return
+     *
      */
       Boolean deleteUserLocation(Integer userId);
 
@@ -95,8 +83,7 @@ public interface UserLocationService {
 
     /**
      * 返回前端的数据
-     * @param uId
-     * @return
+     *
      */
     UserLocation listUserLocation(Long uId);
 }

@@ -1,6 +1,8 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.jo;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
@@ -11,6 +13,8 @@ import javax.validation.constraints.NotNull;
  * @date 2021/11/23 19:41
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ActivitySaveReqBo {
 
     /**
@@ -21,13 +25,22 @@ public class ActivitySaveReqBo {
     /**
      * 活动类型编码
      */
-    @NotNull(message = "活动类型不能为空")
+    @NotNull(message = "活动类型编码不能为空")
     private String activityTypeCode;
 
+    /**
+     * 活动类型名称
+     */
+    @NotNull(message = "活动类型名称不能为空")
+    private String activityTypeName;
     /**
      * 图片地址3张，逗号分割
      */
     private String picUrl;
+    /**
+     * 语音的url
+     */
+    private  String voiceUrl;
 
     /**
      * 经度

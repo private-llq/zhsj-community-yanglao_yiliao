@@ -4,7 +4,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityTypeMapper;
-import com.zhsj.community.yanglao_yiliao.old_activity.po.ActivityType;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.controller.From;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class addActivityFrom {
+public class addActivityDto {
     /**
      * 主键id
      */
