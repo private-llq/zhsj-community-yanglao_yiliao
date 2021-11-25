@@ -4,6 +4,7 @@ import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventStopEntity;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventStopMapper;
+import com.zhsj.community.yanglao_yiliao.myself.mapper.UserSettingMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,9 @@ public class EventJob {
     @Resource
     private EventMapper eventMapper;
 
+    @Resource
+    private UserSettingMapper userSettingMapper;
+
 
     /**
      * @Description: 每分钟执行  事件提醒
@@ -47,6 +51,14 @@ public class EventJob {
         List<EventEntity> list = eventMapper.selectByDay(now.getYear(),now.getMonthValue(),now.getDayOfWeek().getValue(),now.getDayOfMonth(),now.getHour(),now.getMinute());
         if (list.size()!=0) {
             for (EventEntity entity : list) {
+
+                //用户关闭了消息提醒   不晓得推不推消息
+//                UserSettingEntity userSettingEntity = userSettingMapper.selectOne(new QueryWrapper<UserSettingEntity>().eq("uid", entity.getUid()));
+//                if (userSettingEntity != null) {
+//                    if (userSettingEntity.getNotificationStatus()==0){
+//                        break;
+//                    }
+//                }
                 if (map.get(entity.getId())==null){
                     //表示要提醒用户
 
