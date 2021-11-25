@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -137,35 +136,42 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
         // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            List<HeartRate> arr = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    .ge(HeartRate::getCreateTime, todayZeroClock.plusHours(-6))
+                    .le(HeartRate::getCreateTime, now)
+                    .eq(HeartRate::getDeleted, true));
             int k = 0;
             int totalAvg = 0;
             List<TitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
-                List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
-                        .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                        .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
-                        .ge(HeartRate::getCreateTime, todayZeroClock.plusHours(i))
-                        .le(HeartRate::getCreateTime, todayZeroClock.plusHours(i + 6))
-                        .eq(HeartRate::getDeleted, true)
-                        .orderByAsc(HeartRate::getCreateTime));
-                if (!rateList.isEmpty()) {
+                LocalDateTime time1 = todayZeroClock.plusHours(i);
+                LocalDateTime time2 = todayZeroClock.plusHours(i + 6);
+                if (!arr.isEmpty()) {
                     int c1 = 0;
+                    int j1 = 0;
                     int avg1 = 0;
-                    for (HeartRate heartRate : rateList) {
-                        c1 += heartRate.getSilentHeart();
+                    for (HeartRate heartRate : arr) {
+                        if (heartRate.getCreateTime().compareTo(time1) > 0 && heartRate.getCreateTime().compareTo(time2) < 0) {
+                            c1 += heartRate.getSilentHeart();
+                            j1++;
+                        }
                     }
-                    avg1 = c1 / rateList.size();
-                    k += 1;
-                    totalAvg += avg1;
-                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), avg1));
+                    if (j1 != 0) {
+                        avg1 = c1 / j1;
+                        k += 1;
+                        totalAvg += avg1;
+                    }
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), avg1));
                     } else {
                         list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), avg1));
                         break;
                     }
                 } else {
-                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), 0));
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), 0));
                     } else {
                         list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), 0));
                         break;
@@ -268,35 +274,42 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
         // --- By day
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                    .eq(Temperature::getUserUuid, loginUser.getAccount())
+                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
+                    .ge(Temperature::getCreateTime, todayZeroClock.plusHours(-6))
+                    .le(Temperature::getCreateTime, now)
+                    .eq(Temperature::getDeleted, true));
             int k = 0;
             double totalAvg = 0;
             List<TempTitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
-                List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
-                        .eq(Temperature::getUserUuid, loginUser.getAccount())
-                        .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
-                        .ge(Temperature::getCreateTime, todayZeroClock.plusHours(i))
-                        .le(Temperature::getCreateTime, todayZeroClock.plusHours(i + 6))
-                        .eq(Temperature::getDeleted, true)
-                        .orderByAsc(Temperature::getCreateTime));
+                LocalDateTime time1 = todayZeroClock.plusHours(i);
+                LocalDateTime time2 = todayZeroClock.plusHours(i + 6);
                 if (!temperatureList.isEmpty()) {
                     double c1 = 0;
+                    int j1 = 0;
                     double avg1 = 0;
                     for (Temperature temperature : temperatureList) {
-                        c1 += temperature.getTmpHandler();
+                        if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
+                            c1 += temperature.getTmpHandler();
+                            j1++;
+                        }
                     }
-                    avg1 = c1 / temperatureList.size();
-                    k += 1;
-                    totalAvg += avg1;
-                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), String.format("%.1f", avg1)));
+                    if (j1 != 0) {
+                        avg1 = c1 / j1;
+                        k += 1;
+                        totalAvg += avg1;
+                    }
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), String.format("%.1f", avg1)));
                     } else {
                         list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), String.format("%.1f", avg1)));
                         break;
                     }
                 } else {
-                    if (now.compareTo(todayZeroClock.plusHours(i + 6)) > 0) {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(todayZeroClock.plusHours(i + 6)), TimeUtils.formatLocalDateTimeThird(todayZeroClock.plusHours(i + 6)), "0.0"));
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0.0"));
                     } else {
                         list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0.0"));
                         break;
@@ -412,19 +425,27 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
         // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
-
             LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sevenDayTotalSleepTime = 0;
             List<SleepTitleTimeValueDto> arr = new ArrayList<>();
-
-            for (int i = reqBo.getPageTurnStatus() * 6 + (reqBo.getPageTurnStatus() + 1); i <= reqBo.getPageTurnStatus() * 6 + 6 + (reqBo.getPageTurnStatus() + 1); i++) {        // -6->0  -13->-7 -20->-14    // -1  -2  -3
-                // -1(-6,0) -2(-12-1,-6-1) -3(-18-2,-12-2)
-                LocalDateTime time1 = yesterdayNineClock.plusDays(i); // -6 -12 -18
-                LocalDateTime time2 = toDayElevenClock.plusDays(i);   // -6 -12 -18
+            // -1(-6,0) -2(-12-1,-6-1) -3(-18-2,-12-2)
+            int start = reqBo.getPageTurnStatus() * 6 + (reqBo.getPageTurnStatus() + 1);
+            int end = reqBo.getPageTurnStatus() * 6 + 6 + (reqBo.getPageTurnStatus() + 1);
+            LocalDateTime time1 = yesterdayNineClock.plusDays(start);
+            LocalDateTime time2 = toDayElevenClock.plusDays(end);
+            List<Sleep> list = selectSleepChartData(loginUser, reqBo, time1, time2);
+            for (int i = start; i <= end; i++) {
+                LocalDateTime time3 = yesterdayNineClock.plusDays(i);
+                LocalDateTime time4 = toDayElevenClock.plusDays(i);
+                ArrayList<Sleep> sleepList = new ArrayList<>();
+                for (Sleep sleep : list) {
+                    if (sleep.getCreateTime().compareTo(time3) >= 0 && sleep.getCreateTime().compareTo(time4) <= 0) {
+                        sleepList.add(sleep);
+                    }
+                }
                 SleepTitleTimeValueDto sleepTitleTimeValueDto = new SleepTitleTimeValueDto();
-                sleepTitleTimeValueDto.setTimeTitle(TimeUtils.formatLocalDateTimeFifth(time1)).setTimeValue(TimeUtils.formatLocalDateTimeSixth(time1)).setTimeWeek(buildWeek(time1));
-                List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, time1, time2);
+                sleepTitleTimeValueDto.setTimeTitle(TimeUtils.formatLocalDateTimeFifth(time3)).setTimeValue(TimeUtils.formatLocalDateTimeSixth(time3)).setTimeWeek(buildWeek(time3));
                 if (CollectionUtil.isEmpty(sleepList)) {
                     sleepTitleTimeValueDto.setDeepSleepTime(0).setLightSleepTime(0).setWakeUpTime(0).setSleepScore("0").setTotalSleepTime(0);
                     arr.add(sleepTitleTimeValueDto);
@@ -432,12 +453,11 @@ public class HealthDataServiceImpl implements HealthDataService {
                 }
                 Integer c = commonBuildSleepChart(sleepList, sleepTitleTimeValueDto, arr);
                 sevenDayTotalSleepTime += c;
-
             }
 
-            LocalDateTime time3 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6);
-            LocalDateTime time4 = toDayElevenClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + 6);
-            List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, time3, time4);
+            LocalDateTime time5 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + reqBo.getPageTurnStatus());
+            LocalDateTime time6 = toDayElevenClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + 6 + reqBo.getPageTurnStatus());
+            List<Sleep> sleepList = selectSleepChartData(loginUser, reqBo, time5, time6);
             if (CollectionUtil.isEmpty(sleepList)) {
                 sleepChartRspBo.setCompareAvgSleepTime(sevenDayTotalSleepTime / 7);
             } else {
@@ -452,10 +472,8 @@ public class HealthDataServiceImpl implements HealthDataService {
 
             sleepChartRspBo.setList(arr).setLastSevenDayTotalSleepTime(sevenDayTotalSleepTime).setLastSevenDayAvgSleepTime(sevenDayTotalSleepTime / 7);
         }
-
         return sleepChartRspBo;
     }
-
 
     // --------------------------------------------------inner---------------------------------------------------------------
 
@@ -668,29 +686,36 @@ public class HealthDataServiceImpl implements HealthDataService {
                                           @NotNull HeartRateChartReqBo reqBo,
                                           @NotNull Integer num
     ) {
+        List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                .eq(HeartRate::getUserUuid, loginUser.getAccount())
+                .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
+                .ge(HeartRate::getCreateTime, todayZeroClock.plusDays(-num))
+                .le(HeartRate::getCreateTime, todayZeroClock.plusDays(1))
+                .eq(HeartRate::getDeleted, true));
         int k = 0;
         int totalAvg = 0;
         List<TitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
-            List<HeartRate> rateList = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
-                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
-                    .ge(HeartRate::getCreateTime, todayZeroClock.plusDays(i))
-                    .le(HeartRate::getCreateTime, todayZeroClock.plusDays(i + 1))
-                    .eq(HeartRate::getDeleted, true)
-                    .orderByAsc(HeartRate::getCreateTime));
+            LocalDateTime time1 = todayZeroClock.plusDays(i);
+            LocalDateTime time2 = todayZeroClock.plusDays(i + 1);
             if (!rateList.isEmpty()) {
                 int c1 = 0;
-                int avg1;
+                int j1 = 0;
+                int avg1 = 0;
                 for (HeartRate heartRate : rateList) {
-                    c1 += heartRate.getSilentHeart();
+                    if (heartRate.getCreateTime().compareTo(time1) >= 0 && heartRate.getCreateTime().compareTo(time2) <= 0) {
+                        c1 += heartRate.getSilentHeart();
+                        j1++;
+                    }
                 }
-                avg1 = c1 / rateList.size();
-                k += 1;
-                totalAvg += avg1;
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), avg1));
+                if (j1 != 0) {
+                    avg1 = c1 / j1;
+                    k += 1;
+                    totalAvg += avg1;
+                }
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), avg1));
             } else {
-                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), 0));
+                list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), 0));
             }
         }
         rspBos.setList(list);
@@ -727,29 +752,37 @@ public class HealthDataServiceImpl implements HealthDataService {
                                      @NotNull TempChartReqBo reqBo,
                                      @NotNull Integer num
     ) {
+        List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                .eq(Temperature::getUserUuid, loginUser.getAccount())
+                .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
+                .ge(Temperature::getCreateTime, todayZeroClock.plusDays(-num))
+                .le(Temperature::getCreateTime, todayZeroClock.plusDays(1))
+                .eq(Temperature::getDeleted, true)
+                .orderByAsc(Temperature::getCreateTime));
         int k = 0;
         double totalAvg = 0;
         List<TempTitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
-            List<Temperature> tempList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
-                    .eq(Temperature::getUserUuid, loginUser.getAccount())
-                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
-                    .ge(Temperature::getCreateTime, todayZeroClock.plusDays(i))
-                    .le(Temperature::getCreateTime, todayZeroClock.plusDays(i + 1))
-                    .eq(Temperature::getDeleted, true)
-                    .orderByAsc(Temperature::getCreateTime));
+            LocalDateTime time1 = todayZeroClock.plusDays(i);
+            LocalDateTime time2 = todayZeroClock.plusDays(i + 1);
             if (!tempList.isEmpty()) {
                 double c1 = 0;
-                double avg1;
+                int j1 = 0;
+                double avg1 = 0;
                 for (Temperature temperature : tempList) {
-                    c1 += temperature.getTmpHandler();
+                    if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
+                        c1 += temperature.getTmpHandler();
+                        j1++;
+                    }
                 }
-                avg1 = c1 / tempList.size();
-                k += 1;
-                totalAvg += avg1;
-                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), String.format("%.1f", avg1)));
+                if (j1 != 0) {
+                    avg1 = c1 / j1;
+                    k += 1;
+                    totalAvg += avg1;
+                }
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), String.format("%.1f", avg1)));
             } else {
-                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(todayZeroClock.plusDays(i)), TimeUtils.formatLocalDateTimeSixth(todayZeroClock.plusDays(i)), "0.0"));
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), "0.0"));
             }
         }
         rspBos.setList(list);

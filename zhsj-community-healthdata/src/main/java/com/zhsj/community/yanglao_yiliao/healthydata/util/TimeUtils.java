@@ -95,49 +95,4 @@ public class TimeUtils {
                                                    @NotNull Integer second) {
         return LocalDateTime.of(years, months, days, hours, minutes, second);
     }
-
-
-    public static LocalDateTime ttt() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate localDate = now.toLocalDate();
-        LocalDateTime toDayZeroClock = buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-
-
-        return null;
-    }
-
-    public static void main(String[] args) {
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDate localDate = now.toLocalDate();
-//        int hour = now.getHour();
-//        int minute = now.getMinute();
-//        int second = now.getSecond();
-//        ArrayList<LocalDateTime> arr = new ArrayList<>();
-//        for (int a = 0; a <= hour; a++) {
-//            LocalDateTime clock = buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), a, 0, 0);
-//            arr.add(clock);
-//            if (minute / 10 != 0 && a == hour) {
-//                LocalDateTime nowClock = buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), a, minute, second);
-//                arr.add(nowClock);
-//            }
-//        }
-//        System.out.println("===================>" + arr.toString());
-//
-//
-//        LocalDateTime localDateTime = buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-//        LocalDateTime localDateTime1 = localDateTime.plusDays(-6);
-//        System.out.println(localDateTime1);
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDate localDate = now.toLocalDate();
-//        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-//        LocalDateTime todayZeroClockSixHoursAgo = todayZeroClock.plusHours(-6);
-//        LocalDateTime todaySixClock = todayZeroClock.plusHours(6);
-//        LocalDateTime todayTwelveClock = todayZeroClock.plusHours(12);
-//        LocalDateTime todayEighteenClock = todayZeroClock.plusHours(18);
-//        LocalDateTime todayTwentyFourClock = todayZeroClock.plusHours(24);
-//
-//        System.out.println(now.compareTo(todayZeroClock));
-//        System.out.println(now.compareTo(todayTwentyFourClock));
-    }
 }

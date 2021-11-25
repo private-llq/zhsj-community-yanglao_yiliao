@@ -24,7 +24,7 @@ public class TempTitleTimeValueDto {
      */
     private String timeValue;
     /**
-     * 时间点对应的心率平均值
+     * 时间点对应的体温平均值
      */
     private String healthData;
 }
