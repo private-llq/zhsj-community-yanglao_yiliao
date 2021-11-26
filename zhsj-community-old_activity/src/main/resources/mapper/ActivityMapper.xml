@@ -10,4 +10,11 @@
           and deleted = 1
         order by dist
     </select>
+    <select id="getActivityedge"
+            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityListDto">
+        select * from t_activity  as a
+                LEFT JOIN t_activity_details as ac
+                on a.id =ac.a_id
+                WHERE a.user_uuid = #{useruuid}
+    </select>
 </mapper>

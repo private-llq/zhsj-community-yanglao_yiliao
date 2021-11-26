@@ -2,6 +2,8 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
@@ -27,7 +29,7 @@ import java.util.*;
  */
 @Service
 @Slf4j
-public class ActivityServiceImpl  implements ActivityService {
+public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity> implements ActivityService {
 
     @Autowired
     private ActivityMapper activityMapper;
@@ -85,6 +87,8 @@ public class ActivityServiceImpl  implements ActivityService {
         BeanUtils.copyProperties(reqBo,activity);
         LocalDateTime now = LocalDateTime.now();
         //默认不是好友  后期能查询 再调整 2021-11-23
+        activity.setUserUuid(loginUser.getId().toString());
+        activity.setUserName(loginUser.getNickName());
         activity.setIsFriend(false);
         activity.setDeleted(true);
         activity.setPublishTime(now);
@@ -104,6 +108,41 @@ public class ActivityServiceImpl  implements ActivityService {
         return this.activityMapper.getActivityTyped();
     }
 
+    /**
+     * 查询自己的所有活动
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<Activity> getActivityList(Long uid) {
+        log.info("用户的uid{}",uid);
+        List<Activity> activities = this.activityMapper.selectList(new QueryWrapper<Activity>().eq("user_uuid", uid));
+               return activities;
+    }
+
+    /**
+     * 根据id查询详情
+     * @param id
+     * @return
+     */
+    @Override
+    public Activity getActivityListOther(Long id) {
+        log.info("id的值{}",id);
+        Activity activity = this.activityMapper.selectById(id);
+        return activity;
+    }
+
+    /**
+     * 查询别人的详情
+     * @param id
+     * @return
+     */
+    @Override
+    public List<ActivityListDto> getActivityedge(Long id) {
+        log.info("id的值{}",id);
+        List<ActivityListDto> activityedge = this.activityMapper.getActivityedge(id);
+        return activityedge;
+    }
 
 
 }

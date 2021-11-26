@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityFromDto;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityListDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import org.apache.ibatis.annotations.Select;
@@ -34,5 +35,8 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 查找所有
      */
     List<ActivityDto> queryNearbyActivityList(ActivityReqBo reqBo);
+
+
+    List<ActivityListDto> getActivityedge(Long id);
 
 }

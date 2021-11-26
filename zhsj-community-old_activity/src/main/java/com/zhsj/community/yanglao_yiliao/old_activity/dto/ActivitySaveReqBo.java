@@ -53,4 +53,7 @@ public class ActivitySaveReqBo {
      */
     @NotNull(message = "维度不能为空")
     private Double latitude;
+
+
+
 }

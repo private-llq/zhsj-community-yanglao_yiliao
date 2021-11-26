@@ -1,7 +1,10 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import org.checkerframework.checker.units.qual.A;
 
 
 import java.util.List;
@@ -15,7 +18,7 @@ import java.util.List;
  * @description: 活动的业务接口
  * @create: 2021-11-10 17:03
  */
-public interface ActivityService {
+public interface ActivityService extends IService<Activity> {
 
 
     /**
@@ -52,4 +55,12 @@ public interface ActivityService {
 
 
 
+    List<Activity> getActivityList(Long uid);
+
+
+    Activity getActivityListOther(Long id);
+
+
+
+    List<ActivityListDto> getActivityedge(Long id);
 }

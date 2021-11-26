@@ -1,14 +1,16 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -26,7 +28,7 @@ import java.util.List;
 public class ActivityController {
 
 
-    @Resource
+    @Autowired
     private ActivityService activityService;
 
     @Autowired
@@ -94,6 +96,55 @@ public class ActivityController {
     public Result getActivityType() {
         List<ActivityFromDto> getactivit = this.activityService.getactivit();
         return Result.ok(getactivit);
+    }
+
+    /**
+     * 查询自己的所有活动
+     *
+     */
+    @GetMapping("getUserActivityList")
+    public Result getUserActivityList(@RequestParam Long uid){
+        log.info("用户的uid{}",uid);
+        List<Activity> activityList = this.activityService.getActivityList(uid);
+        return Result.ok(activityList);
+    }
+
+    /**
+     * @Description: 分页查询
+     * @author: liulq
+     *
+     */
+    @PostMapping("pageList")
+    public PageList<Activity> pageList(@RequestBody pageVo pageVo) {
+        log.info("分页参数{}",pageVo);
+        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getRows());
+        page = this.activityService.page(page);
+        return new PageList<>(page.getTotal(), page.getRecords());
+    }
+
+
+    /**
+     * 根据id查询所有活动
+     * @param id
+     * @return
+     */
+    @GetMapping("getActivityListOther")
+    public Result getActivityListOther(@RequestParam Long id){
+        log.info("id的值{}",id);
+        Activity activityListOther = this.activityService.getActivityListOther(id);
+        return Result.ok(activityListOther);
+    }
+
+    /**
+     * 根据别人的id查询活动详情
+     * @param id
+     * @return
+     */
+    @GetMapping("getActivityedge")
+    public Result  getActivityedge(@RequestParam Long id){
+        log.info("id的值{}",id);
+        List<ActivityListDto> activityedge = this.activityService.getActivityedge(id);
+       return Result.ok(activityedge);
     }
 
 
