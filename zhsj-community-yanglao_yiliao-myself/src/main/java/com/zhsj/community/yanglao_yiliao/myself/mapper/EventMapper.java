@@ -41,4 +41,13 @@ public interface EventMapper extends BaseMapper<EventEntity> {
      * @return:
      */
     List<EventEntity> selectByDay(@Param("year") int year, @Param("month") int month, @Param("week") int week, @Param("day") int day, @Param("hour") int hour, @Param("minute") int minute);
+
+    /**
+     * @Description: 修改事件提醒状态
+     * @author: Hu
+     * @since: 2021/11/26 14:35
+     * @Param:
+     * @return:
+     */
+    void updateByStatus();
 }

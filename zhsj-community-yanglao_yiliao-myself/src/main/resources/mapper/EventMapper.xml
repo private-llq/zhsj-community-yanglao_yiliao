@@ -36,4 +36,8 @@
         	OR ( te.deleted=0  and te.type = 3 AND te.warn_week = #{week} and te.warn_hour=#{hour} and te.warn_minute=#{minute})
         	OR ( te.deleted=0  and te.type = 4 AND te.warn_day = #{day}  and te.warn_hour=#{hour} and te.warn_minute=#{minute})
     </select>
+    <update id="updateByStatus">
+        update t_event set push_status = 0 where type != 1 and deleted=0
+    </update>
+
 </mapper>

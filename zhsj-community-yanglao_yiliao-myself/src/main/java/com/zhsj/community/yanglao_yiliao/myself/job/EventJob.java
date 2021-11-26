@@ -91,7 +91,8 @@ public class EventJob {
         //删除所有已经推送了的单次事件
         eventMapper.delete(new QueryWrapper<EventEntity>().eq("type",1).eq("push_status",1));
 
-
+        //修改所有不是单次提醒的提醒状态
+        eventMapper.updateByStatus();
         System.out.println(LocalDateTime.now()+"：定时删除事件提醒完成！");
     }
 }
