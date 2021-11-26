@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.myself.job;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventStopEntity;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
@@ -56,7 +57,7 @@ public class EventJob {
 //                UserSettingEntity userSettingEntity = userSettingMapper.selectOne(new QueryWrapper<UserSettingEntity>().eq("uid", entity.getUid()));
 //                if (userSettingEntity != null) {
 //                    if (userSettingEntity.getNotificationStatus()==0){
-//                        break;
+//                        continue;
 //                    }
 //                }
                 if (map.get(entity.getId())==null){
@@ -65,10 +66,10 @@ public class EventJob {
 
 
                 }
-                //type=1表示单次提醒  提醒完了直接删除
-                if (entity.getType()==1){
-                    eventMapper.deleteById(entity.getId());
-                }
+                //修改事件提醒推送状态
+                entity.setPushStatus(1);
+                entity.setUpdateTime(LocalDateTime.now());
+                eventMapper.updateById(entity);
             }
         }
         System.out.println(now+"：定时处理事件提醒完成！");
@@ -86,6 +87,11 @@ public class EventJob {
     public void reset() {
         //删除所有当天不提醒的所有事件记录
         eventStopMapper.delete(null);
+
+        //删除所有已经推送了的单次事件
+        eventMapper.delete(new QueryWrapper<EventEntity>().eq("type",1).eq("push_status",1));
+
+
         System.out.println(LocalDateTime.now()+"：定时删除事件提醒完成！");
     }
 }

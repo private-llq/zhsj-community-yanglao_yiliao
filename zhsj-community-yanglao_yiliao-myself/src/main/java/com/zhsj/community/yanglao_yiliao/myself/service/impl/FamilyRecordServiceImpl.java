@@ -56,8 +56,10 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
                 if (familyRecordEntity.getRelation()!=null){
                     if (familyRecordEntity.getRelation()!=0){
                         familyRecordEntity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(familyRecordEntity.getRelation()));
+                        familyRecordEntity.setOneself(0);
                     } else {
                         familyRecordEntity.setRelationText("我自己");
+                        familyRecordEntity.setOneself(1);
                     }
                 }
 

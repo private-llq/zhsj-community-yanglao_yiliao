@@ -5,6 +5,7 @@ import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
@@ -65,7 +66,16 @@ public class FamilyRecordController {
     @GetMapping("getOne")
     public R<FamilyRecordEntity> getOne(@RequestParam Long id){
         FamilyRecordEntity entity = familyRecordService.getById(id);
-        return R.ok(familyRecordService.getById(id));
+        if (entity.getRelation()!=null){
+            if (entity.getRelation()==0){
+                entity.setRelationText("我自己");
+                entity.setOneself(1);
+            } else {
+                entity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(entity.getRelation()));
+                entity.setOneself(0);
+            }
+        }
+        return R.ok(entity);
     }
 
 
@@ -112,9 +122,9 @@ public class FamilyRecordController {
      */
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
-        FamilyRecordEntity entity = familyRecordService.getById(familyRecordEntity.getId());
         ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.UpdateFamilyValidate.class);
-        if (entity.getRelation()==0&&familyRecordEntity.getRelation()!=0){
+        FamilyRecordEntity entity = familyRecordService.getById(familyRecordEntity.getId());
+        if (entity.getRelation()!=null&&entity.getRelation()==0&&familyRecordEntity.getRelation()!=null&&familyRecordEntity.getRelation()!=0){
             return R.fail("自己的关系不能修改！");
         }
         familyRecordEntity.setMobile(null);

@@ -36,7 +36,7 @@ public class FamilyRecordEntity extends BaseEntity {
     /**
      * 电话
      */
-    @NotBlank(message = "姓名不能为空！",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
+    @NotBlank(message = "电话不能为空！",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
     @Pattern(regexp = "^1[3|4|5|7|8][0-9]{9}$", message = "请输入一个正确的手机号码 电信丨联通丨移动!",groups = {UpdateFamilyValidate.class,AddFamilyValidate.class})
     private String mobile;
     /**
@@ -72,8 +72,11 @@ public class FamilyRecordEntity extends BaseEntity {
      * 验证码
      */
     @TableField(exist = false)
-    @NotBlank(message = "姓名不能为空！",groups = {AddFamilyValidate.class})
+    @NotBlank(message = "验证码不能为空！",groups = {AddFamilyValidate.class})
     private String code;
+
+    @TableField(exist = false)
+    private Integer oneself;
 
     public interface UpdateFamilyValidate{}
 

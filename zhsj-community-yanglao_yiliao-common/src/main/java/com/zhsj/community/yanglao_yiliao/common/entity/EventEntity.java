@@ -82,6 +82,11 @@ public class EventEntity extends BaseEntity {
     private Integer warnYear;
 
     /**
+     * 是否提醒，0未提醒，1已提醒
+     */
+    private Integer pushStatus;
+
+    /**
      * 设置对应的时间
      */
     @NotNull(message = "提醒时间不能为空！",groups = {EventValidate.class})
