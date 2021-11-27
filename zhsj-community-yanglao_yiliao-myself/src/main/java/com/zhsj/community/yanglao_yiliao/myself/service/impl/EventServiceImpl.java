@@ -53,7 +53,7 @@ public class EventServiceImpl implements IEventService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void save(EventEntity eventEntity, LoginUser loginUser) {
+    public Long save(EventEntity eventEntity, LoginUser loginUser) {
         eventEntity.setId(SnowFlake.nextId());
         eventEntity.setUid(loginUser.getAccount());
         eventEntity.setCreateTime(LocalDateTime.now());
@@ -77,6 +77,8 @@ public class EventServiceImpl implements IEventService {
             list.add(entity);
         }
         eventFamilyMapper.saveAll(list);
+
+        return eventEntity.getId();
     }
 
 

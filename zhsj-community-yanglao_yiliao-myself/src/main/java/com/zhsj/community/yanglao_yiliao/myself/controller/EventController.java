@@ -45,14 +45,14 @@ public class EventController {
      * @author: Hu
      * @since: 2021/11/15 9:37
      * @Param: [eventEntity]
-     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Long>
      */
     @PostMapping("save")
-    public R<Void> save(@RequestBody EventEntity eventEntity) {
+    public R<Long> save(@RequestBody EventEntity eventEntity) {
         ValidatorUtils.validateEntity(eventEntity, EventEntity.EventValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        eventService.save(eventEntity, loginUser);
-        return R.ok();
+        Long aLong = eventService.save(eventEntity, loginUser);
+        return R.ok(aLong);
     }
 
 
