@@ -1,5 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
@@ -7,6 +9,7 @@ import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
@@ -47,6 +50,20 @@ public class ActivityController {
         List<ActivityDto> rspList = this.activityService.queryActivityList(reqBo);
         return R.ok(rspList);
     }
+
+
+    /**
+     * @description 获取附近活动
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @param activityReqVo 用户id，经度，维度
+     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
+     */
+    @PostMapping("/queryActivity")
+     public  Result queryActivity(@RequestBody @Valid ActivityReqVo activityReqVo){
+        List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVo);
+        return Result.ok(activityDtos);
+     }
 
 
     /**
@@ -103,19 +120,22 @@ public class ActivityController {
      *
      */
     @GetMapping("getUserActivityList")
-    public Result getUserActivityList(@RequestParam Long uid){
-        log.info("用户的uid{}",uid);
-        List<Activity> activityList = this.activityService.getActivityList(uid);
+    public Result<?> getUserActivityList(@RequestBody pageVoed pageVo){
+        log.info("用户的uid{}{}",pageVo);
+        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getRows());
+        IPage<Activity> activityList = this.activityService.getActivityList(page);
         return Result.ok(activityList);
     }
 
+
+
     /**
-     * @Description: 分页查询
+     * @Description: 分页查询所有活动
      * @author: liulq
      *
      */
     @PostMapping("pageList")
-    public PageList<Activity> pageList(@RequestBody pageVo pageVo) {
+    public PageList<Activity> pageList(@RequestBody pageVoed pageVo) {
         log.info("分页参数{}",pageVo);
         Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getRows());
         page = this.activityService.page(page);
@@ -123,29 +143,24 @@ public class ActivityController {
     }
 
 
-    /**
-     * 根据id查询所有活动
-     * @param id
-     * @return
-     */
-    @GetMapping("getActivityListOther")
-    public Result getActivityListOther(@RequestParam Long id){
-        log.info("id的值{}",id);
-        Activity activityListOther = this.activityService.getActivityListOther(id);
-        return Result.ok(activityListOther);
-    }
+
 
     /**
      * 根据别人的id查询活动详情
-     * @param id
-     * @return
+     * @param
+     * @return pageList
      */
-    @GetMapping("getActivityedge")
-    public Result  getActivityedge(@RequestParam Long id){
-        log.info("id的值{}",id);
-        List<ActivityListDto> activityedge = this.activityService.getActivityedge(id);
-       return Result.ok(activityedge);
+    @PostMapping("getActivityedPageList")
+    @ResponseBody
+    public Result<?>  getActivityedge(@RequestBody ActivityPageDto activityPageDto){
+        QueryWrapper<Activity> Wrapper = new QueryWrapper<>();
+        Wrapper.eq("user_uuid",activityPageDto.getId());
+        Page<Activity> page = new Page<>(activityPageDto.getPage(),activityPageDto.getRows());
+        Page<Activity> pageList = this.activityService.page(page, Wrapper);
+        return Result.ok(pageList);
     }
+
+
 
 
 
