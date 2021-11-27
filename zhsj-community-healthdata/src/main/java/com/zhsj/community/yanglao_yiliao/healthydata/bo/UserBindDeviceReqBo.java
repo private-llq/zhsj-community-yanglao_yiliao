@@ -14,12 +14,6 @@ import javax.validation.constraints.NotBlank;
 public class UserBindDeviceReqBo {
 
     /**
-     * 家人id
-     */
-    @NotBlank(message = "家人id不能为空")
-    private String familyMemberId;
-
-    /**
      * 设备名称
      */
     @NotBlank(message = "设备名称不能为空")

@@ -11,8 +11,10 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorSleepReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.SleepMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.SleepService;
+import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +32,9 @@ import java.util.List;
 @Service
 public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements SleepService {
 
+    @Autowired
+    private UserDeviceInfoService userDeviceInfoService;
+
     /***************************************************************************************************************************
      * @description 监控用户睡眠并保存
      * @author zzm
@@ -40,13 +45,16 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
     public void monitorSleep(List<MonitorSleepReqBo> list) {
         log.info("Monitor user sleep request parameters, List<MonitorSleepReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorSleepReqBo> hashSet = new HashSet<>(list);
         List<Sleep> arr = new ArrayList<Sleep>();
         for (MonitorSleepReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
                     .eq(Sleep::getUserUuid, user.getAccount())
-                    .eq(Sleep::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(Sleep::getCreateTime, localDateTime)
                     .eq(Sleep::getDeleted, true));
             if (sleep != null) {

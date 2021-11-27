@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author zzm
@@ -62,5 +63,17 @@ public class UserDeviceInfoController {
     public R<DeviceInfoRspBo> deviceInfo(@RequestBody @Valid DeviceInfoReqBo reqBo) {
         DeviceInfoRspBo deviceInfoRspBo = userDeviceInfoService.deviceInfo(reqBo);
         return R.ok(deviceInfoRspBo);
+    }
+
+    /***************************************************************************************************************************
+     * @description 获取当前登录用户绑定的设备信息列表
+     * @author zzm
+     * @date 2021/11/27 17:53
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo>
+     **************************************************************************************************************************/
+    @PostMapping("/currentLoginUserDeviceInfo")
+    public R<List<DeviceInfoRspBo>> currentLoginUserDeviceInfo() {
+        List<DeviceInfoRspBo> list = userDeviceInfoService.currentLoginUserDeviceInfo();
+        return R.ok(list);
     }
 }

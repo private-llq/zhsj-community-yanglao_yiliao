@@ -1,6 +1,8 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
@@ -11,6 +13,8 @@ import javax.validation.constraints.NotBlank;
  * @date 2021/11/13 13:52
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeviceInfoReqBo {
 
     /**

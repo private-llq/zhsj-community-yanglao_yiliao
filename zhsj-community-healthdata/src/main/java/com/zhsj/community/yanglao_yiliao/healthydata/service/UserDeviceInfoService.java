@@ -6,6 +6,9 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserBindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserUnbindDeviceReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.UserDeviceInfo;
+import org.checkerframework.checker.units.qual.Current;
+
+import java.util.List;
 
 /**
  * @author zzm
@@ -39,4 +42,12 @@ public interface UserDeviceInfoService extends IService<UserDeviceInfo> {
      * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo
      **************************************************************************************************************************/
     DeviceInfoRspBo deviceInfo(DeviceInfoReqBo reqBo);
+
+    /***************************************************************************************************************************
+     * @description 获取当前登录用户绑定的设备信息
+     * @author zzm
+     * @date 2021/11/27 17:53
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo>
+     **************************************************************************************************************************/
+    List<DeviceInfoRspBo> currentLoginUserDeviceInfo();
 }

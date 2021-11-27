@@ -11,8 +11,10 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
+import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +32,9 @@ import java.util.List;
 @Service
 public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate> implements HeartRateService {
 
+    @Autowired
+    private UserDeviceInfoService userDeviceInfoService;
+
     /***************************************************************************************************************************
      * @description 监测用户实时心率以及历史心率并保存（历史心率需筛选）
      * @author zzm
@@ -40,13 +45,16 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
     public void monitorHeartRate(List<MonitorHeartRateReqBo> list) {
         log.info("Real time monitoring of user heart rate parameters,List<MonitorHeartRateReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorHeartRateReqBo> hashSet = new HashSet<>(list);
         List<HeartRate> arr = new ArrayList<>();
         for (MonitorHeartRateReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(HeartRate::getCreateTime, localDateTime)
                     .eq(HeartRate::getDeleted, true));
             if (heartRate != null) {

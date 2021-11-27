@@ -22,11 +22,6 @@ public class DeviceInfoRspBo {
     private String userUuid;
 
     /**
-     * 家人id
-     */
-    private String familyMemberId;
-
-    /**
      * 设备名称
      */
     private String mDeviceName;

@@ -7,12 +7,16 @@ import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.TemperatureMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.TemperatureService;
+import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +34,9 @@ import java.util.List;
 @Service
 public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Temperature> implements TemperatureService {
 
+    @Autowired
+    private UserDeviceInfoService userDeviceInfoService;
+
     /***************************************************************************************************************************
      * @description 检测用户体温并保存
      * @author zzm
@@ -40,13 +47,16 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
     public void monitorTemperature(List<MonitorTemperatureReqBo> list) {
         log.info("Monitor user temperature request parameters,List<MonitorTemperatureReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorTemperatureReqBo> hashSet = new HashSet<>(list);
         List<Temperature> arr = new ArrayList<Temperature>();
         for (MonitorTemperatureReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, user.getAccount())
-                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(Temperature::getCreateTime, localDateTime)
                     .eq(Temperature::getDeleted, true));
             if (temperature != null) {

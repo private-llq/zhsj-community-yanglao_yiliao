@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -39,11 +40,6 @@ public class HeartRate {
     private String userUuid;
 
     /**
-     * 家人id
-     */
-    private String familyMemberId;
-
-    /**
      * 用户当前心率
      */
     private Integer silentHeart;
@@ -59,11 +55,18 @@ public class HeartRate {
     private Integer systolicPressure;
 
     /**
-     * 检测心率时间
+     * 监测心率时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+
+    /**
+     * 修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateTime;
 
     /**
      * 是否删除（0：已删除false，1：未删除true）
@@ -71,14 +74,16 @@ public class HeartRate {
     @TableLogic
     private Boolean deleted;
 
-    public static HeartRate build(LoginUser user, MonitorHeartRateReqBo reqBo, LocalDateTime localDateTime) {
+    public static HeartRate build(@NotNull LoginUser user,
+                                  @NotNull MonitorHeartRateReqBo reqBo,
+                                  @NotNull LocalDateTime localDateTime) {
         return HeartRate.builder()
                 .userUuid(user.getAccount())
-                .familyMemberId(reqBo.getFamilyMemberId())
                 .silentHeart(reqBo.getSilentHeart())
                 .diastolicPressure(reqBo.getDiastolicPressure())
                 .systolicPressure(reqBo.getSystolicPressure())
                 .createTime(localDateTime)
+                .updateTime(LocalDateTime.now())
                 .build();
     }
 }
