@@ -1,6 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.basecommon.vo.R;
@@ -9,6 +9,8 @@ import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
+import com.zhsj.community.yanglao_yiliao.old_activity.util.MyPageUtils;
+import com.zhsj.community.yanglao_yiliao.old_activity.util.PageInfo;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +38,7 @@ public class ActivityController {
 
     @Autowired
     private ActivityTypeService activityTypeService;
+
 
 
     /**
@@ -105,63 +108,79 @@ public class ActivityController {
         return R.ok(list);
     }
 
-
     /**
-     * 查询活动的类型
+     * @description 查询活动的类型
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @GetMapping("getActivity")
-    public Result getActivityType() {
+    public R getActivityType() {
         List<ActivityFromDto> getactivit = this.activityService.getactivit();
-        return Result.ok(getactivit);
+        return R.ok(getactivit);
     }
 
     /**
-     * 查询自己的所有活动
-     *
+     * @description 查询自己的所有活动
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @GetMapping("getUserActivityList")
-    public Result<?> getUserActivityList(@RequestBody pageVoed pageVo){
+    public R<?> getUserActivityList(@RequestBody pageVoed pageVo){
         log.info("用户的uid{}{}",pageVo);
-        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getRows());
+        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getData());
         IPage<Activity> activityList = this.activityService.getActivityList(page);
-        return Result.ok(activityList);
+        return R.ok(activityList);
     }
 
 
-
     /**
-     * @Description: 分页查询所有活动
-     * @author: liulq
-     *
+     * @description 分页查询所有活动
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @PostMapping("pageList")
     public PageList<Activity> pageList(@RequestBody pageVoed pageVo) {
         log.info("分页参数{}",pageVo);
-        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getRows());
+        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getData());
         page = this.activityService.page(page);
         return new PageList<>(page.getTotal(), page.getRecords());
     }
 
 
-
-
     /**
-     * 根据别人的id查询活动详情
-     * @param
-     * @return pageList
+     * @description 分页查询所有活动
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
+     @PostMapping("pageListed")
+     public PageInfo<ActivityDto> pageListed(@RequestBody ActivityReqBo activityDto){
+         List<ActivityDto> activityDtos = this.activityService.pageListed(activityDto);
+         PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityDto.getPage(), activityDto.getPage(), activityDtos);
+         return activityDtoPageInfo;
+     }
+    /**
+     * @description 根据别人的id查询活动详情
+     * @author liulq
+     * @date 2021/11/24 19:00
+     * @Param: [id]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @PostMapping("getActivityedPageList")
     @ResponseBody
-    public Result<?>  getActivityedge(@RequestBody ActivityPageDto activityPageDto){
-        QueryWrapper<Activity> Wrapper = new QueryWrapper<>();
-        Wrapper.eq("user_uuid",activityPageDto.getId());
-        Page<Activity> page = new Page<>(activityPageDto.getPage(),activityPageDto.getRows());
-        Page<Activity> pageList = this.activityService.page(page, Wrapper);
-        return Result.ok(pageList);
+    public R<?>  getActivityedge(@RequestBody ActivityPageDto activityPageDto){
+        List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
+        PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(), activityPageDto.getPage(), activityDtos);
+        return R.ok(getActivityedge);
+
+
     }
-
-
-
-
 
 }

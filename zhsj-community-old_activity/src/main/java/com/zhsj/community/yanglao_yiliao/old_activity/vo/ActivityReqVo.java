@@ -1,6 +1,5 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,7 +32,7 @@ public class ActivityReqVo {
     /**
      * id
      */
-    @NotNull(message = "id不能为空")
+    @NotNull(message = "用户id不能为空")
     private Long id;
 
 

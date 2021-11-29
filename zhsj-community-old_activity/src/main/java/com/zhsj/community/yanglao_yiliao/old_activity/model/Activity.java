@@ -70,7 +70,14 @@ public class Activity {
      */
     private Boolean isFriend;
 
-
+    /**
+     * 1:自己 ，0 不是自己
+     */
+    private  Boolean isUser;
+    /**
+     * 头像图片
+     */
+    private  String avatarImages;
     /**
      * 经度
      */

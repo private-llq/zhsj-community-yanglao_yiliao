@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityDto {
+public class ActivityDto  {
      /**
       * id
       */
@@ -60,13 +60,22 @@ public class ActivityDto {
       * 是否好友（0：否false，1：是true）
       */
      private Boolean isFriend;
-
+     /**
+      * 1:自己 ，0 不是自己
+      */
+     private  Boolean isUser;
+     /**
+      * 距离
+      */
      private  Long distance;
      /**
       * 经度
       */
      private Double longitude;
-
+     /**
+      * 头像图片
+      */
+     private  String avatarImages;
      /**
       * 维度
       */
@@ -89,7 +98,6 @@ public class ActivityDto {
       */
      @TableLogic
      private Boolean deleted;
-
 
 
 

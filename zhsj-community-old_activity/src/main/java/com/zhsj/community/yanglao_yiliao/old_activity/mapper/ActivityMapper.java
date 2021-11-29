@@ -42,7 +42,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param id
      * @return
      */
-    List<ActivityListDto> getActivityedge(Long id);
+    List<ActivityListDto> getActivityedge(@Param("id")Long id);
 
 
 
@@ -50,4 +50,12 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     @Select("select * from t_activity where user_uuid=#{id} and deleted = 1")
     List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
+
+
+    @Select("select * from t_activity")
+    List<ActivityDto> pageListed();
+
+
+    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1 ")
+    List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

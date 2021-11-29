@@ -10,6 +10,12 @@ import lombok.Data;
  */
 @Data
 public class pageVoed {
-    private Integer page = 1; //当前页
-    private Integer rows = 10; //每页显示多少条
+    /**
+     *  当前页
+     */
+    private Integer page = 1;
+    /**
+     *  每页显示多少条
+     */
+    private Integer data = 10;
 }

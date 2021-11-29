@@ -72,6 +72,22 @@ public interface ActivityService extends IService<Activity> {
      */
     IPage<Activity> getActivityList(Page<Activity> page);
 
+    /**
+    *@Description:
+    *@Param:
+    *@return:
+    *@Author: liulq
+    *@date: 2021-11-29
+    */
+    List<ActivityDto> pageListed(ActivityReqBo activityDto);
 
 
+    /**
+    *@Description:
+    *@Param:
+    *@return:
+    *@Author: liulq
+    *@date: 2021-11-29
+    */
+    List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

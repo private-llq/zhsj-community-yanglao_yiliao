@@ -45,7 +45,10 @@ public class ActivitySaveReqBo {
      * 语音文件的大小
      */
     private  int voiceFileSize;
-
+    /**
+     * 头像图片
+     */
+    private  String avatarImages;
     /**
      * 经度
      */

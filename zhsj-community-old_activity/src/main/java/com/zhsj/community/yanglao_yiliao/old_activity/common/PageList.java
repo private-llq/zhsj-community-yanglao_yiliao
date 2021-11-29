@@ -20,10 +20,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-//分页对象：easyui只需两个属性，total(总数),datas（分页数据）就能实现分页
+/**
+ * 分页对象：easyui只需两个属性，total(总数),datas（分页数据）就能实现分页
+ */
 public class PageList<T> {
     private Long total=0L;
-    private List<T> rows = new ArrayList<T>();
+    private List<T> data = new ArrayList<T>();
 
     public long getTotal() {
         return total;
@@ -34,11 +36,11 @@ public class PageList<T> {
     }
 
     public List<T> getRows() {
-        return rows;
+        return data;
     }
 
     public void setRows(List<T> rows) {
-        this.rows = rows;
+        this.data = rows;
     }
 
 

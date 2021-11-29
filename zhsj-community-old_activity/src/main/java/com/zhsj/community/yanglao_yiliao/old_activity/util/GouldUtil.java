@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import com.zhsj.community.yanglao_yiliao.old_activity.util.Global;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -182,10 +182,10 @@ public class GouldUtil {
 		return Math.sqrt(distance);
 	}
 
-	public static void main(String[] args) {
-		String s="重庆市渝北区天宫殿街道泰山大道东段106号";
-		String lonLat = GouldUtil.getLonLat(s);
-		System.out.println(lonLat);
-	}
+//	public static void main(String[] args) {
+//		String s="重庆市渝北区天宫殿街道泰山大道东段106号";
+//		String lonLat = GouldUtil.getLonLat(s);
+//		System.out.println(lonLat);
+//	}
 
 }
