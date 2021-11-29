@@ -11,10 +11,8 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
-import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,9 +29,6 @@ import java.util.List;
 @Slf4j
 @Service
 public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate> implements HeartRateService {
-
-    @Autowired
-    private UserDeviceInfoService userDeviceInfoService;
 
     /***************************************************************************************************************************
      * @description 监测用户实时心率以及历史心率并保存（历史心率需筛选）

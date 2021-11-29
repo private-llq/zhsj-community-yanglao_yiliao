@@ -7,16 +7,12 @@ import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.TemperatureMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.TemperatureService;
-import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,9 +29,6 @@ import java.util.List;
 @Slf4j
 @Service
 public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Temperature> implements TemperatureService {
-
-    @Autowired
-    private UserDeviceInfoService userDeviceInfoService;
 
     /***************************************************************************************************************************
      * @description 检测用户体温并保存

@@ -11,10 +11,8 @@ import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorSleepReqBo;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.SleepMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.SleepService;
-import com.zhsj.community.yanglao_yiliao.healthydata.service.UserDeviceInfoService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,9 +29,6 @@ import java.util.List;
 @Slf4j
 @Service
 public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements SleepService {
-
-    @Autowired
-    private UserDeviceInfoService userDeviceInfoService;
 
     /***************************************************************************************************************************
      * @description 监控用户睡眠并保存

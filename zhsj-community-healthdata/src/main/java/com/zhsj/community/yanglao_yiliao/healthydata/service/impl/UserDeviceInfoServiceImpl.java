@@ -47,7 +47,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
         if (deviceInfo != null) {
-            log.error("The user has bound the device, userUuid = {}, mDeviceAddress = {}", deviceInfo.getUserUuid(), deviceInfo.getMDeviceAddress());
+            log.error("The user has bound the device, mDeviceAddress = {}", deviceInfo.getMDeviceAddress());
             throw new BaseException(ErrorEnum.THE_DEVICE_IS_ALREADY_BOUND);
         }
         UserDeviceInfo userDeviceInfo = UserDeviceInfo.build(user, bo);
@@ -77,7 +77,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     }
 
     /***************************************************************************************************************************
-     * @description 获取用户绑定设备信息
+     * @description 获取用户最后一次绑定设备信息
      * @author zzm
      * @date 2021/11/13 13:57
      * @param reqBo 用户信息
