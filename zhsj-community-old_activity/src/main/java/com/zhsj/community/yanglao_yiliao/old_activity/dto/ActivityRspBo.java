@@ -1,8 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 

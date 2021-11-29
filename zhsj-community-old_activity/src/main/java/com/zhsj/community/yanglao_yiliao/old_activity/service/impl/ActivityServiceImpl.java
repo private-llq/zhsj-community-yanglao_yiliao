@@ -3,19 +3,26 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
+import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityDetails;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
+import com.zhsj.community.yanglao_yiliao.old_activity.util.GouldUtil;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -34,6 +41,9 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
     @Autowired
     private ActivityMapper activityMapper;
 
+    @Autowired
+    private ActivityDetailsMapper activityDetailsMapper;
+
 
     /**
      * @description 查询附近活动列表
@@ -45,15 +55,34 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
     @Override
     public List<ActivityDto> queryActivityList(ActivityReqBo reqBo){
         log.info("Activity request parameters, ActivityReqBo = {}", reqBo);
-        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+//        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         LocalDateTime now = LocalDateTime.now();
-        LocalDate localDate = now.toLocalDate();
-
-        //设置附近最大距离
-        if(reqBo.getDist()==null){
-            reqBo.setDist(10.0);
+        List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
+        for (ActivityDto activity: activityDtos){
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
         }
-        return this.activityMapper.queryNearbyActivityList(reqBo);
+        return activityDtos;
+    }
+
+    @Override
+    public List<ActivityDto> queryActivity(ActivityReqVo activityReqVo) {
+        List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVo);
+        for (ActivityDto activity :activityDtos){
+            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                    activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
+           activity.setDistance(apiDistance);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        for (ActivityDto activity: activityDtos){
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
+        }
+        return activityDtos;
     }
 
     /**
@@ -94,6 +123,11 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         activity.setPublishTime(now);
         activity.setCreateTime(now);
         activity.setUpdateTime(now);
+        //新增详情表
+        ActivityDetails activityDetails = new ActivityDetails();
+        activityDetails.setAId(loginUser.getId());
+        activityDetails.setNickname(loginUser.getNickName());
+        this.activityDetailsMapper.insert(activityDetails);
         return this.activityMapper.insert(activity);
     }
 
@@ -110,39 +144,18 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
 
     /**
      * 查询自己的所有活动
-     * @param uid
+     * @param
      * @return
      */
     @Override
-    public List<Activity> getActivityList(Long uid) {
-        log.info("用户的uid{}",uid);
-        List<Activity> activities = this.activityMapper.selectList(new QueryWrapper<Activity>().eq("user_uuid", uid));
+    public IPage<Activity> getActivityList(Page<Activity> page) {
+        log.info("用户的uid{}",page);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        Page<Activity> activities = this.activityMapper.selectPage(page, new QueryWrapper<Activity>().eq("user_uuid", loginUser.getId()));
                return activities;
     }
 
-    /**
-     * 根据id查询详情
-     * @param id
-     * @return
-     */
-    @Override
-    public Activity getActivityListOther(Long id) {
-        log.info("id的值{}",id);
-        Activity activity = this.activityMapper.selectById(id);
-        return activity;
-    }
 
-    /**
-     * 查询别人的详情
-     * @param id
-     * @return
-     */
-    @Override
-    public List<ActivityListDto> getActivityedge(Long id) {
-        log.info("id的值{}",id);
-        List<ActivityListDto> activityedge = this.activityMapper.getActivityedge(id);
-        return activityedge;
-    }
 
 
 }

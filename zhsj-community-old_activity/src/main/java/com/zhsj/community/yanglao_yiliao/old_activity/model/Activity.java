@@ -75,13 +75,18 @@ public class Activity {
      * 经度
      */
     private Double longitude;
-
+    /**
+     * 语音文件的大小
+     */
+    private  int voiceFileSize;
     /**
      * 维度
      */
     private Double latitude;
-
-
+    /**
+     * 语音的时长
+     */
+    private  int  voiceTime;
     /**
      * 发布时间
      */
