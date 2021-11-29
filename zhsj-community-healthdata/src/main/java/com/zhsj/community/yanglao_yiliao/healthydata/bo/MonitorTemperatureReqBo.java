@@ -41,12 +41,6 @@ public class MonitorTemperatureReqBo {
     }
 
     /**
-     * 家人id
-     */
-    @NotBlank(message = "家人id不能为空")
-    private String familyMemberId;
-
-    /**
      * 手腕温度
      */
     @NotNull(message = "用户手腕温度不能为空")

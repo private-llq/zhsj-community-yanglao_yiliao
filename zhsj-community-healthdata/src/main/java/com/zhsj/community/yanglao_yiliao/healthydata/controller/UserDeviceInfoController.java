@@ -71,7 +71,7 @@ public class UserDeviceInfoController {
      * @date 2021/11/27 17:53
      * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo>
      **************************************************************************************************************************/
-    @PostMapping("/currentLoginUserDeviceInfo")
+    @PostMapping("/currentLoginUserDeviceInfoList")
     public R<List<DeviceInfoRspBo>> currentLoginUserDeviceInfo() {
         List<DeviceInfoRspBo> list = userDeviceInfoService.currentLoginUserDeviceInfo();
         return R.ok(list);
