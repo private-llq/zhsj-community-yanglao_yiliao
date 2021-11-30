@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper, UserDeviceInfo> implements UserDeviceInfoService {
 
     /***************************************************************************************************************************
-     * @description 用户绑定设备
+     * @description 用户绑定切换设备
      * @author zzm
      * @date 2021/11/10 14:18
      * @param bo 绑定信息
@@ -44,14 +44,17 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         LoginUser user = ContextHolder.getContext().getLoginUser();
 
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
+                .eq(UserDeviceInfo::getUserUuid, user.getAccount())
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
-        if (deviceInfo != null) {
-            log.error("The user has bound the device, mDeviceAddress = {}", deviceInfo.getMDeviceAddress());
-            throw new BaseException(ErrorEnum.THE_DEVICE_IS_ALREADY_BOUND);
+        if (deviceInfo == null) {
+            UserDeviceInfo userDeviceInfo = UserDeviceInfo.build(user, bo);
+            save(userDeviceInfo);
+        } else {
+            deviceInfo.setUpdateTime(LocalDateTime.now());
+            updateById(deviceInfo);
         }
-        UserDeviceInfo userDeviceInfo = UserDeviceInfo.build(user, bo);
-        save(userDeviceInfo);
+
     }
 
     /***************************************************************************************************************************
@@ -89,7 +92,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         List<UserDeviceInfo> list = list(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, reqBo.getFamilyMemberId())
                 .eq(UserDeviceInfo::getBind, true)
-                .orderByDesc(UserDeviceInfo::getCreateTime));
+                .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
             log.error("The user has no device bound, familyMemberId = {}", reqBo.getFamilyMemberId());
             throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
@@ -110,7 +113,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
         List<UserDeviceInfo> list = list(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, loginUser.getAccount())
                 .eq(UserDeviceInfo::getBind, true)
-                .orderByDesc(UserDeviceInfo::getCreateTime));
+                .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
             return null;
         }

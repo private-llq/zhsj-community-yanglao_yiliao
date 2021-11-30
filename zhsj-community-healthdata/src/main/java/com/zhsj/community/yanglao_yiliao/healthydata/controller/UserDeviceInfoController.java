@@ -41,7 +41,7 @@ public class UserDeviceInfoController {
     }
 
     /***************************************************************************************************************************
-     * @description 用户解绑设备
+     * @description 用户绑定切换设备
      * @author zzm
      * @date 2021/11/10 15:37
      * @param userUnbindDeviceReqBo 解绑信息
