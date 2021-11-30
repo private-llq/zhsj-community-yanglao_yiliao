@@ -67,7 +67,7 @@ public class ActivityDto  {
      /**
       * 距离
       */
-     private  Long distance;
+     private  String distance;
      /**
       * 经度
       */

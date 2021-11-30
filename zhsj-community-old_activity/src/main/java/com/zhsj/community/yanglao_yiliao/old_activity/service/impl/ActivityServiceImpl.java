@@ -79,7 +79,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            activity.setDistance(apiDistance / 1000+"分钟前发布");
             LocalDateTime now = LocalDateTime.now();
             for (ActivityDto activityed: activityDtos){
                 LocalDateTime publishTime = activity.getPublishTime();
@@ -169,7 +169,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            activity.setDistance(apiDistance / 1000+"分钟前发布");
         }
         for (ActivityDto activity: activityDtos){
             LocalDateTime now = LocalDateTime.now();
@@ -188,7 +188,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            activity.setDistance(apiDistance / 1000+"分钟前发布");
             LocalDateTime now = LocalDateTime.now();
             for (ActivityDto activityed: activityDtos){
                 LocalDateTime publishTime = activity.getPublishTime();

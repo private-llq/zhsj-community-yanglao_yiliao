@@ -165,8 +165,6 @@ public class ActivityController {
         List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
         PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(),activityPageDto.getData(), activityDtos);
         return R.ok(getActivityedge);
-
-
     }
 
 }
