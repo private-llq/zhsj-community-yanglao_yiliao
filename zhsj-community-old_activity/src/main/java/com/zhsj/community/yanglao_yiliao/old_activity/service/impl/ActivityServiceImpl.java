@@ -164,11 +164,11 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
     }
 
     @Override
-    public List<ActivityDto> pageListed(ActivityReqBo activityDto) {
-        List<ActivityDto> activityDtos = this.activityMapper.pageListed(activityDto);
+    public List<ActivityDto> pageListed(ActivityReqBo activityReqBo) {
+        List<ActivityDto> activityDtos = this.activityMapper.pageListed(activityReqBo);
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityDto.getLatitude() + "," + activityDto.getLongitude());
+                    activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
             activity.setDistance(apiDistance / 1000);
         }
         for (ActivityDto activity: activityDtos){

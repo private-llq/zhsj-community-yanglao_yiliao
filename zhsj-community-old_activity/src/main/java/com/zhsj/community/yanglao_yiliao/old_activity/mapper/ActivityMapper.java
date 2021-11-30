@@ -46,16 +46,16 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
 
 
-    Page<Activity>  getActivityedPage(@Param("id") Long id,Page page);
+    Page<Activity>  getActivityedPage(@Param("id") Long id,@Param("page") Page page);
 
-
+    @Select(" select * from t_activity where user_uuid=#{id} and deleted = 1")
     List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
 
 
+    @Select("select *  from t_activity")
+    List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
-    List<ActivityDto> pageListed(ActivityReqBo activityDto);
 
-
-
+    @Select("select *from t_activity  where  user_uuid=#{id}  and deleted =1")
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

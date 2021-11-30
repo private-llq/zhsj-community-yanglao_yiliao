@@ -79,7 +79,7 @@ public interface ActivityService extends IService<Activity> {
     *@Author: liulq
     *@date: 2021-11-29
     */
-    List<ActivityDto> pageListed(ActivityReqBo activityDto);
+    List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
 
     /**
