@@ -1,14 +1,19 @@
 package com.zhsj.community.yanglao_yiliao.myself.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.base.api.constant.RpcConst;
+import com.zhsj.base.api.entity.UserDetail;
+import com.zhsj.base.api.rpc.IBaseAuthRpcService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -26,6 +31,39 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     @Autowired
     private FamilyRecordMapper familyRecordMapper;
 
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
+    private IBaseAuthRpcService baseAuthRpcService;
+
+    /**
+     * @Description: 添加家人档案
+     * @author: Hu
+     * @since: 2021/11/30 14:01
+     * @Param: [familyRecordEntity]
+     * @return: void
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveUser(FamilyRecordEntity familyRecordEntity,LoginUser loginUser) {
+        FamilyRecordEntity entity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()).eq("relation", 0));
+
+        //注册用户
+       UserDetail userDetail = baseAuthRpcService.eHomeUserPhoneRegister(familyRecordEntity.getMobile());
+
+        familyRecordEntity.setId(SnowFlake.nextId());
+        familyRecordEntity.setUid(userDetail.getAccount());
+        familyRecordEntity.setCreateTime(LocalDateTime.now());
+        familyRecordEntity.setCreateUid(loginUser.getAccount());
+        familyRecordMapper.insert(familyRecordEntity);
+
+        FamilyRecordEntity recordEntity = new FamilyRecordEntity();
+        recordEntity.setName(entity.getName());
+        recordEntity.setMobile(entity.getMobile());
+        recordEntity.setUid(entity.getUid());
+        recordEntity.setCreateUid(userDetail.getAccount());
+        recordEntity.setId(SnowFlake.nextId());
+        recordEntity.setCreateTime(LocalDateTime.now());
+        familyRecordMapper.insert(recordEntity);
+    }
 
     /**
      * @Description: 查列表
@@ -46,11 +84,12 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
             familyRecordEntity.setMobile(loginUser.getPhone());
             familyRecordEntity.setUid(loginUser.getAccount());
             familyRecordEntity.setId(SnowFlake.nextId());
+            familyRecordEntity.setCreateUid(loginUser.getAccount());
             familyRecordEntity.setCreateTime(LocalDateTime.now());
             familyRecordMapper.insert(familyRecordEntity);
         }
 
-        list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()));
+        list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()));
         if (list.size()!=0){
             for (FamilyRecordEntity familyRecordEntity : list) {
                 if (familyRecordEntity.getRelation()!=null){

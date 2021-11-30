@@ -7,7 +7,6 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
-import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import com.zhsj.community.yanglao_yiliao.myself.utils.MinioUtils;
@@ -50,10 +49,8 @@ public class FamilyRecordController {
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
         ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.AddFamilyValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        familyRecordEntity.setId(SnowFlake.nextId());
-        familyRecordEntity.setUid(loginUser.getAccount());
-        familyRecordEntity.setCreateTime(LocalDateTime.now());
-        return R.ok(familyRecordService.save(familyRecordEntity));
+        familyRecordService.saveUser(familyRecordEntity,loginUser);
+        return R.ok();
     }
 
     /**
@@ -77,9 +74,6 @@ public class FamilyRecordController {
         }
         return R.ok(entity);
     }
-
-
-
 
     /**
      * @Description: 头像上传
@@ -127,7 +121,9 @@ public class FamilyRecordController {
         if (entity.getRelation()!=null&&entity.getRelation()==0&&familyRecordEntity.getRelation()!=null&&familyRecordEntity.getRelation()!=0){
             return R.fail("自己的关系不能修改！");
         }
-        familyRecordEntity.setMobile(null);
+        if (!entity.getMobile().equals(familyRecordEntity.getMobile())){
+            return R.fail("手机号不能在这里修改哦！");
+        }
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familyRecordService.updateById(familyRecordEntity));
     }

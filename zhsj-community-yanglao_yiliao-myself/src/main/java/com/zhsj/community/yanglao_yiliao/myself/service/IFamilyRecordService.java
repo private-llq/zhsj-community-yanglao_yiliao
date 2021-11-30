@@ -21,4 +21,13 @@ public interface IFamilyRecordService extends IService<FamilyRecordEntity> {
      * @return:
      */
     List<FamilyRecordEntity> userList(LoginUser loginUser);
+
+    /**
+     * @Description: 添加家人档案
+     * @author: Hu
+     * @since: 2021/11/30 14:01
+     * @Param:
+     * @return: 
+     */
+    void saveUser(FamilyRecordEntity familyRecordEntity,LoginUser loginUser);
 }

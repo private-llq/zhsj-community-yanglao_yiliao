@@ -6,10 +6,12 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilySosEntity;
+import com.zhsj.community.yanglao_yiliao.common.entity.RouteSosEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IAgencySosService;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilySosService;
+import com.zhsj.community.yanglao_yiliao.myself.service.IRouteSosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +34,9 @@ public class SosController {
 
     @Autowired
     private IAgencySosService agencySosService;
+
+    @Autowired
+    private IRouteSosService routeSosService;
 
     private final int NUMBER=3;
 
@@ -136,6 +141,38 @@ public class SosController {
         agencySosEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(agencySosService.updateById(agencySosEntity));
     }
+
+
+
+    /**
+     * @Description: 我要找路
+     * @author: Hu
+     * @since: 2021/11/30 15:10
+     * @Param: []
+     * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.RouteSosEntity>
+     */
+    @GetMapping("findTheWay")
+    public R<RouteSosEntity> findTheWay(){
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        RouteSosEntity entity = routeSosService.getOne(new QueryWrapper<RouteSosEntity>().eq("uid", loginUser.getAccount()));
+        return R.ok(entity);
+    }
+
+
+    /**
+     * @Description: 新增修改sos我要找路终点地址
+     * @author: Hu
+     * @since: 2021/11/30 15:16
+     * @Param: [routeSosEntity]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
+    @PostMapping("saveRoute")
+    public R<Void> saveRoute(@RequestBody RouteSosEntity routeSosEntity){
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        routeSosService.saveRoute(routeSosEntity,loginUser);
+        return R.ok();
+    }
+
 
 
     /**
