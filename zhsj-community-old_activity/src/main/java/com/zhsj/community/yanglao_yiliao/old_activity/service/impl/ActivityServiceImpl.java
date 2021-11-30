@@ -99,10 +99,10 @@ public class ActivityServiceImpl  implements ActivityService {
      * 查询活动类型
      *
      */
-    @Override
+    /*@Override
     public List<ActivityFromDto> getactivit() {
         return this.activityMapper.getActivityTyped();
-    }
+    }*/
 
 
 

@@ -92,8 +92,9 @@ public class ActivityController {
      */
     @GetMapping("getActivity")
     public Result getActivityType() {
-        List<ActivityFromDto> getactivit = this.activityService.getactivit();
-        return Result.ok(getactivit);
+//        List<ActivityFromDto> getactivit = this.activityService.getactivit();
+//        return Result.ok(getactivit);
+        return null;
     }
 
 

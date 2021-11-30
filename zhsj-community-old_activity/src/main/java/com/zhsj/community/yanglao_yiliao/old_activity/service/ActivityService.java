@@ -48,7 +48,7 @@ public interface ActivityService {
      * 查询具体的活动
      *
      */
-    List<ActivityFromDto> getactivit();
+    // List<ActivityFromDto> getactivit();
 
 
 
