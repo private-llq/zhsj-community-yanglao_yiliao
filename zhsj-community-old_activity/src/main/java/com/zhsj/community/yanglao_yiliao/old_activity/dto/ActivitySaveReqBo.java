@@ -41,7 +41,14 @@ public class ActivitySaveReqBo {
      * 语音的url
      */
     private  String voiceUrl;
-
+    /**
+     * 语音文件的大小
+     */
+    private  int voiceFileSize;
+    /**
+     * 头像图片
+     */
+    private  String avatarImages;
     /**
      * 经度
      */
@@ -53,4 +60,10 @@ public class ActivitySaveReqBo {
      */
     @NotNull(message = "维度不能为空")
     private Double latitude;
+
+    /**
+     * 语音的时长 （单位秒）
+     */
+    private  int  voiceTime;
+
 }

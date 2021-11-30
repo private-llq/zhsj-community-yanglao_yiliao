@@ -3,13 +3,16 @@ package com.zhsj.community.yanglao_yiliao.healthydata.pojo;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -37,11 +40,6 @@ public class Temperature {
     private String userUuid;
 
     /**
-     * 家人id
-     */
-    private String familyMemberId;
-
-    /**
      * 手腕温度
      */
     private Double tmpHandler;
@@ -52,9 +50,18 @@ public class Temperature {
     private Double tmpForehead;
 
     /**
-     * 体温时间
+     * 监测体温时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+
+    /**
+     * 修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateTime;
 
     /**
      * 是否删除（0：已删除false，1：未删除true）
@@ -62,13 +69,15 @@ public class Temperature {
     @TableLogic
     private Boolean deleted;
 
-    public static Temperature build(LoginUser user, MonitorTemperatureReqBo reqBo, LocalDateTime localDateTime) {
+    public static Temperature build(@NotNull LoginUser user,
+                                    @NotNull MonitorTemperatureReqBo reqBo,
+                                    @NotNull LocalDateTime localDateTime) {
         return Temperature.builder()
                 .userUuid(user.getAccount())
-                .familyMemberId(reqBo.getFamilyMemberId())
                 .tmpHandler(reqBo.getTmpHandler())
                 .tmpForehead(reqBo.getTmpForehead())
                 .createTime(localDateTime)
+                .updateTime(LocalDateTime.now())
                 .build();
     }
 }

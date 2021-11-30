@@ -30,4 +30,6 @@ public class ActivityTypeServiceImpl  extends ServiceImpl<ActivityTypeMapper, Ac
                 .orderByAsc(ActivityType::getActivityTypeName));
         return list;
     }
+
+
 }

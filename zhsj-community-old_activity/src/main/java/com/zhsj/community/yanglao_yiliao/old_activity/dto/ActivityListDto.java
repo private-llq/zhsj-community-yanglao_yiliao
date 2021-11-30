@@ -1,13 +1,9 @@
-package com.zhsj.community.yanglao_yiliao.old_activity.model;
+package com.zhsj.community.yanglao_yiliao.old_activity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zhsj.baseweb.support.LoginUser;
-import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,18 +11,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
 /**
- * @author chengl
- * @version 1.0
- * @Description: 活动对应实体
- * @date 2021/11/23 19:57
+ * @program: zhsj-community-yanglao_yiliao
+ * @description:
+ * @author: liulq
+ * @create: 2021-11-26 16:13
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@TableName(value = "t_activity")
-public class Activity {
-
+@NoArgsConstructor
+public class ActivityListDto {
     /**
      * id
      */
@@ -70,30 +63,18 @@ public class Activity {
      */
     private Boolean isFriend;
 
-    /**
-     * 1:自己 ，0 不是自己
-     */
-    private  Boolean isUser;
-    /**
-     * 头像图片
-     */
-    private  String avatarImages;
+
     /**
      * 经度
      */
     private Double longitude;
-    /**
-     * 语音文件的大小
-     */
-    private  int voiceFileSize;
+
     /**
      * 维度
      */
     private Double latitude;
-    /**
-     * 语音的时长
-     */
-    private  int  voiceTime;
+
+
     /**
      * 发布时间
      */
@@ -108,27 +89,4 @@ public class Activity {
     @TableLogic
     private Boolean deleted;
 
-    /**
-     * 创建时间
-     */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime updateTime;
-
-    public static Activity build(LoginUser user, ActivityReqBo reqBo, LocalDateTime localDateTime) {
-        return Activity.builder()
-                .userUuid(user.getAccount())
-                .userName(user.getNickName())
-//                .systolicPressure(reqBo.getSystolicPressure())
-                .publishTime(localDateTime)
-                .build();
-    }
 }
-

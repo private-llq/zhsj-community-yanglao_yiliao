@@ -3,12 +3,14 @@ package com.zhsj.community.yanglao_yiliao.healthydata.pojo;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorSleepReqBo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -38,11 +40,6 @@ public class Sleep {
     private String userUuid;
 
     /**
-     * 家人id
-     */
-    private String familyMemberId;
-
-    /**
      * 睡眠计数步数
      */
     private Integer stepCount;
@@ -53,9 +50,18 @@ public class Sleep {
     private Integer sleepStatus;
 
     /**
-     * 睡眠时间
+     * 监测睡眠时间
      */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+
+    /**
+     * 修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateTime;
 
     /**
      * 是否删除（0：已删除false，1：未删除true）
@@ -63,13 +69,15 @@ public class Sleep {
     @TableLogic
     private Boolean deleted;
 
-    public static Sleep build(@NotNull LoginUser user, @NotNull MonitorSleepReqBo reqBo, @NotNull LocalDateTime localDateTime) {
+    public static Sleep build(@NotNull LoginUser user,
+                              @NotNull MonitorSleepReqBo reqBo,
+                              @NotNull LocalDateTime localDateTime) {
         return Sleep.builder()
                 .userUuid(user.getAccount())
-                .familyMemberId(reqBo.getFamilyMemberId())
                 .stepCount(reqBo.getStepCount())
                 .sleepStatus(reqBo.getSleepStatus())
                 .createTime(localDateTime)
+                .updateTime(LocalDateTime.now())
                 .build();
     }
 }

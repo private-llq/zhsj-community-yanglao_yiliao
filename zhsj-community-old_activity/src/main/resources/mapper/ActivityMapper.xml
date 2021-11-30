@@ -6,8 +6,22 @@
             resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
         select t.*,fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) as dist
         from t_activity t
-        where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt;#{dist}
+        where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
           and deleted = 1
         order by dist
     </select>
+    <select id="getActivityedge"
+            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityListDto">
+        select * from t_activity  as a
+                LEFT JOIN t_activity_details as ac
+                on a.id =ac.a_id
+                WHERE a.user_uuid = #{useruuid}
+    </select>
+    <select id="getActivityedPage" resultType="com.zhsj.community.yanglao_yiliao.old_activity.model.Activity">
+        select * from t_activity  as a
+                          LEFT JOIN t_activity_details as ac
+                                    on a.id =ac.a_id
+        WHERE a.user_uuid = #{id}
+    </select>
+
 </mapper>

@@ -39,11 +39,6 @@ public class UserDeviceInfo {
     private String userUuid;
 
     /**
-     * 家人id
-     */
-    private String familyMemberId;
-
-    /**
      * 设备名称
      */
     private String mDeviceName;
@@ -92,7 +87,6 @@ public class UserDeviceInfo {
     public static UserDeviceInfo build(LoginUser user, UserBindDeviceReqBo bo) {
         return UserDeviceInfo.builder()
                 .userUuid(user.getAccount())
-                .familyMemberId(bo.getFamilyMemberId())
                 .mDeviceName(bo.getDeviceName())
                 .mDeviceAddress(bo.getDeviceAddress())
                 .mDeviceVersion(bo.getDeviceVersion())

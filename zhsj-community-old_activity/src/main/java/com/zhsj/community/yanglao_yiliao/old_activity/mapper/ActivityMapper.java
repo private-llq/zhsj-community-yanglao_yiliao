@@ -2,14 +2,17 @@ package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto;
-import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo;
+
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-//import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityFromDto;
 
 
 /**
@@ -25,8 +28,8 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 查询活动类型
      *
      */
-//    @Select("select id,activity_type_name,activity_type_code from t_activity_type")
-//    List<ActivityFromDto> getActivityTyped();
+    @Select("select id,activity_type_name,activity_type_code from t_activity_type")
+    List<ActivityFromDto> getActivityTyped();
 
 
     /**
@@ -34,4 +37,26 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      */
     List<ActivityDto> queryNearbyActivityList(ActivityReqBo reqBo);
 
+    /**
+     * 其他人查询自己的活动详情
+     * @param id
+     * @return
+     */
+    List<ActivityListDto> getActivityedge(@Param("id")Long id);
+
+
+
+    Page<Activity>  getActivityedPage(@Param("id") Long id,Page page);
+
+    @Select("select * from t_activity where user_uuid=#{id} and deleted = 1")
+    List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
+
+
+    @Select("select id,activity_desc,activity_type_name,activity_type_code,voice_url,voice_file_size,pic_url,avatar_images,user_uuid,user_name,is_friend,is_user,longitude,latitude,publish_time,deleted\n" +
+            "from t_activity ")
+    List<ActivityDto> pageListed();
+
+
+    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1 ")
+    List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

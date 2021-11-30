@@ -40,13 +40,16 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
     public void monitorHeartRate(List<MonitorHeartRateReqBo> list) {
         log.info("Real time monitoring of user heart rate parameters,List<MonitorHeartRateReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorHeartRateReqBo> hashSet = new HashSet<>(list);
         List<HeartRate> arr = new ArrayList<>();
         for (MonitorHeartRateReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(HeartRate::getCreateTime, localDateTime)
                     .eq(HeartRate::getDeleted, true));
             if (heartRate != null) {

@@ -40,13 +40,16 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
     public void monitorSleep(List<MonitorSleepReqBo> list) {
         log.info("Monitor user sleep request parameters, List<MonitorSleepReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorSleepReqBo> hashSet = new HashSet<>(list);
         List<Sleep> arr = new ArrayList<Sleep>();
         for (MonitorSleepReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
                     .eq(Sleep::getUserUuid, user.getAccount())
-                    .eq(Sleep::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(Sleep::getCreateTime, localDateTime)
                     .eq(Sleep::getDeleted, true));
             if (sleep != null) {

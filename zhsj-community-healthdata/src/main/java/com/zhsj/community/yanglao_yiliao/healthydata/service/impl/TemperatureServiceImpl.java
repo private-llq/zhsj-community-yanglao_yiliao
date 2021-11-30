@@ -40,13 +40,16 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
     public void monitorTemperature(List<MonitorTemperatureReqBo> list) {
         log.info("Monitor user temperature request parameters,List<MonitorTemperatureReqBo> = {}", list);
         LoginUser user = ContextHolder.getContext().getLoginUser();
+        if (CollectionUtil.isEmpty(list)) {
+            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
+        }
         HashSet<MonitorTemperatureReqBo> hashSet = new HashSet<>(list);
         List<Temperature> arr = new ArrayList<Temperature>();
         for (MonitorTemperatureReqBo reqBo : hashSet) {
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
             Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, user.getAccount())
-                    .eq(Temperature::getFamilyMemberId, reqBo.getFamilyMemberId())
                     .eq(Temperature::getCreateTime, localDateTime)
                     .eq(Temperature::getDeleted, true));
             if (temperature != null) {

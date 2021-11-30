@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -39,12 +38,6 @@ public class MonitorSleepReqBo {
     public int hashCode() {
         return Objects.hash(createTime);
     }
-
-    /**
-     * 家人id
-     */
-    @NotBlank(message = "家人id不能为空")
-    private String familyMemberId;
 
     /**
      * 睡眠计数步数
