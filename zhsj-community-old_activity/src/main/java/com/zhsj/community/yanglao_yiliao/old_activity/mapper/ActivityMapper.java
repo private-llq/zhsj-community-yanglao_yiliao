@@ -53,7 +53,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
 
 
-    List<ActivityDto> pageListed();
+    List<ActivityDto> pageListed(ActivityReqBo activityDto);
 
 
 
