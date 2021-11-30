@@ -130,7 +130,7 @@ public class ActivityController {
      */
     @GetMapping("getUserActivityList")
     @ResponseBody
-    public R<?> getUserActivityList(@RequestBody pageVoed pageVo){
+    public R<?> getUserActivityList(@RequestBody  @Valid pageVoed pageVo){
         log.info("用户的uid{}{}",pageVo);
         Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getData());
         IPage<Activity> activityList = this.activityService.getActivityList(page);
@@ -146,7 +146,7 @@ public class ActivityController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
      @PostMapping("pageListed")
-     public PageInfo<ActivityDto> pageListed(@RequestBody ActivityReqBo activityDto){
+     public PageInfo<ActivityDto> pageListed(@RequestBody @Valid ActivityReqBo activityDto){
          List<ActivityDto> activityDtos = this.activityService.pageListed(activityDto);
          PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityDto.getPage(),activityDto.getData(),activityDtos);
          return activityDtoPageInfo;
@@ -161,7 +161,7 @@ public class ActivityController {
      */
     @PostMapping("getActivityedPageList")
     @ResponseBody
-    public R<?>  getActivityedge(@RequestBody ActivityPageDto activityPageDto){
+    public R<?>  getActivityedge(@RequestBody @Valid ActivityPageDto activityPageDto){
         List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
         PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(),activityPageDto.getData(), activityDtos);
         return R.ok(getActivityedge);
