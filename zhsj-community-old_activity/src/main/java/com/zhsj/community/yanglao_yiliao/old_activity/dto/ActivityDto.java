@@ -93,7 +93,7 @@ public class ActivityDto  {
      /**
       * 转换的时间秒数
       */
-     private  String  publishTimed;
+     private  Long  publishTimed;
 
      /**
       * 是否删除（0：已删除false，1：未删除true）
