@@ -170,14 +170,14 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityDto.getLatitude() + "," + activityDto.getLongitude());
             activity.setDistance(apiDistance / 1000);
-            for (ActivityDto activityed: activityDtos){
-                LocalDateTime now = LocalDateTime.now();
+        }
+        for (ActivityDto activity: activityDtos){
+            LocalDateTime now = LocalDateTime.now();
 
-                LocalDateTime publishTime = activity.getPublishTime();
-                //相差的分钟数
-                long minutes = Duration.between(publishTime,now).toMinutes();
-                activityed.setPublishTimed(minutes);
-            }
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
         }
         return activityDtos;
     }

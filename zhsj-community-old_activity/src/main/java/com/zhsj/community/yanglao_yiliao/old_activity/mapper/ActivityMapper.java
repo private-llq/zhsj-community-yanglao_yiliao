@@ -52,7 +52,8 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
 
 
-    @Select("select * from t_activity")
+    @Select("select id,activity_desc,activity_type_name,activity_type_code,voice_url,voice_file_size,pic_url,avatar_images,user_uuid,user_name,is_friend,is_user,longitude,latitude,publish_time,deleted\n" +
+            "from t_activity ")
     List<ActivityDto> pageListed();
 
 
