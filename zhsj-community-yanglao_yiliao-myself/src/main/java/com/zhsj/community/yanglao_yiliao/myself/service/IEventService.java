@@ -20,7 +20,7 @@ public interface IEventService {
      * @Param:
      * @return:
      */
-    void save(EventEntity eventEntity, LoginUser loginUser);
+    Long save(EventEntity eventEntity, LoginUser loginUser);
     /**
      * @Description: 修改
      * @author: Hu
