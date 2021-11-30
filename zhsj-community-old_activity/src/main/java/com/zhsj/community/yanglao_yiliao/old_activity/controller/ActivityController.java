@@ -146,7 +146,7 @@ public class ActivityController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
      @PostMapping("pageListed")
-     public PageInfo<ActivityDto> pageListed(@RequestBody @Valid ActivityReqBo activityDto){
+     public PageInfo<ActivityDto> pageListed(@RequestBody ActivityReqBo activityDto){
          List<ActivityDto> activityDtos = this.activityService.pageListed(activityDto);
          PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityDto.getPage(),activityDto.getData(),activityDtos);
          return activityDtoPageInfo;

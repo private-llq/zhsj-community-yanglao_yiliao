@@ -23,5 +23,17 @@
                                     on a.id =ac.a_id
         WHERE a.user_uuid = #{id}
     </select>
+    <select id="pageListed" resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
+        select id,activity_desc,activity_type_name,activity_type_code,voice_url,voice_file_size,pic_url
+             ,avatar_images,user_uuid,user_name,is_friend,is_user,longitude,latitude,publish_time,deleted
+            from t_activity
+    </select>
+    <select id="getActivityePagelist"
+            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
+        select * from t_activity  where  user_uuid=#{id}  and deleted =1
+    </select>
+    <select id="queryActivityList" resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
+        select * from t_activity where user_uuid=#{id} and deleted = 1
+    </select>
 
 </mapper>
