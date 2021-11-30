@@ -90,7 +90,9 @@ public class ActivityDto  {
      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
      @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
      private LocalDateTime publishTime;
-
+     /**
+      * 转换的时间秒数
+      */
      private  Long  publishTimed;
 
      /**

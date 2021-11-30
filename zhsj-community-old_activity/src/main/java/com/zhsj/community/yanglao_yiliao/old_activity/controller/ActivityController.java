@@ -144,28 +144,13 @@ public class ActivityController {
      * @Param: [id]
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
-    @PostMapping("pageList")
-    public PageList<Activity> pageList(@RequestBody pageVoed pageVo) {
-        log.info("分页参数{}",pageVo);
-        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getData());
-        page = this.activityService.page(page);
-        return new PageList<>(page.getTotal(), page.getRecords());
-    }
-
-
-    /**
-     * @description 分页查询所有活动
-     * @author liulq
-     * @date 2021/11/24 19:00
-     * @Param: [id]
-     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
-     */
-     @PostMapping("pageListed")
+     @PostMapping("pageList")
      public PageInfo<ActivityDto> pageListed(@RequestBody ActivityReqBo activityDto){
          List<ActivityDto> activityDtos = this.activityService.pageListed(activityDto);
-         PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityDto.getPage(), activityDto.getPage(), activityDtos);
+         PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityDto.getPage(),activityDto.getData(),activityDtos);
          return activityDtoPageInfo;
      }
+
     /**
      * @description 根据别人的id查询活动详情
      * @author liulq
@@ -177,7 +162,7 @@ public class ActivityController {
     @ResponseBody
     public R<?>  getActivityedge(@RequestBody ActivityPageDto activityPageDto){
         List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
-        PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(), activityPageDto.getPage(), activityDtos);
+        PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getData(), activityPageDto.getPage(), activityDtos);
         return R.ok(getActivityedge);
 
 

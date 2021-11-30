@@ -80,13 +80,13 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
             activity.setDistance(apiDistance / 1000);
-        }
-        LocalDateTime now = LocalDateTime.now();
-        for (ActivityDto activity: activityDtos){
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime,now).toMinutes();
-            activity.setPublishTimed(minutes);
+            LocalDateTime now = LocalDateTime.now();
+            for (ActivityDto activityed: activityDtos){
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime,now).toMinutes();
+                activityed.setPublishTimed(minutes);
+            }
         }
         return activityDtos;
     }
@@ -170,13 +170,14 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityDto.getLatitude() + "," + activityDto.getLongitude());
             activity.setDistance(apiDistance / 1000);
-        }
-        LocalDateTime now = LocalDateTime.now();
-        for (ActivityDto activity: activityDtos){
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime,now).toMinutes();
-            activity.setPublishTimed(minutes);
+            for (ActivityDto activityed: activityDtos){
+                LocalDateTime now = LocalDateTime.now();
+
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime,now).toMinutes();
+                activityed.setPublishTimed(minutes);
+            }
         }
         return activityDtos;
     }
@@ -188,13 +189,13 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
             activity.setDistance(apiDistance / 1000);
-        }
-        LocalDateTime now = LocalDateTime.now();
-        for (ActivityDto activity: activityDtos){
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime,now).toMinutes();
-            activity.setPublishTimed(minutes);
+            LocalDateTime now = LocalDateTime.now();
+            for (ActivityDto activityed: activityDtos){
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime,now).toMinutes();
+                activityed.setPublishTimed(minutes);
+            }
         }
         return activityDtos;
     }

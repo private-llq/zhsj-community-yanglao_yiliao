@@ -13,9 +13,9 @@ public class pageVoed {
     /**
      *  当前页
      */
-    private Integer page = 1;
+    private Integer page ;
     /**
      *  每页显示多少条
      */
-    private Integer data = 10;
+    private Integer data ;
 }
