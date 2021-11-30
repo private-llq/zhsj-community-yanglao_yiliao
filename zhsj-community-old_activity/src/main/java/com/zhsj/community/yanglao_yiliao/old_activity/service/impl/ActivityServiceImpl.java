@@ -145,10 +145,10 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
      * 查询活动类型
      *
      */
-    /*@Override
+    @Override
     public List<ActivityFromDto> getactivit() {
         return this.activityMapper.getActivityTyped();
-    }*/
+    }
 
     /**
      * 查询自己的所有活动

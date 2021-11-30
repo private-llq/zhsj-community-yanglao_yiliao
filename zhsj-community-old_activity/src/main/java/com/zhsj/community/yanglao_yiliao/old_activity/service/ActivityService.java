@@ -62,7 +62,7 @@ public interface ActivityService extends IService<Activity> {
      * 查询具体的活动
      *
      */
-    // List<ActivityFromDto> getactivit();
+     List<ActivityFromDto> getactivit();
 
 
     /**
