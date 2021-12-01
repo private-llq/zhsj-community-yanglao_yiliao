@@ -91,6 +91,10 @@ public class ActivityDto  {
      @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
      private LocalDateTime publishTime;
      /**
+      * 语音文件的大小
+      */
+     private  int voiceFileSize;
+     /**
       * 转换的时间秒数
       */
      private  Long  publishTimed;
