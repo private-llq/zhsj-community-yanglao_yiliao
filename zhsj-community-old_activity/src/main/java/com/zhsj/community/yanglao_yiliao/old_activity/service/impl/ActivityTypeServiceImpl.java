@@ -24,6 +24,11 @@ public class ActivityTypeServiceImpl  extends ServiceImpl<ActivityTypeMapper, Ac
 
     @Resource
     private ActivityTypeMapper activityTypeMapper;
+
+    /**
+     * 查询活动类型
+     * @return
+     */
     @Override
     public List<ActivityType> selectList() {
         List<ActivityType> list = activityTypeMapper.selectList(new LambdaQueryWrapper<ActivityType>()

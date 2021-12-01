@@ -45,17 +45,26 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     List<ActivityListDto> getActivityedge(@Param("id")Long id);
 
 
-
-    Page<Activity>  getActivityedPage(@Param("id") Long id,@Param("page") Page page);
-
+    /**
+     * 获取附近活动
+     * @param activityReqVo
+     * @return
+     */
     @Select(" select * from t_activity where user_uuid=#{id} and deleted = 1")
     List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
 
-
-    @Select("select *  from t_activity")
+    /**
+     * 分页查询所有活动
+     * @param activityReqBo
+     * @return
+     */
     List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
-
+    /**
+     * 根据别人的id查询活动详情
+     * @param activityPageDto
+     * @return
+     */
     @Select("select *from t_activity  where  user_uuid=#{id}  and deleted =1")
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

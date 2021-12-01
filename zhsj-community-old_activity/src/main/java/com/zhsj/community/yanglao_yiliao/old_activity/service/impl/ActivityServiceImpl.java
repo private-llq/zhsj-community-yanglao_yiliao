@@ -72,6 +72,11 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         return activityDtos;
     }
 
+    /**
+     * 获取附近活动
+     * @param activityReqVo 用户id，查询时间类型
+     * @return
+     */
     @Override
     public List<ActivityDto> queryActivity(ActivityReqVo activityReqVo) {
         log.info("activityReqVo的参数{}",activityReqVo);
@@ -161,6 +166,11 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
                return activities;
     }
 
+    /**
+     * 分页查询所有活动
+     * @param activityReqBo
+     * @return
+     */
     @Override
     public List<ActivityDto> pageListed(ActivityReqBo activityReqBo) {
         log.info("activityReqBo的参数{}",activityReqBo);
@@ -169,18 +179,21 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
             activity.setDistance(apiDistance / 1000);
-            System.out.println(activity.getDistance()+"sdadsadsa");
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数
             long minutes = Duration.between(publishTime,now).toMinutes();
             activity.setPublishTimed(minutes);
-            System.out.println(activity.getPublishTimed()+"dadwadawdwa");
         }
 
         return activityDtos;
     }
 
+    /**
+     * 根据别人的id查询活动详情
+     * @param activityPageDto
+     * @return
+     */
     @Override
     public List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto) {
         log.info("activityPageDto的参数{}",activityPageDto);
@@ -194,10 +207,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             //相差的分钟数
             long minutes = Duration.between(publishTime,now).toMinutes();
             activity.setPublishTimed(minutes);
-
         }
         return activityDtos;
     }
-
-
 }
