@@ -67,7 +67,7 @@ public class ActivityDto  {
      /**
       * 距离
       */
-     private  String distance;
+     private  Long distance;
      /**
       * 经度
       */
@@ -90,6 +90,10 @@ public class ActivityDto  {
      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
      @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
      private LocalDateTime publishTime;
+     /**
+      * 语音文件的大小
+      */
+     private  int voiceFileSize;
      /**
       * 转换的时间秒数
       */

@@ -73,7 +73,7 @@ public interface ActivityService extends IService<Activity> {
     IPage<Activity> getActivityList(Page<Activity> page);
 
     /**
-    *@Description:
+    *@Description: 分页查询所有活动
     *@Param:
     *@return:
     *@Author: liulq
@@ -83,7 +83,7 @@ public interface ActivityService extends IService<Activity> {
 
 
     /**
-    *@Description:
+    *@Description: 根据别人的id查询活动详情
     *@Param:
     *@return:
     *@Author: liulq

@@ -47,7 +47,6 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
     private ActivityDetailsMapper activityDetailsMapper;
 
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
-    @Autowired
     private IBaseUserInfoRpcService iBaseUserInfoRpcService;
 
 
@@ -73,20 +72,24 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         return activityDtos;
     }
 
+    /**
+     * 获取附近活动
+     * @param activityReqVo 用户id，查询时间类型
+     * @return
+     */
     @Override
     public List<ActivityDto> queryActivity(ActivityReqVo activityReqVo) {
+        log.info("activityReqVo的参数{}",activityReqVo);
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVo);
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
-            activity.setDistance(apiDistance / 1000+"分钟前发布");
+            activity.setDistance(apiDistance / 1000);
             LocalDateTime now = LocalDateTime.now();
-            for (ActivityDto activityed: activityDtos){
-                LocalDateTime publishTime = activity.getPublishTime();
-                //相差的分钟数
-                long minutes = Duration.between(publishTime,now).toMinutes();
-                activityed.setPublishTimed(minutes);
-            }
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
         }
         return activityDtos;
     }
@@ -163,17 +166,43 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
                return activities;
     }
 
+    /**
+     * 分页查询所有活动
+     * @param activityReqBo
+     * @return
+     */
     @Override
     public List<ActivityDto> pageListed(ActivityReqBo activityReqBo) {
+        log.info("activityReqBo的参数{}",activityReqBo);
         List<ActivityDto> activityDtos = this.activityMapper.pageListed(activityReqBo);
         for (ActivityDto activity :activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
-            activity.setDistance(apiDistance / 1000+"分钟前发布");
-        }
-        for (ActivityDto activity: activityDtos){
+            activity.setDistance(apiDistance / 1000);
             LocalDateTime now = LocalDateTime.now();
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
+        }
 
+        return activityDtos;
+    }
+
+    /**
+     * 根据别人的id查询活动详情
+     * @param activityPageDto
+     * @return
+     */
+    @Override
+    public List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto) {
+        log.info("activityPageDto的参数{}",activityPageDto);
+        List<ActivityDto> activityDtos = this.activityMapper.getActivityePagelist(activityPageDto);
+        for (ActivityDto activity :activityDtos){
+            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                    activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
+            activity.setDistance(apiDistance / 1000);
+            LocalDateTime now = LocalDateTime.now();
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数
             long minutes = Duration.between(publishTime,now).toMinutes();
@@ -181,24 +210,4 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         }
         return activityDtos;
     }
-
-    @Override
-    public List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto) {
-        List<ActivityDto> activityDtos = this.activityMapper.getActivityePagelist(activityPageDto);
-        for (ActivityDto activity :activityDtos){
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-            activity.setDistance(apiDistance / 1000+"分钟前发布");
-            LocalDateTime now = LocalDateTime.now();
-            for (ActivityDto activityed: activityDtos){
-                LocalDateTime publishTime = activity.getPublishTime();
-                //相差的分钟数
-                long minutes = Duration.between(publishTime,now).toMinutes();
-                activityed.setPublishTimed(minutes);
-            }
-        }
-        return activityDtos;
-    }
-
-
 }

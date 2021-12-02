@@ -16,10 +16,10 @@ public class pageVoed {
      *  当前页
      */
     @NotNull(message = "当前页不能为空")
-    private Integer page ;
+    private Integer page =1;
     /**
      *  每页显示多少条
      */
     @NotNull(message = "条数不能为空")
-    private Integer data ;
+    private Integer data =10;
 }
