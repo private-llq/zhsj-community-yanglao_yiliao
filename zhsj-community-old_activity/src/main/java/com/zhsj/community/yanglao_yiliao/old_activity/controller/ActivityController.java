@@ -1,8 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -50,6 +49,7 @@ public class ActivityController {
      */
     @PostMapping("/queryActivityList")
     public R<List<ActivityDto>> queryActivityList(@RequestBody @Valid ActivityReqBo reqBo) {
+        log.info("reqBo的值{}",reqBo);
         List<ActivityDto> rspList = this.activityService.queryActivityList(reqBo);
         return R.ok(rspList);
     }
@@ -64,6 +64,7 @@ public class ActivityController {
      */
     @PostMapping("/queryActivity")
      public  Result queryActivity(@RequestBody @Valid ActivityReqVo activityReqVo){
+        log.info("activityReqVo的值{}",activityReqVo);
         List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVo);
         return Result.ok(activityDtos);
      }
@@ -78,6 +79,7 @@ public class ActivityController {
      */
     @DeleteMapping("/deleteActivity")
     public R<String> deleteActivity(@RequestParam Long id) {
+        log.info("id的值{}",id);
         this.activityService.delete(id);
         return R.ok("删除成功！");
     }
@@ -91,6 +93,7 @@ public class ActivityController {
      */
     @PostMapping("/publishActivity")
     public R<String> publishActivity(@RequestBody @Valid ActivitySaveReqBo reqBo) {
+        log.info("reqBo的值{}",reqBo);
         this.activityService.publishActivity(reqBo);
         return R.ok("发布成功！");
     }
@@ -128,13 +131,12 @@ public class ActivityController {
      * @Param: [id]
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
-    @GetMapping("getUserActivityList")
-    @ResponseBody
-    public R<?> getUserActivityList(@RequestBody  @Valid pageVoed pageVo){
-        log.info("用户的uid{}{}",pageVo);
-        Page<Activity> page = new Page<>(pageVo.getPage(), pageVo.getData());
-        IPage<Activity> activityList = this.activityService.getActivityList(page);
-        return R.ok(activityList);
+    @PostMapping("getUserActivityList")
+    public PageInfo<ActivityDto> getUserActivityList(@RequestBody  @Valid ActivityPageDto activityPageDto){
+        log.info("页码：{}",activityPageDto);
+        List<ActivityDto> userActivityList = this.activityService.getUserActivityList(activityPageDto);
+        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityPageDto.getPage(),activityPageDto.getData(),userActivityList);
+        return activityDtoPageInfo;
     }
 
 
@@ -146,7 +148,8 @@ public class ActivityController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
      @PostMapping("pageListed")
-     public PageInfo<ActivityDto> pageListed(@RequestBody ActivityReqBo activityReqBo){
+     public PageInfo<ActivityDto> pageListed(@RequestBody @Valid ActivityReqBo activityReqBo){
+         log.info("activityReqBo的值{}",activityReqBo);
          List<ActivityDto> activityDtos = this.activityService.pageListed(activityReqBo);
          PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityReqBo.getPage(),activityReqBo.getData(),activityDtos);
          return activityDtoPageInfo;
@@ -160,8 +163,8 @@ public class ActivityController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @PostMapping("getActivityedPageList")
-    @ResponseBody
     public R<?>  getActivityedge(@RequestBody @Valid ActivityPageDto activityPageDto){
+        log.info("activityPageDto的值{}",activityPageDto);
         List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
         PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(),activityPageDto.getData(), activityDtos);
         return R.ok(getActivityedge);

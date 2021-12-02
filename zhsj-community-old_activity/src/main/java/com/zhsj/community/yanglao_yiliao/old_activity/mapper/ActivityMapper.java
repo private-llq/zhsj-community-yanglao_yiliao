@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
@@ -50,7 +51,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityReqVo
      * @return
      */
-    @Select(" select * from t_activity where user_uuid=#{id} and deleted = 1")
     List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
 
     /**
@@ -65,6 +65,15 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityPageDto
      * @return
      */
-    @Select("select *from t_activity  where  user_uuid=#{id}  and deleted =1")
+    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1")
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
+
+
+    /**
+     * 根据id查询自己的活动详情
+     * @param pageVo
+     * @return
+     */
+    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1")
+    List<ActivityDto> selectgetUserActivityList(pageVoed pageVo);
 }

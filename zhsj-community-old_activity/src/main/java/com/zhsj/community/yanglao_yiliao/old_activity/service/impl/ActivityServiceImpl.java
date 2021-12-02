@@ -1,14 +1,13 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
@@ -63,11 +62,13 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         LocalDateTime now = LocalDateTime.now();
         List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(loginUser.getId());
         for (ActivityDto activity: activityDtos){
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数
             long minutes = Duration.between(publishTime,now).toMinutes();
             activity.setPublishTimed(minutes);
+            activity.setAge(userDetail.getAge());
         }
         return activityDtos;
     }
@@ -127,7 +128,8 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         //默认不是好友  后期能查询 再调整 2021-11-23
         activity.setUserUuid(loginUser.getId().toString());
         activity.setUserName(loginUser.getNickName());
-       activity.setAvatarImages(userDetail.getAvatarThumbnail());
+        activity.setAvatarImages(userDetail.getAvatarThumbnail());
+        activity.setBirthday(userDetail.getBirthday());
         activity.setIsFriend(false);
         activity.setDeleted(true);
         activity.setIsUser(true);
@@ -159,11 +161,20 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
      * @return
      */
     @Override
-    public IPage<Activity> getActivityList(Page<Activity> page) {
-        log.info("用户的uid{}",page);
-        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        Page<Activity> activities = this.activityMapper.selectPage(page, new QueryWrapper<Activity>().eq("user_uuid", loginUser.getId()));
-               return activities;
+    public List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto) {
+        log.info("用户的uid{}", activityPageDto);
+        List<ActivityDto> activityDtos = this.activityMapper.selectgetUserActivityList(activityPageDto);
+        for (ActivityDto activity :activityDtos){
+            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                    activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
+            activity.setDistance(apiDistance / 1000);
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime publishTime = activity.getPublishTime();
+            //相差的分钟数
+            long minutes = Duration.between(publishTime,now).toMinutes();
+            activity.setPublishTimed(minutes);
+        }
+        return activityDtos;
     }
 
     /**
@@ -185,7 +196,6 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
             long minutes = Duration.between(publishTime,now).toMinutes();
             activity.setPublishTimed(minutes);
         }
-
         return activityDtos;
     }
 
