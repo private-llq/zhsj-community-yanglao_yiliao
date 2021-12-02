@@ -7,6 +7,7 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import com.zhsj.community.yanglao_yiliao.myself.utils.MinioUtils;
@@ -156,6 +157,20 @@ public class FamilyRecordController {
     @DeleteMapping("delete")
     public R<Boolean> delete(@RequestParam Long id){
         return R.ok(familyRecordService.removeById(id));
+    }
+
+
+    /**
+     * @Description: 导入社区房间成员
+     * @author: Hu
+     * @since: 2021/12/2 16:21
+     * @Param: [familysQo]
+     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
+     */
+    @PostMapping("importFamily")
+    public R<Void> importFamily(@RequestBody FamilysQo familysQo){
+        familyRecordService.importFamily(familysQo,ContextHolder.getContext().getLoginUser());
+        return R.ok();
     }
 
 

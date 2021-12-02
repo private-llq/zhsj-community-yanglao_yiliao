@@ -7,6 +7,7 @@ import com.zhsj.base.api.rpc.IBaseAuthRpcService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -119,5 +121,66 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         }
 
         return list;
+    }
+
+
+
+    /**
+     * @Description: 导入社区房间成员
+     * @author: Hu
+     * @since: 2021/12/2 16:23
+     * @Param: [familysQo]
+     * @return: void
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importFamily(FamilysQo familysQo,LoginUser loginUser) {
+        List<FamilyRecordEntity> list = new LinkedList<>();
+        FamilyRecordEntity familyRecordEntity = null;
+
+        for (FamilysQo family : familysQo.getFamilies()) {
+            FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()).eq("mobile", family.getMobile()));
+            if (Objects.isNull(recordEntity)){
+                if (family.getUid()!=null){
+                    familyRecordEntity = new FamilyRecordEntity();
+                    familyRecordEntity.setId(SnowFlake.nextId());
+                    familyRecordEntity.setMobile(family.getMobile());
+                    familyRecordEntity.setName(family.getName());
+                    familyRecordEntity.setUid(family.getUid());
+                    familyRecordEntity.setCreateUid(loginUser.getAccount());
+                    list.add(familyRecordEntity);
+
+                    familyRecordEntity = new FamilyRecordEntity();
+                    familyRecordEntity.setName(family.getName());
+                    familyRecordEntity.setMobile(family.getMobile());
+                    familyRecordEntity.setUid(loginUser.getAccount());
+                    familyRecordEntity.setCreateUid(family.getUid());
+                    familyRecordEntity.setId(SnowFlake.nextId());
+                    list.add(familyRecordEntity);
+                } else {
+                    //注册用户
+                    UserDetail userDetail = baseAuthRpcService.eHomeUserPhoneRegister(family.getMobile());
+
+                    familyRecordEntity = new FamilyRecordEntity();
+                    familyRecordEntity.setId(SnowFlake.nextId());
+                    familyRecordEntity.setName(family.getName());
+                    familyRecordEntity.setMobile(family.getMobile());
+                    familyRecordEntity.setUid(userDetail.getAccount());
+                    familyRecordEntity.setCreateUid(loginUser.getAccount());
+                    list.add(familyRecordEntity);
+
+                    familyRecordEntity = new FamilyRecordEntity();
+                    familyRecordEntity.setName(family.getName());
+                    familyRecordEntity.setMobile(family.getMobile());
+                    familyRecordEntity.setUid(loginUser.getAccount());
+                    familyRecordEntity.setCreateUid(userDetail.getAccount());
+                    familyRecordEntity.setId(SnowFlake.nextId());
+                    list.add(familyRecordEntity);
+                }
+            }
+        }
+        if (list.size()!=0){
+            familyRecordMapper.saveAll(list);
+        }
     }
 }
