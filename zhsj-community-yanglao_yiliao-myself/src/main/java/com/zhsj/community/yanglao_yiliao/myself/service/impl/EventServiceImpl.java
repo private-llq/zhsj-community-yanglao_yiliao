@@ -5,19 +5,18 @@ import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventFamilyEntity;
-import com.zhsj.community.yanglao_yiliao.common.entity.EventStopEntity;
+import com.zhsj.community.yanglao_yiliao.common.entity.EventWeekEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventFamilyMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
-import com.zhsj.community.yanglao_yiliao.myself.mapper.EventStopMapper;
+import com.zhsj.community.yanglao_yiliao.myself.mapper.EventWeekMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -40,7 +39,7 @@ public class EventServiceImpl implements IEventService {
     private EventFamilyMapper eventFamilyMapper;
 
     @Resource
-    private EventStopMapper eventStopMapper;
+    private EventWeekMapper eventWeekMapper;
 
 
 
@@ -57,16 +56,11 @@ public class EventServiceImpl implements IEventService {
         eventEntity.setId(SnowFlake.nextId());
         eventEntity.setUid(loginUser.getAccount());
         eventEntity.setCreateTime(LocalDateTime.now());
-        eventEntity.setWarnYear(eventEntity.getWarnTime().getYear());
-        eventEntity.setWarnMonth(eventEntity.getWarnTime().getMonthValue());
-        eventEntity.setWarnDay(eventEntity.getWarnTime().getDayOfMonth());
-        eventEntity.setWarnWeek(eventEntity.getWarnTime().getDayOfWeek().getValue());
         eventMapper.insert(eventEntity);
-
 
         //添加事件提醒家人
         EventFamilyEntity entity;
-        LinkedList<EventFamilyEntity> list = new LinkedList<>();
+        LinkedList<EventFamilyEntity> familyList = new LinkedList<>();
         for (Long family : eventEntity.getFamilies()) {
             entity = new EventFamilyEntity();
             entity.setFamilyId(family);
@@ -74,10 +68,22 @@ public class EventServiceImpl implements IEventService {
             entity.setEventId(eventEntity.getId());
             entity.setUid(eventEntity.getUid());
             entity.setCreateTime(LocalDateTime.now());
-            list.add(entity);
+            familyList.add(entity);
         }
-        eventFamilyMapper.saveAll(list);
+        eventFamilyMapper.saveAll(familyList);
 
+        //添加事件周天
+        EventWeekEntity eventWeekEntity;
+        LinkedList<EventWeekEntity> weekList = new LinkedList<>();
+        for (Integer week : eventEntity.getWeeks()) {
+            eventWeekEntity = new EventWeekEntity();
+            eventWeekEntity.setId(SnowFlake.nextId());
+            eventWeekEntity.setEventId(eventEntity.getId());
+            eventWeekEntity.setUid(loginUser.getAccount());
+            eventWeekEntity.setWeek(week);
+            weekList.add(eventWeekEntity);
+        }
+        eventWeekMapper.saveAll(weekList);
         return eventEntity.getId();
     }
 
@@ -93,15 +99,12 @@ public class EventServiceImpl implements IEventService {
     @Transactional(rollbackFor = Exception.class)
     public void update(EventEntity eventEntity, LoginUser loginUser) {
         eventEntity.setUid(loginUser.getAccount());
-        eventEntity.setWarnYear(eventEntity.getWarnTime().getYear());
-        eventEntity.setWarnMonth(eventEntity.getWarnTime().getMonthValue());
-        eventEntity.setWarnDay(eventEntity.getWarnTime().getDayOfMonth());
-        eventEntity.setWarnWeek(eventEntity.getWarnTime().getDayOfWeek().getValue());
         eventEntity.setUpdateTime(LocalDateTime.now());
         eventMapper.updateById(eventEntity);
 
         eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getAccount()));
-
+        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getAccount()));
+        //添加事件家人
         EventFamilyEntity entity;
         LinkedList<EventFamilyEntity> list = new LinkedList<>();
         for (Long family : eventEntity.getFamilies()) {
@@ -114,6 +117,19 @@ public class EventServiceImpl implements IEventService {
             list.add(entity);
         }
         eventFamilyMapper.saveAll(list);
+
+        //添加事件周天
+        EventWeekEntity eventWeekEntity;
+        LinkedList<EventWeekEntity> weekList = new LinkedList<>();
+        for (Integer week : eventEntity.getWeeks()) {
+            eventWeekEntity = new EventWeekEntity();
+            eventWeekEntity.setId(SnowFlake.nextId());
+            eventWeekEntity.setEventId(eventEntity.getId());
+            eventWeekEntity.setUid(loginUser.getAccount());
+            eventWeekEntity.setWeek(week);
+            weekList.add(eventWeekEntity);
+        }
+        eventWeekMapper.saveAll(weekList);
     }
 
 
@@ -125,22 +141,10 @@ public class EventServiceImpl implements IEventService {
      * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>
      */
     @Override
-    public List<EventEntity> list(LocalDate localDate, LoginUser loginUser) {
-        Map<Long, EventStopEntity> map = new HashMap<>();
+    public List<EventEntity> list(Integer week, LoginUser loginUser) {
         Map<String, Object> paramMap;
-        //封装所有关闭的事件提醒
-        List<EventStopEntity> stopEntityList = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getAccount()));
-        if (stopEntityList.size()!=0){
-            for (EventStopEntity entity : stopEntityList) {
-                map.put(entity.getEventId(),entity);
-            }
-        }
-        List<EventEntity> entityList = eventMapper.selectByDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount());
+        List<EventEntity> entityList = eventMapper.selectByDate(week, loginUser.getAccount());
         for (EventEntity entity : entityList) {
-            //状态
-            if (map.get(entity.getId())!=null) {
-                entity.setStatus(0);
-            }
             //封装提醒家人信息
             Set<Long> longSet = eventFamilyMapper.getByFamilyId(entity.getId());
             List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(longSet);
@@ -152,45 +156,17 @@ public class EventServiceImpl implements IEventService {
                     entity.getRecords().add(paramMap);
                 }
             }
+            //封装事件周天
+            List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", entity.getId()));
+            if (weekEntities.size()!=0) {
+                for (EventWeekEntity weekEntity : weekEntities) {
+                    entity.getWeeks().add(weekEntity.getWeek());
+                }
+            }
         }
         return entityList;
     }
 
-    @Override
-    public List<EventEntity> pageList(LoginUser loginUser) {
-        Map<Long, EventStopEntity> map = new HashMap<>();
-
-        List<EventStopEntity> entities = eventStopMapper.selectList(new QueryWrapper<EventStopEntity>().eq("uid", loginUser.getAccount()));
-        if (entities.size()!=0){
-            for (EventStopEntity entity : entities) {
-                map.put(entity.getEventId(),entity);
-            }
-        }
-        LocalDate localDate = LocalDate.now();
-        List<EventEntity> entityList = eventMapper.pageList(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), localDate.getDayOfWeek().getValue(), loginUser.getAccount());
-
-        if (entityList.size()!=0){
-            for (EventEntity eventEntity : entityList) {
-                if (map.get(eventEntity.getId())!=null) {
-                    eventEntity.setStatus(0);
-                }
-                if (eventEntity.getType()!=1){
-                    eventEntity.setWarnTime(localDate);
-                }
-            }
-        } else {
-            entityList = new LinkedList<>();
-            for (int i = 0; i < 3; i++) {
-                EventEntity entity = new EventEntity();
-                entity.setContent("这是一条引导数据！");
-                entity.setStatus(1);
-                entity.setWarnTime(LocalDate.now());
-                entityList.add(entity);
-            }
-        }
-        return entityList;
-
-    }
 
     /**
      * @Description: 删除
@@ -202,8 +178,9 @@ public class EventServiceImpl implements IEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
-        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",id));
         eventMapper.deleteById(id);
+        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",id));
+        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",id));
     }
 
 
@@ -228,6 +205,12 @@ public class EventServiceImpl implements IEventService {
                 entity.getRecords().add(paramMap);
             }
         }
+        List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", id));
+        if (weekEntities.size()!=0) {
+            for (EventWeekEntity weekEntity : weekEntities) {
+                entity.getWeeks().add(weekEntity.getWeek());
+            }
+        }
         return entity;
     }
 
@@ -243,16 +226,8 @@ public class EventServiceImpl implements IEventService {
     public void status(Long id,Integer status) {
         EventEntity eventEntity = eventMapper.selectById(id);
         if (eventEntity!=null){
-            if (status==1){
-                eventStopMapper.delete(new QueryWrapper<EventStopEntity>().eq("event_id",eventEntity.getId()).eq("uid",eventEntity.getUid()));
-            } else {
-                EventStopEntity eventStopEntity = new EventStopEntity();
-                eventStopEntity.setEventId(id);
-                eventStopEntity.setUid(eventEntity.getUid());
-                eventStopEntity.setId(SnowFlake.nextId());
-                eventStopEntity.setCreateTime(LocalDateTime.now());
-                eventStopMapper.insert(eventStopEntity);
-            }
+            eventEntity.setStatus(status);
+            eventMapper.updateById(eventEntity);
         } else {
             throw new BaseException(ErrorEnum.COMMON_QUANTITY_LIMIT,"当前事件不存在！");
         }

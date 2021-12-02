@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +27,6 @@ public class EventEntity extends BaseEntity {
     private String uid;
 
     /**
-     * 苹果透传字段
-     */
-    private String notiId;
-
-    /**
-     * 1单次提醒，2每天提醒，3每周提醒，4每月提醒
-     */
-    @Range(min = 1,max = 4, message = "类型不存在",groups = {EventValidate.class})
-    private Integer type;
-    /**
      * 内容
      */
     @NotBlank(message = "内容不能为空！",groups = {EventValidate.class})
@@ -46,21 +35,6 @@ public class EventEntity extends BaseEntity {
      * 0未启动，1已启动
      */
     private Integer status;
-
-    /**
-     * 月
-     */
-    private Integer warnMonth;
-
-    /**
-     * 周
-     */
-    private Integer warnWeek;
-
-    /**
-     * 日
-     */
-    private Integer warnDay;
 
     /**
      * 小时
@@ -76,22 +50,11 @@ public class EventEntity extends BaseEntity {
     @NotNull(message = "分钟不能为空！",groups = {EventValidate.class})
     private Integer warnMinute;
 
-    /**
-     * 年
-     */
-    private Integer warnYear;
 
     /**
      * 是否提醒，0未提醒，1已提醒
      */
     private Integer pushStatus;
-
-    /**
-     * 设置对应的时间
-     */
-    @NotNull(message = "提醒时间不能为空！",groups = {EventValidate.class})
-    private LocalDate warnTime;
-
 
     /**
      * 接收前端家人id
@@ -100,12 +63,18 @@ public class EventEntity extends BaseEntity {
     @NotEmpty(message = "提醒家人不能空！",groups = {EventValidate.class})
     private List<Long> families = new LinkedList<>();
 
-
     /**
      * 返回前端家人信息
      */
     @TableField(exist = false)
     private List<Map<String, Object>> records = new LinkedList<>();
+
+    /**
+     * 事件周天
+     */
+    @NotEmpty(message = "事件周天不能为空！",groups = {EventValidate.class})
+    @TableField(exist = false)
+    private List<Integer> weeks = new LinkedList<>();
 
     /**
      * 添加修改验证
