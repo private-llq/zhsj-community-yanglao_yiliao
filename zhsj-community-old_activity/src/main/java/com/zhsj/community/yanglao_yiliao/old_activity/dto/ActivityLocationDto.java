@@ -16,5 +16,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ActivityLocationDto {
 
-    Activity activity;
+    private  Long id;
 }

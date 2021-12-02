@@ -42,7 +42,7 @@ public class ActivityDetails {
     /**
      * 年龄
      */
-    private  int age;
+    private  Integer age;
 
     /**
      * 发布时间

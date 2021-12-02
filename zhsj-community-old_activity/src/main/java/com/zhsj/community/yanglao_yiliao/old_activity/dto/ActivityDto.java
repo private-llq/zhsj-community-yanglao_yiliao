@@ -65,6 +65,10 @@ public class ActivityDto  {
       */
      private  Boolean isUser;
      /**
+      * 年龄
+      */
+     private  Integer age;
+     /**
       * 距离
       */
      private  Long distance;
@@ -72,6 +76,10 @@ public class ActivityDto  {
       * 经度
       */
      private Double longitude;
+     /**
+      * 出生年月
+      */
+     private  String birthday;
      /**
       * 头像图片
       */

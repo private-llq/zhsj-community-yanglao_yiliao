@@ -1,14 +1,14 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,7 +70,7 @@ public interface ActivityService extends IService<Activity> {
      * @param
      * @return
      */
-    IPage<Activity> getActivityList(Page<Activity> page);
+    List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto);
 
     /**
     *@Description: 分页查询所有活动

@@ -53,6 +53,10 @@ public class Activity {
      */
     private String picUrl;
     /**
+     * 出生年月
+     */
+    private  String birthday;
+    /**
      * 语音的url
      */
     private  String voiceUrl;
