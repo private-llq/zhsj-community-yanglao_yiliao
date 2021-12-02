@@ -141,7 +141,7 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         for (FamilysQo family : familysQo.getFamilies()) {
             FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()).eq("mobile", family.getMobile()));
             if (Objects.isNull(recordEntity)){
-                if (family.getUid()!=null){
+                if (!"".equals(family.getUid())&&family.getUid()!=null){
                     familyRecordEntity = new FamilyRecordEntity();
                     familyRecordEntity.setId(SnowFlake.nextId());
                     familyRecordEntity.setMobile(family.getMobile());
