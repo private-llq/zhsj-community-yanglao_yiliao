@@ -126,7 +126,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         BeanUtils.copyProperties(reqBo,activity);
         LocalDateTime now = LocalDateTime.now();
         //默认不是好友  后期能查询 再调整 2021-11-23
-        activity.setUserUuid(loginUser.getId().toString());
+        activity.setUserUuid(loginUser.getAccount());
         activity.setUserName(loginUser.getNickName());
         activity.setAvatarImages(userDetail.getAvatarThumbnail());
         activity.setBirthday(userDetail.getBirthday());
@@ -138,7 +138,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
         activity.setUpdateTime(now);
         //新增详情表
         ActivityDetails activityDetails = new ActivityDetails();
-        activityDetails.setAId(loginUser.getId());
+        activityDetails.setAId(loginUser.getAccount());
         activityDetails.setNickname(loginUser.getNickName());
         this.activityDetailsMapper.insert(activityDetails);
         return this.activityMapper.insert(activity);
@@ -164,7 +164,7 @@ public class ActivityServiceImpl   extends ServiceImpl <ActivityMapper,Activity>
     public List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto) {
         log.info("用户的uid{}", activityPageDto);
         List<ActivityDto> activityDtos = this.activityMapper.selectgetUserActivityList(activityPageDto);
-        for (ActivityDto activity :activityDtos){
+        for (ActivityDto activity : activityDtos){
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
             activity.setDistance(apiDistance / 1000);

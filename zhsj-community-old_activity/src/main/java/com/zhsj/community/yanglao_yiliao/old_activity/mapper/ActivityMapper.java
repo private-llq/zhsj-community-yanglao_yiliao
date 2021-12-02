@@ -71,9 +71,9 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     /**
      * 根据id查询自己的活动详情
-     * @param pageVo
+     * @param activityPageDto
      * @return
      */
     @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1")
-    List<ActivityDto> selectgetUserActivityList(pageVoed pageVo);
+    List<ActivityDto> selectgetUserActivityList(ActivityPageDto activityPageDto);
 }

@@ -30,7 +30,7 @@ public class ActivityDetails {
     /**
      * 活动的id
      */
-    private  Long aId;
+    private  String aId;
     /**
      * 昵称
      */

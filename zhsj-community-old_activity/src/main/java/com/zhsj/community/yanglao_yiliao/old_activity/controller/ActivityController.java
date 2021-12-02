@@ -4,7 +4,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.MyPageUtils;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 
