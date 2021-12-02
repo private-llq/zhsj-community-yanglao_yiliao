@@ -22,7 +22,7 @@ public interface EventMapper extends BaseMapper<EventEntity> {
      * @Param:
      * @return:
      */
-    List<EventEntity> selectByDate(@Param("year") int year, @Param("month") int month, @Param("day") int day, @Param("week") int week, @Param("uid") String uid);
+    List<EventEntity> selectByDate(@Param("week") int week, @Param("uid") String uid);
 
     /**
      * @Description: 分页查询
@@ -40,7 +40,7 @@ public interface EventMapper extends BaseMapper<EventEntity> {
      * @Param:
      * @return:
      */
-    List<EventEntity> selectByDay(@Param("year") int year, @Param("month") int month, @Param("week") int week, @Param("day") int day, @Param("hour") int hour, @Param("minute") int minute);
+    List<EventEntity> selectByDay(@Param("week") int week,@Param("hour") int hour, @Param("minute") int minute);
 
     /**
      * @Description: 修改事件提醒状态

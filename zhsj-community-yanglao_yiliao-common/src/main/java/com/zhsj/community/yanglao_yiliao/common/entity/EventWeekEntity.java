@@ -10,16 +10,16 @@ import lombok.Data;
  * @create: 2021-11-13 14:50
  **/
 @Data
-@TableName("t_event_stop")
-public class EventStopEntity extends BaseEntity {
+@TableName("t_event_week")
+public class EventWeekEntity extends BaseEntity {
     /**
      * 事件id
      */
     private Long eventId;
     /**
-     *  1当天停
+     *  一周内的某天
      */
-    private Integer stop;
+    private Integer week;
 
     /**
      *  用户uid

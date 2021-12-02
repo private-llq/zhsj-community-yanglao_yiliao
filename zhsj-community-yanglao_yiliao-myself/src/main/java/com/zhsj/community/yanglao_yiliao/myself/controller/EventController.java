@@ -6,11 +6,9 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -80,23 +78,9 @@ public class EventController {
      * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
      */
     @GetMapping(value = "list")
-    public R<List<EventEntity>> list(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public R<List<EventEntity>> list(@RequestParam("week") Integer week) {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        return R.ok(eventService.list(date, loginUser));
-    }
-
-    /**
-     * @Description: 分页查询
-     * @author: Hu
-     * @since: 2021/11/15 9:36
-     * @Param: [date]
-     * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>>
-     */
-    @GetMapping("pageList")
-    public R<List<EventEntity>> pageList() {
-        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<EventEntity> list = eventService.pageList(loginUser);
-        return R.ok(list);
+        return R.ok(eventService.list(week, loginUser));
     }
 
 

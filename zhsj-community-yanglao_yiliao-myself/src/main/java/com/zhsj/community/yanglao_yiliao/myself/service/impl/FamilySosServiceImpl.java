@@ -2,12 +2,15 @@ package com.zhsj.community.yanglao_yiliao.myself.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.base.api.constant.RpcConst;
+import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilySosEntity;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.AgencySosMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilySosMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilySosService;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,6 +33,9 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     @Resource
     private AgencySosMapper agencySosMapper;
 
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
+    private IBaseSmsRpcService baseSmsRpcService;
+
 
     @Override
     public void sos(LoginUser loginUser,Long familyId) {
@@ -37,6 +43,10 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
         if (sosEntities.size()!=0){
             for (FamilySosEntity sosEntity : sosEntities) {
                 //发送短信
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("name2","sdfdsf");
+                hashMap.put("name1","sdfdsf");
+                baseSmsRpcService.sendSms("phone","","",hashMap);
             }
         }
         AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("family_id", familyId));
