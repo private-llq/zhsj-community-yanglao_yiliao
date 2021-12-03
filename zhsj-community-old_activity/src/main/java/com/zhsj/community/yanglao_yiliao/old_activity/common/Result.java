@@ -2,6 +2,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.io.Serializable;
 
 /**

@@ -4,8 +4,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
@@ -27,7 +25,6 @@ import java.util.List;
 public interface ActivityMapper extends BaseMapper<Activity> {
     /**
      * 查询活动类型
-     *
      */
     @Select("select id,activity_type_name,activity_type_code from t_activity_type")
     List<ActivityFromDto> getActivityTyped();
@@ -40,14 +37,16 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     /**
      * 其他人查询自己的活动详情
+     *
      * @param id
      * @return
      */
-    List<ActivityListDto> getActivityedge(@Param("id")Long id);
+    List<ActivityListDto> getActivityedge(@Param("id") Long id);
 
 
     /**
      * 获取附近活动
+     *
      * @param activityReqVo
      * @return
      */
@@ -55,6 +54,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     /**
      * 分页查询所有活动
+     *
      * @param activityReqBo
      * @return
      */
@@ -62,6 +62,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     /**
      * 根据别人的id查询活动详情
+     *
      * @param activityPageDto
      * @return
      */
@@ -71,6 +72,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
 
     /**
      * 根据id查询自己的活动详情
+     *
      * @param activityPageDto
      * @return
      */

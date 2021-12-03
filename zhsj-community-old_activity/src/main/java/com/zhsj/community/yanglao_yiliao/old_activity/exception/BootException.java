@@ -2,6 +2,7 @@ package com.zhsj.community.yanglao_yiliao.old_activity.exception;
 
 /**
  * 自定义异常处理
+ *
  * @author liulq
  */
 public class BootException extends RuntimeException {

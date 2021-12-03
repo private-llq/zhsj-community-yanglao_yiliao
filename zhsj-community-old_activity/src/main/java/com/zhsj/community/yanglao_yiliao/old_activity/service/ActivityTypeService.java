@@ -14,8 +14,7 @@ import java.util.List;
 
 public interface ActivityTypeService {
 
-  List<ActivityType> selectList();
-
+    List<ActivityType> selectList();
 
 
 }

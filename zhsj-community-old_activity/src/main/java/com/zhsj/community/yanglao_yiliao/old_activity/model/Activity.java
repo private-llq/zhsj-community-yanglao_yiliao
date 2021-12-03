@@ -32,8 +32,6 @@ public class Activity {
      */
     @TableId
     private Long id;
-
-
     /**
      * 活动描述
      */
@@ -55,11 +53,11 @@ public class Activity {
     /**
      * 出生年月
      */
-    private  String birthday;
+    private String birthday;
     /**
      * 语音的url
      */
-    private  String voiceUrl;
+    private String voiceUrl;
 
     /**
      * 当前登录用户id
@@ -77,11 +75,11 @@ public class Activity {
     /**
      * 1:自己 ，0 不是自己
      */
-    private  Boolean isUser;
+    private Boolean isUser;
     /**
      * 头像图片
      */
-    private  String avatarImages;
+    private String avatarImages;
     /**
      * 经度
      */
@@ -89,7 +87,7 @@ public class Activity {
     /**
      * 语音文件的大小
      */
-    private  int voiceFileSize;
+    private int voiceFileSize;
     /**
      * 维度
      */
@@ -97,7 +95,7 @@ public class Activity {
     /**
      * 语音的时长
      */
-    private  int  voiceTime;
+    private int voiceTime;
     /**
      * 发布时间
      */

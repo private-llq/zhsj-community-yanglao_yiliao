@@ -26,23 +26,23 @@ public class ActivityDetails {
      * 主键id
      */
     @TableId
-    private  Long id;
+    private Long id;
     /**
      * 活动的id
      */
-    private  String aId;
+    private String aId;
     /**
      * 昵称
      */
-    private  String nickname;
+    private String nickname;
     /**
      * 性别
      */
-    private  String sex;
+    private String sex;
     /**
      * 年龄
      */
-    private  Integer age;
+    private Integer age;
 
     /**
      * 发布时间

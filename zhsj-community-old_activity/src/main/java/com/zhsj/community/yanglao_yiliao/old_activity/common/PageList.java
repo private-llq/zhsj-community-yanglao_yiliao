@@ -18,7 +18,7 @@ public class PageList<T> {
     /**
      * 总条数
      */
-    private Long total=0L;
+    private Long total = 0L;
     private List<T> data = new ArrayList<T>();
     /**
      * 当前页
@@ -62,6 +62,7 @@ public class PageList<T> {
         this.total = total;
         this.data = data;
     }
+
     //除了有参构造方法，还需要提供一个无参构造方法
     public PageList() {
     }

@@ -1,15 +1,14 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
 
-
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.UserLocation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.io.Serializable;
 
+import java.io.Serializable;
 
 
 /**
@@ -57,7 +56,7 @@ public class UserLocationVo implements Serializable {
     /**
      * 是否是好友 0 否 | 1 是
      */
-    private  String userFriend;
+    private String userFriend;
 
     /**
      * 逻辑删除  0 否 | 1 是

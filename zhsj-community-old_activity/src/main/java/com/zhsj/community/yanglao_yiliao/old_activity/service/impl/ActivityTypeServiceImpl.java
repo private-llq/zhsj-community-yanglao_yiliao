@@ -20,13 +20,14 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class ActivityTypeServiceImpl  extends ServiceImpl<ActivityTypeMapper, ActivityType> implements ActivityTypeService {
+public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, ActivityType> implements ActivityTypeService {
 
     @Resource
     private ActivityTypeMapper activityTypeMapper;
 
     /**
      * 查询活动类型
+     *
      * @return
      */
     @Override
