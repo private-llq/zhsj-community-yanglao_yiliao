@@ -9,6 +9,7 @@ import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -66,7 +67,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityPageDto
      * @return
      */
-    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1")
+    @Select("select * from t_activity  where  user_uuid = #{id}  and deleted = 1")
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 
 
@@ -76,6 +77,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityPageDto
      * @return
      */
-    @Select("select * from t_activity  where  user_uuid=#{id}  and deleted =1")
+    @Select("select * from t_activity  where  user_uuid = #{id}  and deleted = 1 and is_user = 1")
     List<ActivityDto> selectgetUserActivityList(ActivityPageDto activityPageDto);
 }

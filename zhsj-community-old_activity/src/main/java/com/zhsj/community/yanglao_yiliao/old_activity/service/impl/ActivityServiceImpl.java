@@ -62,35 +62,45 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(loginUser.getId());
         for (ActivityDto activity : activityDtos) {
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime, now).toMinutes();
-            activity.setPublishTimed(minutes);
-            activity.setAge(userDetail.getAge());
-            activity.setImId(userAuth().getImId());
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }
 
     /**
-     *
      * 获取附近活动
-     * @param activityReqVo 用户id，查询时间类型
+     *@param activityReqVo 用户id，查询时间类型
+     *
      */
     @Override
     public List<ActivityDto> queryActivity(ActivityReqVo activityReqVo) {
         log.info("activityReqVo的参数{}", activityReqVo);
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVo);
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime, now).toMinutes();
-            activity.setPublishTimed(minutes);
-            activity.setImId(userAuth().getImId());
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }
@@ -155,9 +165,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
     /**
      * 查询自己的所有活动
+     * @param activityPageDto
      *
-     * @param
-     * @return
      */
     @Override
     public List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto) {
@@ -165,49 +174,57 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         List<ActivityDto> activityDtos = this.activityMapper.selectgetUserActivityList(activityPageDto);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-            activity.setDistance(apiDistance / 1000);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime, now).toMinutes();
-            activity.setPublishTimed(minutes);
-            activity.setAge(userDetail.getAge());
-            activity.setImId(userAuth().getImId());
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }
 
     /**
      * 分页查询所有活动
-     *
      * @param activityReqBo
-     * @return
+     *
      */
     @Override
     public List<ActivityDto> pageListed(ActivityReqBo activityReqBo) {
         log.info("activityReqBo的参数{}", activityReqBo);
         List<ActivityDto> activityDtos = this.activityMapper.pageListed(activityReqBo);
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime, now).toMinutes();
-            activity.setPublishTimed(minutes);
-            activity.setImId(userAuth().getImId());
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }
 
     /**
      * 根据别人的id查询活动详情
-     *
      * @param activityPageDto
-     * @return
+     *
      */
     @Override
     public List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto) {
@@ -215,16 +232,21 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         List<ActivityDto> activityDtos = this.activityMapper.getActivityePagelist(activityPageDto);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-            activity.setDistance(apiDistance / 1000);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime publishTime = activity.getPublishTime();
-            //相差的分钟数
-            long minutes = Duration.between(publishTime, now).toMinutes();
-            activity.setPublishTimed(minutes);
-            activity.setAge(userDetail.getAge());
-            activity.setImId(userAuth().getImId());
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }

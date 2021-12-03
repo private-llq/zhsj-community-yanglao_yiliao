@@ -95,7 +95,11 @@ public class ActivityDto {
     /**
      * 语音的时长
      */
-    private int voiceTime;
+    private Integer voiceTime;
+    /**
+     * 是否是自己   1 是 | 0 不是
+     */
+    private Integer Userself;
     /**
      * 发布时间
      */
