@@ -4,5 +4,10 @@
 <mapper namespace="com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper">
 
 
-
+    <insert id="saveAll">
+        insert into t_family_record (id,name,mobile,uid,create_uid) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.mobile},#{item.uid},#{item.createUid})
+        </foreach>
+    </insert>
 </mapper>

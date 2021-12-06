@@ -19,6 +19,10 @@ public class RouteSosEntity extends BaseEntity {
      */
     private String uid;
     /**
+     * 地址
+     */
+    private String address;
+    /**
      * 经度
      */
     private BigDecimal lon;

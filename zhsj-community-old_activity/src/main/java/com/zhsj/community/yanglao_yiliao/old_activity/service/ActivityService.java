@@ -1,8 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
@@ -10,7 +8,6 @@ import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 
 
 import java.util.List;
-
 
 
 /**
@@ -24,20 +21,20 @@ public interface ActivityService extends IService<Activity> {
 
 
     /**
+     * @param reqBo 用户id，查询时间类型
+     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      * @description 查询附近活动列表
      * @author liulq
      * @date 2021/11/23 10:43
-     * @param reqBo 用户id，查询时间类型
-     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      */
     List<ActivityDto> queryActivityList(ActivityReqBo reqBo);
 
     /**
+     * @param activityReqVo 用户id，查询时间类型
+     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      * @description 查询附近活动列表
      * @author liulq
      * @date 2021/11/23 10:43
-     * @param activityReqVo 用户id，查询时间类型
-     * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      */
     List<ActivityDto> queryActivity(ActivityReqVo activityReqVo);
 
@@ -49,45 +46,45 @@ public interface ActivityService extends IService<Activity> {
      * @return:
      */
     void delete(Long id);
+
     /**
      * @Description: 保存
      * @author: liulq
      * @date 2021/11/23 10:43
-     *
      */
     int publishActivity(ActivitySaveReqBo reqBo);
 
 
     /**
      * 查询具体的活动
-     *
      */
-     List<ActivityFromDto> getactivit();
+    List<ActivityFromDto> getactivit();
 
 
     /**
      * 查询自己的所有活动
+     *
      * @param
      * @return
      */
-    IPage<Activity> getActivityList(Page<Activity> page);
+    List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto);
 
     /**
-    *@Description: 分页查询所有活动
-    *@Param:
-    *@return:
-    *@Author: liulq
-    *@date: 2021-11-29
-    */
+     * @Description: 分页查询所有活动
+     * @Param:
+     * @return:
+     * @Author: liulq
+     * @date: 2021-11-29
+     */
     List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
 
     /**
-    *@Description: 根据别人的id查询活动详情
-    *@Param:
-    *@return:
-    *@Author: liulq
-    *@date: 2021-11-29
-    */
+     * @Description: 根据别人的id查询活动详情
+     * @Param:
+     * @return:
+     * @Author: liulq
+     * @date: 2021-11-29
+     */
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 }

@@ -9,6 +9,7 @@ import com.zhsj.community.yanglao_yiliao.old_activity.vo.UserLocationVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("userLocation")
 @Slf4j
-public class  UserLocationController {
+public class UserLocationController {
 
     @Autowired
     private UserLocationService userLocationService;
@@ -34,8 +35,8 @@ public class  UserLocationController {
      * @return 更新状态
      */
     @PostMapping("save")
-    public Boolean saveUserLocation(@RequestBody UserLocationDto userLocationFrom){
-        log.info("userLocationFrom的值：{}",userLocationFrom);
+    public Boolean saveUserLocation(@RequestBody UserLocationDto userLocationFrom) {
+        log.info("userLocationFrom的值：{}", userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         String member = user.getId().toString();
         return this.userLocationService.saveUserLocation(member, userLocationFrom.getLatitude(), userLocationFrom.getLongitude());
@@ -48,12 +49,11 @@ public class  UserLocationController {
      * @return 附近用户集合
      */
     @GetMapping("/nearby/{userId}")
-    public List<UserLocationVo> listNearbyUsered(@RequestBody UserLocationDto userLocationFrom){
-        log.info("userLocationFrom的值是：{}",userLocationFrom);
+    public List<UserLocationVo> listNearbyUsered(@RequestBody UserLocationDto userLocationFrom) {
+        log.info("userLocationFrom的值是：{}", userLocationFrom);
         LoginUser user = ContextHolder.getContext().getLoginUser();
-        return this.userLocationService.listNearbyUsersed(user.getId(),userLocationFrom.getLimit());
+        return this.userLocationService.listNearbyUsersed(user.getId(), userLocationFrom.getLimit());
     }
-
 
 
     /**
@@ -62,26 +62,26 @@ public class  UserLocationController {
      * @return 附近用户集合
      */
     @GetMapping("/nearby")
-    public List<UserLocationVo> listNearbyUsers(@RequestBody UserLocationDto userLocationFrom){
-        log.info("userLocationFrom的值是1：{}",userLocationFrom);
-        return this.userLocationService.listNearbyUsers(userLocationFrom.getLatitude(),userLocationFrom.getLongitude(),userLocationFrom.getLimit());
+    public List<UserLocationVo> listNearbyUsers(@RequestBody UserLocationDto userLocationFrom) {
+        log.info("userLocationFrom的值是1：{}", userLocationFrom);
+        return this.userLocationService.listNearbyUsers(userLocationFrom.getLatitude(), userLocationFrom.getLongitude(), userLocationFrom.getLimit());
     }
 
 
     /**
      * 获取两个用户之间的距离
-     * @param userId 用户1id
+     *
+     * @param userId      用户1id
      * @param otherUserId 用户2 id
      * @return 距离 单位km
      */
     @GetMapping("/distance")
     public Double getDistanceBetween(@RequestParam(value = "userId") Integer userId,
-                                     @RequestParam(value = "otherUserId") Integer otherUserId){
-        log.info("userId:{}",userId,"otherUserId:{}",otherUserId);
-        try{
+                                     @RequestParam(value = "otherUserId") Integer otherUserId) {
+        log.info("userId:{}", userId, "otherUserId:{}", otherUserId);
+        try {
             return this.userLocationService.getDistanceBetween(userId, otherUserId);
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             log.error("距离参数错误");
             return null;
         }
@@ -90,16 +90,16 @@ public class  UserLocationController {
 
     /**
      * 获取用户坐标
+     *
      * @param userId 用户id
      * @return 坐标点
      */
     @GetMapping("/{userId}")
-    public Map<String, Double> getUserLocation(@PathVariable("userId") Integer userId){
-        log.info("userid的值：{}",userId);
-        try{
+    public Map<String, Double> getUserLocation(@PathVariable("userId") Integer userId) {
+        log.info("userid的值：{}", userId);
+        try {
             return this.userLocationService.getUserLocation(userId);
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             log.error("获取坐标参数错误");
             return null;
         }
@@ -107,20 +107,15 @@ public class  UserLocationController {
 
     /**
      * 删除用户位置信息
+     *
      * @param userId 用户id
      * @return 删除状态
      */
     @DeleteMapping("/delete")
-    public Boolean deleteUserLocation(@RequestParam("userId") Integer userId){
-        log.info("userid的值：{}",userId);
+    public Boolean deleteUserLocation(@RequestParam("userId") Integer userId) {
+        log.info("userid的值：{}", userId);
         return this.userLocationService.deleteUserLocation(userId);
     }
-
-
-
-
-
-
 
 
 }

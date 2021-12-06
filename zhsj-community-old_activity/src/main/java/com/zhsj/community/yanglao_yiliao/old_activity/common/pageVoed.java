@@ -13,13 +13,13 @@ import javax.validation.constraints.NotNull;
 @Data
 public class pageVoed {
     /**
-     *  当前页
+     * 当前页
      */
     @NotNull(message = "当前页不能为空")
-    private Integer page =1;
+    private Integer page = 1;
     /**
-     *  每页显示多少条
+     * 每页显示多少条
      */
     @NotNull(message = "条数不能为空")
-    private Integer data =10;
+    private Integer data = 10;
 }

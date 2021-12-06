@@ -3,7 +3,6 @@ package com.zhsj.community.yanglao_yiliao.myself.service;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.EventEntity;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -36,7 +35,7 @@ public interface IEventService {
      * @Param:
      * @return:
      */
-    List<EventEntity> list(LocalDate localDate, LoginUser loginUser);
+    List<EventEntity> list(Integer week, LoginUser loginUser);
     /**
      * @Description: 删除
      * @author: Hu
@@ -63,12 +62,4 @@ public interface IEventService {
      */
     void status(Long id,Integer status);
 
-    /**
-     * @Description: 分页查列表
-     * @author: Hu
-     * @since: 2021/11/15 10:37
-     * @Param:
-     * @return:
-     */
-    List<EventEntity> pageList(LoginUser loginUser);
 }

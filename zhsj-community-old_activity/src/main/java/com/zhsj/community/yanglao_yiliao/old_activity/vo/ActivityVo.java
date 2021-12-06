@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.io.Serializable;
 
+import java.io.Serializable;
 
 
 /**
@@ -40,9 +40,9 @@ public class ActivityVo implements Serializable {
     private String distance;
 
     /**
-     *语音
+     * 语音
      */
-    private  String voice;
+    private String voice;
     /**
      * 图片路径
      */
@@ -50,7 +50,7 @@ public class ActivityVo implements Serializable {
     /**
      * 用户昵称
      */
-    private  String nickname;
+    private String nickname;
     /**
      * 经度
      */
@@ -62,15 +62,15 @@ public class ActivityVo implements Serializable {
     /**
      * 性别
      */
-    private  String sex;
+    private String sex;
     /**
      * 年龄
      */
-    private  String age;
+    private String age;
     /**
      * 用户id
      */
-    private  Long uId;
+    private Long uId;
 
 
     /**

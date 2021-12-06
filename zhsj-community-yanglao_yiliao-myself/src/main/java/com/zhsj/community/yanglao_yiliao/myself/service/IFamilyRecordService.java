@@ -3,6 +3,7 @@ package com.zhsj.community.yanglao_yiliao.myself.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
 
 import java.util.List;
 
@@ -30,4 +31,13 @@ public interface IFamilyRecordService extends IService<FamilyRecordEntity> {
      * @return: 
      */
     void saveUser(FamilyRecordEntity familyRecordEntity,LoginUser loginUser);
+
+    /**
+     * @Description: 导入社区房间成员
+     * @author: Hu
+     * @since: 2021/12/2 16:22
+     * @Param:
+     * @return:
+     */
+    void importFamily(FamilysQo familysQo,LoginUser loginUser);
 }
