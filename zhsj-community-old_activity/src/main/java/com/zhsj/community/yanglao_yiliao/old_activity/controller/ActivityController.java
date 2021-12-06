@@ -168,4 +168,37 @@ public class ActivityController {
         return R.ok(getActivityedge);
     }
 
+
+    /*****************************************************大后台*******************************************************/
+
+    /**
+     * @Description: 新增活动类型
+     * @Param:
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-06
+     */
+    @PostMapping("addActivityType")
+    public R addActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
+        log.info("activityTypeDto的值：{}", activityTypeDto);
+        this.activityTypeService.ActivityType(activityTypeDto);
+        return R.ok("新增活动类型成功");
+    }
+
+
+    /**
+     * @Description: 修改活动类型
+     * @Param:
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-06
+     */
+    @PostMapping("updateActivityType")
+    public R updateActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
+        log.info("activityTypeDto的值：{}", activityTypeDto);
+        this.activityTypeService.updateActivityType(activityTypeDto);
+        return R.ok("修改活动类型成功");
+    }
+
+
 }

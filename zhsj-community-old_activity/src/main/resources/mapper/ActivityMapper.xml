@@ -33,7 +33,7 @@
         select t.*,fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) as dist
         from t_activity t
         where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
-          and deleted = 1 and user_uuid=#{id}
+          and deleted = 1
         order by dist
     </select>
 

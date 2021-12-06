@@ -86,6 +86,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVo);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
                 activity.setDistance(apiDistance / 1000);
@@ -96,6 +97,20 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
+                activity.setUserself(1);
+            }else {
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
+                activity.setImId(userAuth().getImId());
+                activity.setUserself(0);
+            }
         }
         return activityDtos;
     }
