@@ -1,12 +1,9 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserBindDeviceReqBo;
-import com.zhsj.community.yanglao_yiliao.healthydata.bo.UserUnbindDeviceReqBo;
+import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
+import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.UserDeviceInfo;
-import org.checkerframework.checker.units.qual.Current;
 
 import java.util.List;
 
@@ -50,4 +47,23 @@ public interface UserDeviceInfoService extends IService<UserDeviceInfo> {
      * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceInfoRspBo>
      **************************************************************************************************************************/
     List<DeviceInfoRspBo> currentLoginUserDeviceInfo();
+
+    // --------------------------------------------------------后台管理接口-----------------------------------------------------
+
+    /***************************************************************************************************************************
+     * @description 大后台医疗养老设备管理-获取用户绑定设备列表
+     * @author zzm
+     * @date 2021/12/6 14:50
+     * @param reqBo 查询参数
+     * @return java.util.List<com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceListRspBo>
+     **************************************************************************************************************************/
+    PageVo<DeviceListRspBo> deviceList(DeviceListReqBo reqBo);
+
+    /***************************************************************************************************************************
+     * @description 大后台医疗养老设备管理-删除用户设备绑定信息
+     * @author zzm
+     * @date 2021/12/6 17:21
+     * @param ids 绑定设备的id集合
+     **************************************************************************************************************************/
+    void deleteDevice(List<Long> ids);
 }

@@ -21,7 +21,7 @@ public class PageVo<T> implements Serializable {
     /**
      * 当前页
      */
-    private Long pageNum;
+    private Long pageNo;
 
     /**
      * 每页显示条数
@@ -48,7 +48,7 @@ public class PageVo<T> implements Serializable {
      */
     public static <T> PageVo<T> newPageVO(Page<T> page) {
         return new PageVo<T>()
-                .setPageNum(page.getCurrent())
+                .setPageNo(page.getCurrent())
                 .setPageSize(page.getSize())
                 .setPages(page.getPages())
                 .setTotal(page.getTotal())
@@ -58,13 +58,13 @@ public class PageVo<T> implements Serializable {
     public PageVo() {
         this.list = new ArrayList<>();
         this.pages = 0L;
-        this.pageNum = 0L;
+        this.pageNo = 0L;
         this.pageSize = 0L;
         this.total = 0L;
     }
 
-    public PageVo(Long pageNum, Long pageSize, Long pages, Long total, List<T> list) {
-        this.pageNum = pageNum;
+    public PageVo(Long pageNo, Long pageSize, Long pages, Long total, List<T> list) {
+        this.pageNo = pageNo;
         this.pageSize = pageSize;
         this.pages = pages;
         this.total = total;
