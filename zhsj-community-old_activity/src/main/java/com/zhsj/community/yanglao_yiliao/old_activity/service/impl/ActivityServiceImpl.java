@@ -60,8 +60,11 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         LocalDateTime now = LocalDateTime.now();
         List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(loginUser.getId());
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
+            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                    reqBo.getLatitude() + "," + reqBo.getLongitude());
+                 activity.setDistance(apiDistance / 1000);
                 LocalDateTime publishTime = activity.getPublishTime();
                 //相差的分钟数
                 long minutes = Duration.between(publishTime, now).toMinutes();
@@ -81,6 +84,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     public List<ActivityDto> queryActivity(ActivityReqVo activityReqVo) {
         log.info("activityReqVo的参数{}", activityReqVo);
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVo);
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityReqVo.getLatitude() + "," + activityReqVo.getLongitude());
@@ -90,6 +94,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 //相差的分钟数
                 long minutes = Duration.between(publishTime, now).toMinutes();
                 activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
         }
         return activityDtos;
