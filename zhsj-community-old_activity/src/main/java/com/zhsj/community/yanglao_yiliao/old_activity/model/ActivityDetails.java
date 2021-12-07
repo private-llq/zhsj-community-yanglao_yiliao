@@ -35,21 +35,6 @@ public class ActivityDetails {
      * 昵称
      */
     private String nickname;
-    /**
-     * 性别
-     */
-    private String sex;
-    /**
-     * 年龄
-     */
-    private Integer age;
-
-    /**
-     * 发布时间
-     */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime publishTime;
 
 
     /**
@@ -64,4 +49,12 @@ public class ActivityDetails {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
+
+
+    /**
+     * 修改时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateTime;
 }
