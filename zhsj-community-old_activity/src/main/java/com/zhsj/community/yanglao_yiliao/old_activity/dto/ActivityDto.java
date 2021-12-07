@@ -99,7 +99,7 @@ public class ActivityDto {
     /**
      * 是否是自己   1 是 | 0 不是
      */
-    private Integer Userself;
+    private Integer userSelf;
     /**
      * 发布时间
      */

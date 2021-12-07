@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
@@ -9,11 +10,11 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityTypeMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityDetails;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.GouldUtil;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +43,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
     @Autowired
     private ActivityDetailsMapper activityDetailsMapper;
+
+    @Autowired
+    private ActivityTypeMapper activityTypeMapper;
 
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
     private IBaseUserInfoRpcService iBaseUserInfoRpcService;
@@ -97,7 +101,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(1);
+                activity.setUserSelf(1);
             } else {
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityReqVoDto.getLatitude() + "," + activityReqVoDto.getLongitude());
@@ -109,7 +113,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(0);
+                activity.setUserSelf(0);
             }
         }
         return activityDtos;
@@ -198,7 +202,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(1);
+                activity.setUserSelf(1);
             } else {
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
@@ -210,7 +214,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(0);
+                activity.setUserSelf(0);
             }
         }
         return activityDtos;
@@ -261,7 +265,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(1);
+                activity.setUserSelf(1);
             } else {
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
@@ -273,10 +277,35 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
-                activity.setUserself(0);
+                activity.setUserSelf(0);
             }
         }
         return activityDtos;
+    }
+
+    /**
+     * 根据id删除活动
+     * @param id
+     */
+    @Override
+    public void deleteById(Long id) {
+        log.info("id 的值{}", id);
+        this.activityMapper.deleteById(id);
+    }
+
+    /**
+     * 模糊查询活动
+     * @param likeActivity
+     * @return
+     */
+    @Override
+    public List<ActivityReqDto> likeActivity(LikeActivityDto likeActivity) {
+        log.info("likeActivity 的值{}", likeActivity);
+        //PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getResult());
+        //等我在想想在写
+
+
+        return null;
     }
 
 

@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
 
+
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
@@ -60,11 +61,11 @@ public class ActivityController {
      * @date 2021/11/24 19:00
      */
     @PostMapping("/queryActivity")
-    public R<PageInfo<ActivityDto>> queryActivity(@RequestBody @Valid ActivityReqVoDto activityReqVoDto) {
+    public PageInfo<ActivityDto> queryActivity(@RequestBody @Valid ActivityReqVoDto activityReqVoDto) {
         log.info("activityReqVo的值{}", activityReqVoDto);
         List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVoDto);
         PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityReqVoDto.getPage(), activityReqVoDto.getData(), activityDtos);
-        return R.ok(activityDtoPageInfo);
+        return activityDtoPageInfo;
     }
 
 
@@ -215,7 +216,7 @@ public class ActivityController {
     }
 
     /**
-     *  大后台展示活动信息
+     * 大后台展示活动信息
      * @param pageVoed
      * @return
      */
@@ -227,6 +228,29 @@ public class ActivityController {
     }
 
 
+    /***
+     * 大后台根据id删除活动
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/deleteActivityById")
+    public R<String> deleteActivityById(@RequestParam Long id) {
+        log.info("id的值{}", id);
+        this.activityService.deleteById(id);
+        return R.ok("删除成功！");
+    }
+
+    /**
+     * 大后台模糊查询活动
+     * @param likeActivity
+     * @return
+     */
+    @PostMapping("likeActivity")
+    public R likeActivity(@RequestBody LikeActivityDto likeActivity){
+        log.info("likeActivity的值{}", likeActivity);
+        this.activityService.likeActivity(likeActivity);
+        return R.ok();
+    }
 
 
 

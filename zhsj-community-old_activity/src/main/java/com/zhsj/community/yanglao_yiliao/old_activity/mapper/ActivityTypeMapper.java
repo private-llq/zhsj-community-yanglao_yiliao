@@ -24,6 +24,10 @@ public interface ActivityTypeMapper extends BaseMapper<ActivityType> {
     @Delete("DELETE FROM t_activity_type where activity_type_code=#{activityTypeCode}")
     void deleteActivityType(String activityTypeCode);
 
+    /**
+     * 查询所有的活动
+     * @return
+     */
     @Select("SELECT * from  t_activity")
     List<ActivityReqDto> selectActivityList();
 

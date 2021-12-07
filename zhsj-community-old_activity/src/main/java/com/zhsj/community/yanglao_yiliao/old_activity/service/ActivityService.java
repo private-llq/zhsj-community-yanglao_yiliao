@@ -4,9 +4,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
-
-
 import java.util.List;
 
 
@@ -87,4 +84,20 @@ public interface ActivityService extends IService<Activity> {
      * @date: 2021-11-29
      */
     List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
+
+    /**
+     * 大后台根据id删除活动
+     * @param id
+     */
+    void deleteById(Long id);
+
+    /**
+     * 大后台模糊查询活动
+     * @param likeActivity
+     * @return
+     */
+    List<ActivityReqDto> likeActivity(LikeActivityDto likeActivity);
+
+
+
 }

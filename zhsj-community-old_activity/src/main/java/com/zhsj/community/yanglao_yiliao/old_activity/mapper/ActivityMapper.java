@@ -2,14 +2,10 @@ package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
-
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -51,7 +47,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityReqVoDto
      * @return
      */
-
     List<ActivityDto> queryActivityList(ActivityReqVoDto activityReqVoDto);
 
     /**
@@ -80,4 +75,12 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      */
     @Select("select * from t_activity  where  user_uuid = #{id}  and deleted = 1 and is_user = 1")
     List<ActivityDto> selectgetUserActivityList(ActivityPageDto activityPageDto);
+
+    /**
+     * 模糊查询活动
+     *
+     * @param
+     * @return
+     */
+    List<ActivityReqDto> likeActivity(String id);
 }
