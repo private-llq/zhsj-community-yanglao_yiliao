@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhsj.base.api.rpc.IBaseSmsRpcService;
+import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.SleepTitleTimeValueDto;
@@ -16,6 +18,7 @@ import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,8 @@ public class HealthDataServiceImpl implements HealthDataService {
     private SleepService sleepService;
     @Autowired
     private TemperatureService temperatureService;
+    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER, check = false)
+    private IBaseSmsRpcService iBaseSmsRpcService;
 
     /***************************************************************************************************************************
      * @description 获取用户实时健康数据
@@ -374,7 +379,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sevenDayTotalSleepTime = 0;
             List<SleepTitleTimeValueDto> arr = new ArrayList<>();
-            // -1(-6,0) -2(-12-1,-6-1) -3(-18-2,-12-2)
+            // -1(-6-0,0-0) -2(-12-1,-6-1) -3(-18-2,-12-2)
             int start = reqBo.getPageTurnStatus() * 6 + (reqBo.getPageTurnStatus() + 1);
             int end = reqBo.getPageTurnStatus() * 6 + 6 + (reqBo.getPageTurnStatus() + 1);
             LocalDateTime time1 = yesterdayNineClock.plusDays(start);
@@ -544,7 +549,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
         if (score >= 1 && score <= 4) {
-            healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
+            healthDataRspBo.setUserTotalHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
 
