@@ -30,13 +30,13 @@ public interface ActivityService extends IService<Activity> {
     List<ActivityDto> queryActivityList(ActivityReqBo reqBo);
 
     /**
-     * @param activityReqVo 用户id，查询时间类型
+     * @param activityReqVoDto 用户id，查询时间类型
      * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      * @description 查询附近活动列表
      * @author liulq
      * @date 2021/11/23 10:43
      */
-    List<ActivityDto> queryActivity(ActivityReqVo activityReqVo);
+    List<ActivityDto> queryActivity(ActivityReqVoDto activityReqVoDto);
 
     /**
      * @Description: 删除

@@ -48,10 +48,11 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     /**
      * 获取附近活动
      *
-     * @param activityReqVo
+     * @param activityReqVoDto
      * @return
      */
-    List<ActivityDto> queryActivityList(ActivityReqVo activityReqVo);
+
+    List<ActivityDto> queryActivityList(ActivityReqVoDto activityReqVoDto);
 
     /**
      * 分页查询所有活动

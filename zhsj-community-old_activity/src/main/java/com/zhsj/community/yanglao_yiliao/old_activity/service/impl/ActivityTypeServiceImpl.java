@@ -4,14 +4,18 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zhsj.basecommon.enums.ErrorEnum;
-import com.zhsj.basecommon.exception.BaseException;
+import com.zhsj.base.api.entity.UserDetail;
+import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
+import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.baseweb.support.ContextHolder;
+import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypeDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityTypeMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityTypeVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -31,10 +35,13 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
     @Resource
     private ActivityTypeMapper activityTypeMapper;
 
+    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
+    private IBaseUserInfoRpcService iBaseUserInfoRpcService;
+
     /**
      * 查询活动类型
      *
-     * @return
+     *
      */
     @Override
     public List<ActivityType> selectList() {
@@ -51,21 +58,22 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
     @Override
     public int ActivityType(ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDt的值{}", activityTypeDto);
-            ActivityType type = new ActivityType();
-            LocalDateTime now = LocalDateTime.now();
-            type.setActivityTypeCode(activityTypeDto.getActivityTypeCode());
-            type.setActivityTypeName(activityTypeDto.getActivityTypeName());
-            type.setDeleted(true);
-            type.setCreateTime(now);
-            type.setUpdateTime(now);
-          return   this.activityTypeMapper.insert(type);
+        ActivityType type = new ActivityType();
+        LocalDateTime now = LocalDateTime.now();
+        type.setActivityTypeCode(activityTypeDto.getActivityTypeCode());
+        type.setActivityTypeName(activityTypeDto.getActivityTypeName());
+        type.setDeleted(true);
+        type.setCreateTime(now);
+        type.setUpdateTime(now);
+        return this.activityTypeMapper.insert(type);
 
     }
 
     /**
      * 修改活动类型
+     *
      * @param activityTypeDto
-     * @return
+     *
      */
     @Override
     public int updateActivityType(ActivityTypeDto activityTypeDto) {
@@ -74,8 +82,46 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
         type.setActivityTypeCode(activityTypeDto.getActivityTypeCode());
         type.setActivityTypeName(activityTypeDto.getActivityTypeName());
         QueryWrapper<ActivityType> Wrapper = new QueryWrapper<>();
-        Wrapper.eq("activity_type_code",activityTypeDto.getActivityTypeCode());
+        Wrapper.eq("activity_type_code", activityTypeDto.getActivityTypeCode());
         this.activityTypeMapper.selectOne(Wrapper);
-        return this.activityTypeMapper.update(type,Wrapper);
+        return this.activityTypeMapper.update(type, Wrapper);
+    }
+
+    /**
+     * 删除活动类型
+     *
+     * @param activityTypeCode
+     */
+    @Override
+    public void deleteActivityType(String activityTypeCode) {
+        log.info("activityTypeCode{}", activityTypeCode);
+        this.activityTypeMapper.deleteActivityType(activityTypeCode);
+    }
+
+    /**
+     * 查询所有的活动
+     * @return
+     */
+    @Override
+    public List<ActivityReqDto> selectActivityList() {
+        List<ActivityReqDto> activityReqDtos = this.activityTypeMapper.selectActivityList();
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
+        for (ActivityReqDto activity:activityReqDtos){
+           activity.setSex(userDetail.getSex());
+           activity.setPhone(userDetail.getPhone());
+        }
+        return activityReqDtos;
+    }
+
+
+
+
+
+    /**
+     * ***************************************获取当前登录用户**********************************************************
+     * *****************************************************************************************************
+     */
+    private LoginUser userAuth() {
+        return ContextHolder.getContext().getLoginUser();
     }
 }

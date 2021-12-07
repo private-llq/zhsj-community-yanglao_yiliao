@@ -1,7 +1,9 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypeDto;
+import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public interface ActivityTypeService {
     /**
      * 查询活动类型
+     *
      * @return
      */
     List<ActivityType> selectList();
@@ -27,7 +30,19 @@ public interface ActivityTypeService {
 
     /**
      * 修改活动类型
+     *
      * @return
      */
     int updateActivityType(ActivityTypeDto activityTypeDto);
+
+    /***
+     * 删除活动类型
+     * @param activityTypeCode
+     */
+    void deleteActivityType(String activityTypeCode);
+
+    /**
+     * 查询所有的活动
+     */
+    List<ActivityReqDto> selectActivityList();
 }

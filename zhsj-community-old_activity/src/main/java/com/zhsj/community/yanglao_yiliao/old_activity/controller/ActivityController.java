@@ -2,13 +2,12 @@ package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
 
 import com.zhsj.basecommon.vo.R;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.common.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.MyPageUtils;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.PageInfo;
-import com.zhsj.community.yanglao_yiliao.old_activity.vo.ActivityReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
@@ -54,17 +53,18 @@ public class ActivityController {
 
 
     /**
-     * @param activityReqVo 用户id，经度，维度
+     * @param activityReqVoDto 用户id，经度，维度
      * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
      * @description 获取附近活动
      * @author liulq
      * @date 2021/11/24 19:00
      */
     @PostMapping("/queryActivity")
-    public Result queryActivity(@RequestBody @Valid ActivityReqVo activityReqVo) {
-        log.info("activityReqVo的值{}", activityReqVo);
-        List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVo);
-        return Result.ok(activityDtos);
+    public R<PageInfo<ActivityDto>> queryActivity(@RequestBody @Valid ActivityReqVoDto activityReqVoDto) {
+        log.info("activityReqVo的值{}", activityReqVoDto);
+        List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVoDto);
+        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityReqVoDto.getPage(), activityReqVoDto.getData(), activityDtos);
+        return R.ok(activityDtoPageInfo);
     }
 
 
@@ -199,6 +199,37 @@ public class ActivityController {
         this.activityTypeService.updateActivityType(activityTypeDto);
         return R.ok("修改活动类型成功");
     }
+
+    /**
+    *@Description: 删除活动类型
+    *@Param:  * @param null
+    *@return: 
+    *@Author: liulq
+    *@date: 2021-12-06
+    */
+    @DeleteMapping("deleteActivityType")
+    public R deleteActivityType(@RequestParam  String activityTypeCode){
+        log.info("activityTypeCode的值：{}", activityTypeCode);
+         this.activityTypeService.deleteActivityType(activityTypeCode);
+        return R.ok("删除成功");
+    }
+
+    /**
+     *  大后台展示活动信息
+     * @param pageVoed
+     * @return
+     */
+    @PostMapping("selectActivityList")
+    public R<?> selectActivityList(@RequestBody  pageVoed pageVoed){
+        List<ActivityReqDto> activityReqDtos = this.activityTypeService.selectActivityList();
+        PageInfo<ActivityReqDto> activityReqDtoPageInfo = MyPageUtils.pageMap(pageVoed.getPage(), pageVoed.getData(), activityReqDtos);
+        return R.ok(activityReqDtoPageInfo);
+    }
+
+
+
+
+
 
 
 }
