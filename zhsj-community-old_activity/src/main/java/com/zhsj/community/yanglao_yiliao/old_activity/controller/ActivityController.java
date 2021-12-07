@@ -110,18 +110,6 @@ public class ActivityController {
         return R.ok(list);
     }
 
-    /**
-     * @description 查询活动的类型
-     * @author liulq
-     * @date 2021/11/24 19:00
-     * @Param: [id]
-     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
-     */
-    @GetMapping("getActivity")
-    public R getActivityType() {
-        List<ActivityFromDto> getactivit = this.activityService.getactivit();
-        return R.ok(getactivit);
-    }
 
     /**
      * @description 查询自己的所有活动
@@ -154,20 +142,6 @@ public class ActivityController {
         return activityDtoPageInfo;
     }
 
-    /**
-     * @description 根据别人的id查询活动详情
-     * @author liulq
-     * @date 2021/11/24 19:00
-     * @Param: [id]
-     * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
-     */
-    @PostMapping("getActivityedPageList")
-    public R<?> getActivityedge(@RequestBody @Valid ActivityPageDto activityPageDto) {
-        log.info("activityPageDto的值{}", activityPageDto);
-        List<ActivityDto> activityDtos = this.activityService.getActivityePagelist(activityPageDto);
-        PageInfo<ActivityDto> getActivityedge = MyPageUtils.pageMap(activityPageDto.getPage(), activityPageDto.getData(), activityDtos);
-        return R.ok(getActivityedge);
-    }
 
 
     /*****************************************************大后台*******************************************************/

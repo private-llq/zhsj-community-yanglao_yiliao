@@ -52,11 +52,6 @@ public interface ActivityService extends IService<Activity> {
     int publishActivity(ActivitySaveReqBo reqBo);
 
 
-    /**
-     * 查询具体的活动
-     */
-    List<ActivityFromDto> getactivit();
-
 
     /**
      * 查询自己的所有活动
@@ -75,15 +70,6 @@ public interface ActivityService extends IService<Activity> {
      */
     List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
-
-    /**
-     * @Description: 根据别人的id查询活动详情
-     * @Param:
-     * @return:
-     * @Author: liulq
-     * @date: 2021-11-29
-     */
-    List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 
     /**
      * 大后台根据id删除活动

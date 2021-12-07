@@ -20,12 +20,6 @@ import java.util.List;
  */
 @Repository
 public interface ActivityMapper extends BaseMapper<Activity> {
-    /**
-     * 查询活动类型
-     */
-    @Select("select id,activity_type_name,activity_type_code from t_activity_type")
-    List<ActivityFromDto> getActivityTyped();
-
 
     /**
      * 查找所有
@@ -56,15 +50,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @return
      */
     List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
-
-    /**
-     * 根据别人的id查询活动详情
-     *
-     * @param activityPageDto
-     * @return
-     */
-    @Select("select * from t_activity  where  user_uuid = #{id}  and deleted = 1")
-    List<ActivityDto> getActivityePagelist(ActivityPageDto activityPageDto);
 
 
     /**
