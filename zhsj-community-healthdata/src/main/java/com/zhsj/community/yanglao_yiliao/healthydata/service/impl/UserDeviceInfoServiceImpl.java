@@ -145,7 +145,6 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     @Override
     public PageVo<DeviceListRspBo> deviceList(DeviceListReqBo reqBo) {
         log.info("大后台医疗养老设备管理-获取用户绑定设备列表, DeviceListReqBo = {}", reqBo);
-        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         Page<UserDeviceInfo> page = page(new Page<>(reqBo.getPageNo(), reqBo.getPageSize()),
                 new QueryWrapper<UserDeviceInfo>()
                         .like(StrUtil.isNotBlank(reqBo.getDeviceName()), "m_device_name", reqBo.getDeviceName())
@@ -164,11 +163,11 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
             for (UserDeviceInfo deviceInfo : page.getRecords()) {
                 DeviceListRspBo deviceListRspBo = new DeviceListRspBo();
                 BeanUtils.copyProperties(deviceInfo, deviceListRspBo);
-                deviceListRspBo.setNickName(loginUser.getNickName());
                 UserDetail userDetail = iBaseUserInfoRpcService.getUserDetail(deviceInfo.getUserUuid());
+                deviceListRspBo.setNickName(userDetail.getNickName());
                 deviceListRspBo.setSex(userDetail.getSex());
-                deviceListRspBo.setAge(loginUser.getAge());
-                deviceListRspBo.setPhone(loginUser.getPhone());
+                deviceListRspBo.setAge(userDetail.getAge());
+                deviceListRspBo.setPhone(userDetail.getPhone());
                 deviceListRspBo.setFilingTime(formatTime(deviceInfo.getCreateTime()));
                 arr.add(deviceListRspBo);
             }
