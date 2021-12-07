@@ -8,7 +8,8 @@
         from t_activity t
         where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
           and deleted = 1
-        order by dist
+        having t.publish_time
+        order by t.publish_time desc
     </select>
     <select id="getActivityedge"
             resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityListDto">
@@ -40,6 +41,8 @@
                 order by dist ) as temp
         where temp.row_num = 1
     </select>
+
+
 
 
 </mapper>

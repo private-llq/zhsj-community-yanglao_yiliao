@@ -3,7 +3,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypeDto;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 
 import java.util.List;
