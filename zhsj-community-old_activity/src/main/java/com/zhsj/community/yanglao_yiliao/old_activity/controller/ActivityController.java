@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -46,10 +45,11 @@ public class ActivityController {
      * @date 2021/11/24 19:00
      */
     @PostMapping("/queryActivityList")
-    public R<List<ActivityDto>> queryActivityList(@RequestBody @Valid ActivityReqBo reqBo) {
+    public PageInfo<ActivityDto> queryActivityList(@RequestBody @Valid ActivityReqBo reqBo) {
         log.info("reqBo的值{}", reqBo);
         List<ActivityDto> rspList = this.activityService.queryActivityList(reqBo);
-        return R.ok(rspList);
+        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(reqBo.getPage(), reqBo.getData(), rspList);
+        return  activityDtoPageInfo;
     }
 
 
