@@ -100,7 +100,7 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
      * @return: java.util.Map<java.lang.String,java.lang.Object>
      */
     @Override
-    public Map<String, Object> selectUser(Long uid) {
+    public Map<String, Object> selectUser(String uid) {
         Map<String, Object> map = new HashMap<>(2);
         List<FamilySosEntity> entityList = familySosMapper.selectList(new QueryWrapper<FamilySosEntity>().eq("uid", uid));
         AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("uid", uid));
