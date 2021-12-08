@@ -26,4 +26,14 @@ public interface EventFamilyMapper extends BaseMapper<EventFamilyEntity> {
 
     @Select("select family_id from t_event_family where event_id=#{id} and deleted=0")
     Set<Long> getByFamilyId(@Param("id") Long id);
+
+    /**
+     * @Description: 查询关联事件用户id
+     * @author: Hu
+     * @since: 2021/12/8 14:55
+     * @Param:
+     * @return:
+     */
+    @Select("select uid from t_event_family where event_id=#{id} and deleted=0")
+    Set<String> selectByUser(Long id);
 }

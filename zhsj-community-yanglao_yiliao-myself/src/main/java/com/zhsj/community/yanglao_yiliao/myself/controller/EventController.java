@@ -83,6 +83,12 @@ public class EventController {
         return R.ok(eventService.list(week, loginUser));
     }
 
+    @GetMapping(value = "pageList")
+    public R<List<EventEntity>> pageList() {
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        return R.ok(eventService.pageList(loginUser));
+    }
+
 
     /**
      * @Description: 删除

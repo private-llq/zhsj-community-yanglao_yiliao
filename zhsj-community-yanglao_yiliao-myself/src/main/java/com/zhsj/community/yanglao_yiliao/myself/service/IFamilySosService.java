@@ -30,4 +30,13 @@ public interface IFamilySosService extends IService<FamilySosEntity> {
      * @return:
      */
     void sos(LoginUser loginUser,Long familyId);
+
+    /**
+     * @Description: 查询用户sos家属和机构信息
+     * @author: Hu
+     * @since: 2021/11/12 10:54
+     * @Param: [loginUser]
+     * @return: [java.util.Map]
+     */
+    Map<String, Object> selectUser(Long uid);
 }
