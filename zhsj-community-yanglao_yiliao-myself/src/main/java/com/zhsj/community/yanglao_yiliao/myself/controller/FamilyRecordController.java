@@ -3,6 +3,7 @@ package com.zhsj.community.yanglao_yiliao.myself.controller;
 import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.basecommon.vo.R;
+import com.zhsj.baseweb.annotation.LoginIgnore;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
@@ -154,6 +155,7 @@ public class FamilyRecordController {
      * @return:
      */
     @PostMapping("userList")
+    @LoginIgnore
     public R<List<FamilyRecordEntity>> userList(@RequestParam String uid){
         List<FamilyRecordEntity> list = familyRecordService.userByList(uid);
         return R.ok(list);

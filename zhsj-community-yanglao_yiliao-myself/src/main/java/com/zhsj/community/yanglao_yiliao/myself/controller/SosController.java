@@ -2,6 +2,7 @@ package com.zhsj.community.yanglao_yiliao.myself.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhsj.basecommon.vo.R;
+import com.zhsj.baseweb.annotation.LoginIgnore;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
@@ -80,6 +81,7 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
      */
     @GetMapping("selectUser")
+    @LoginIgnore
     public R<Map<String,Object>> selectUser(@RequestParam String uid){
         Map<String,Object> map = familySosService.selectUser(uid);
         return R.ok(map);
