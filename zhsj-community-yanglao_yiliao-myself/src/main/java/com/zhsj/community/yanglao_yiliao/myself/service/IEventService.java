@@ -62,4 +62,12 @@ public interface IEventService {
      */
     void status(Long id,Integer status);
 
+    /**
+     * @Description: 查询所有事件
+     * @author: Hu
+     * @since: 2021/12/3 13:47
+     * @Param:
+     * @return:
+     */
+    List<EventEntity> pageList(LoginUser loginUser);
 }

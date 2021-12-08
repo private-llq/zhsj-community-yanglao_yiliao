@@ -146,6 +146,20 @@ public class FamilyRecordController {
     }
 
 
+    /**
+     * @Description: 根据uid查询家人档案
+     * @author: Hu
+     * @since: 2021/12/8 15:27
+     * @Param:
+     * @return:
+     */
+    @PostMapping("userList")
+    public R<List<FamilyRecordEntity>> userList(@RequestParam String uid){
+        List<FamilyRecordEntity> list = familyRecordService.userByList(uid);
+        return R.ok(list);
+    }
+
+
 
     /**
      * @Description: 删除

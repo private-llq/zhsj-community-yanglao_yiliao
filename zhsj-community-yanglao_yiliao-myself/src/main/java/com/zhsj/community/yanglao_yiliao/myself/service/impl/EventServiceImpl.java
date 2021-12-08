@@ -168,6 +168,41 @@ public class EventServiceImpl implements IEventService {
     }
 
 
+
+    /**
+     * @Description: 查询所有事件
+     * @author: Hu
+     * @since: 2021/12/3 13:48
+     * @Param: [loginUser]
+     * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.EventEntity>
+     */
+    @Override
+    public List<EventEntity> pageList(LoginUser loginUser) {
+        Map<String, Object> paramMap;
+        List<EventEntity> entityList = eventMapper.selectList(new QueryWrapper<EventEntity>().eq("uid",loginUser.getAccount()));
+        for (EventEntity entity : entityList) {
+            //封装提醒家人信息
+            Set<Long> longSet = eventFamilyMapper.getByFamilyId(entity.getId());
+            List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(longSet);
+            if (entities.size()!=0){
+                for (FamilyRecordEntity recordEntity : entities) {
+                    paramMap = new HashMap<>(2);
+                    paramMap.put("id",recordEntity.getId());
+                    paramMap.put("name",recordEntity.getName());
+                    entity.getRecords().add(paramMap);
+                }
+            }
+            //封装事件周天
+            List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", entity.getId()));
+            if (weekEntities.size()!=0) {
+                for (EventWeekEntity weekEntity : weekEntities) {
+                    entity.getWeeks().add(weekEntity.getWeek());
+                }
+            }
+        }
+        return entityList;
+    }
+
     /**
      * @Description: 删除
      * @author: Hu

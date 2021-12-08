@@ -40,4 +40,13 @@ public interface IFamilyRecordService extends IService<FamilyRecordEntity> {
      * @return:
      */
     void importFamily(FamilysQo familysQo,LoginUser loginUser);
+
+    /**
+     * @Description: 查询用户家人集合
+     * @author: Hu
+     * @since: 2021/12/8 15:26
+     * @Param:
+     * @return:
+     */
+    List<FamilyRecordEntity> userByList(String uid);
 }

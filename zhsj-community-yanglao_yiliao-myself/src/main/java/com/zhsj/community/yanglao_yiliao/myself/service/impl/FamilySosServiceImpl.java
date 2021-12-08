@@ -91,4 +91,24 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
         map.put("agency",sosEntity);
         return map;
     }
+
+    /**
+     * @Description: 查询sos家属和机构信息
+     * @author: Hu
+     * @since: 2021/11/12 11:03
+     * @Param: [loginUser]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     */
+    @Override
+    public Map<String, Object> selectUser(Long uid) {
+        Map<String, Object> map = new HashMap<>(2);
+        List<FamilySosEntity> entityList = familySosMapper.selectList(new QueryWrapper<FamilySosEntity>().eq("uid", uid));
+        AgencySosEntity sosEntity = agencySosMapper.selectOne(new QueryWrapper<AgencySosEntity>().eq("uid", uid));
+        //查询机构
+
+
+        map.put("familyList",entityList);
+        map.put("agency",null);
+        return map;
+    }
 }

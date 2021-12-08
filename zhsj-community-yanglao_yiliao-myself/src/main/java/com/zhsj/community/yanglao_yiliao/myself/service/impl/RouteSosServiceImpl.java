@@ -40,11 +40,12 @@ public class RouteSosServiceImpl extends ServiceImpl<RouteSosMapper, RouteSosEnt
         if (entity!=null){
             entity.setLat(routeSosEntity.getLat());
             entity.setLon(routeSosEntity.getLon());
+            entity.setAddress(routeSosEntity.getAddress());
+            routeSosEntity.setUpdateTime(LocalDateTime.now());
             routeSosMapper.updateById(entity);
         } else {
             routeSosEntity.setUid(loginUser.getAccount());
             routeSosEntity.setId(SnowFlake.nextId());
-            routeSosEntity.setUpdateTime(LocalDateTime.now());
             routeSosMapper.insert(routeSosEntity);
         }
 

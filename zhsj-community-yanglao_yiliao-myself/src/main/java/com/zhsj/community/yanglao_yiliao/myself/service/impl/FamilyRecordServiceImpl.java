@@ -183,4 +183,19 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
             familyRecordMapper.saveAll(list);
         }
     }
+
+
+
+    /**
+     * @Description: 查询用户家人集合
+     * @author: Hu
+     * @since: 2021/12/8 15:26
+     * @Param: [uid]
+     * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>
+     */
+    @Override
+    public List<FamilyRecordEntity> userByList(String uid) {
+        List<FamilyRecordEntity> recordEntities = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", uid));
+        return recordEntities;
+    }
 }

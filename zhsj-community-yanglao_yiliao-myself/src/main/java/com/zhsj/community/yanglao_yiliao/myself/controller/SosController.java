@@ -71,6 +71,20 @@ public class SosController {
         return R.ok(map);
     }
 
+
+    /**
+     * @Description: 根据用户uid查询绑定家属和绑定机构
+     * @author: Hu
+     * @since: 2021/12/8 15:20
+     * @Param: [uid]
+     * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
+     */
+    @GetMapping("selectUser")
+    public R<Map<String,Object>> selectUser(@RequestParam Long uid){
+        Map<String,Object> map = familySosService.selectUser(uid);
+        return R.ok(map);
+    }
+
     /**
      * @Description: 绑定家属
      * @author: Hu
