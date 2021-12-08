@@ -38,5 +38,5 @@ public interface IFamilySosService extends IService<FamilySosEntity> {
      * @Param: [loginUser]
      * @return: [java.util.Map]
      */
-    Map<String, Object> selectUser(Long uid);
+    Map<String, Object> selectUser(String uid);
 }

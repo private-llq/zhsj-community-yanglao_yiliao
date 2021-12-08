@@ -24,5 +24,5 @@ public interface SosFeign {
      * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
      */
     @GetMapping("selectUser")
-    R<Map<String,Object>> selectUser(@RequestParam Long uid);
+    R<Map<String,Object>> selectUser(@RequestParam String uid);
 }

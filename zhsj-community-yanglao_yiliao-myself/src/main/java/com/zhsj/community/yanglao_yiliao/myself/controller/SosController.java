@@ -80,7 +80,7 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
      */
     @GetMapping("selectUser")
-    public R<Map<String,Object>> selectUser(@RequestParam Long uid){
+    public R<Map<String,Object>> selectUser(@RequestParam String uid){
         Map<String,Object> map = familySosService.selectUser(uid);
         return R.ok(map);
     }
