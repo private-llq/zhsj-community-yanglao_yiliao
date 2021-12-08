@@ -13,7 +13,7 @@ import java.util.Map;
  * @author: Hu
  * @create: 2021-12-08 15:19
  **/
-@FeignClient(name = "community-yanglao-yiliao-myself-service",path = "sos")
+@FeignClient(name = "community-yanglao-yiliao-myself-service",path = "/sos")
 public interface SosFeign {
 
     /**
@@ -24,5 +24,5 @@ public interface SosFeign {
      * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
      */
     @GetMapping("selectUser")
-    R<Map<String,Object>> selectUser(@RequestParam String uid);
+    R<Map<String,Object>> selectUser(@RequestParam("uid") String uid);
 }

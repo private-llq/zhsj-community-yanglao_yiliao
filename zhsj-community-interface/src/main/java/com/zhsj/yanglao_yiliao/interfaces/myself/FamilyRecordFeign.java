@@ -14,7 +14,7 @@ import java.util.List;
  * @author: Hu
  * @create: 2021-12-08 15:28
  **/
-@FeignClient(name = "community-yanglao-yiliao-myself-service",path = "family")
+@FeignClient(name = "community-yanglao-yiliao-myself-service",path = "/family")
 public interface FamilyRecordFeign {
 
     /**
@@ -25,5 +25,5 @@ public interface FamilyRecordFeign {
      * @return:
      */
     @PostMapping("userList")
-    R<List<FamilyRecordEntity>> userList(@RequestParam String uid);
+    R<List<FamilyRecordEntity>> userList(@RequestParam("uid") String uid);
 }
