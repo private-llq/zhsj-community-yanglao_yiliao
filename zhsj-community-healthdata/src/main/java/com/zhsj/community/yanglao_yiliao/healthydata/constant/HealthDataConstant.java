@@ -23,6 +23,7 @@ public class HealthDataConstant {
      */
     public static final Integer HEALTH_COLOR_STATUS_RED = 3;
 
+
     //--------------------------------------------------sleep status---------------------------------------------------------------
 
     /**
@@ -46,6 +47,7 @@ public class HealthDataConstant {
      */
     public static final Integer SLEEP_STATUS_FIVE = 5;
 
+
     //--------------------------------------------------grab sleep time spot--------------------------------------------------------
 
     /**
@@ -64,6 +66,7 @@ public class HealthDataConstant {
      * 每十分钟抓取一次睡眠
      */
     public static final Integer GRAB_SLEEP_TIME_STEP = 10;
+
 
     //---------------------------------------------chart time status-------------------------------------------------------------------
 
@@ -90,4 +93,11 @@ public class HealthDataConstant {
     public static final Integer HEART_RATE_AVG_STATUS_LOWER = 2;
     public static final Integer HEART_RATE_AVG_STATUS_HIGHER = 3;
 
+
+    // --------------------------------------------推送APP消息和发送短信redis缓存键前缀--------------------------------------------------------
+
+    /**
+     * 推送APP消息和发送短信redis缓存键前缀
+     */
+    public static final String HEALTH_DATA_PUSH_MSG = "YangLao-YiLiao:HealthData:PushMsg:Uid:";
 }

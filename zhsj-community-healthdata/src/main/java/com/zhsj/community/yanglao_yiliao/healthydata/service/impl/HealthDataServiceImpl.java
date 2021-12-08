@@ -4,8 +4,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhsj.base.api.rpc.IBaseSmsRpcService;
-import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.baseweb.support.ContextHolder;
+import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.healthydata.async.AsyncMsg;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.dto.SleepTitleTimeValueDto;
@@ -18,7 +19,6 @@ import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.*;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +44,8 @@ public class HealthDataServiceImpl implements HealthDataService {
     private SleepService sleepService;
     @Autowired
     private TemperatureService temperatureService;
-    @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER, check = false)
-    private IBaseSmsRpcService iBaseSmsRpcService;
+    @Autowired
+    AsyncMsg asyncMsg;
 
     /***************************************************************************************************************************
      * @description 获取用户实时健康数据
@@ -57,6 +57,7 @@ public class HealthDataServiceImpl implements HealthDataService {
     @Override
     public RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo) {
         log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -112,7 +113,15 @@ public class HealthDataServiceImpl implements HealthDataService {
         }
         healthDataRspBo.setRefreshDataTime(TimeUtils.formatLocalDateTime(LocalDateTime.now()));
         buildTotalHealthStatus(healthDataRspBo);
-
+        // 判断当前获取实时健康数据的用户是不是当前登录人，true：异步健康状况推送（一般：推送APP消息到绑定的家人，极差：短信推送到绑定的SOS通讯录人员）
+        if (loginUser.getAccount().equals(reqBo.getFamilyMemberId())) {
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getUserTotalHealthStatus())) {
+                asyncMsg.asyncMsg(loginUser.getAccount(),healthDataRspBo.getUserTotalHealthStatus());
+            }
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getUserTotalHealthStatus())) {
+                asyncMsg.asyncMsg(loginUser.getAccount(),healthDataRspBo.getUserTotalHealthStatus());
+            }
+        }
         return healthDataRspBo;
     }
 
