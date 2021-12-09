@@ -24,8 +24,6 @@ public class ActivityDto {
      * id
      */
     private Long id;
-
-
     /**
      * 活动描述
      */

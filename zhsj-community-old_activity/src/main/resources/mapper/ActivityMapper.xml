@@ -2,47 +2,64 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper">
 
-    <select id="queryNearbyActivityList" parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo"
+    <select id="queryNearbyActivityList"
+            parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo"
             resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
-        select t.*,fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) as dist
+        select t.*, fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) as dist
         from t_activity t
-        where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
+        where fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) &lt; 10
           and deleted = 1
         having t.publish_time
         order by t.publish_time desc
     </select>
-    <select id="getActivityedge"
-            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityListDto">
-        select * from t_activity  as a
-                LEFT JOIN t_activity_details as ac
-                on a.id =ac.a_id
-                WHERE a.user_uuid = #{useruuid}
-    </select>
+
+
+
     <select id="pageListed" parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo"
             resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
-        select t.id,t.activity_desc,t.activity_type_name,t.activity_type_code,t.voice_url,
-               t.voice_file_size,t.voice_time,t.pic_url,t.avatar_images,t.user_uuid,t.user_name,t.is_friend,t.is_user,t.publish_time
-             ,t.deleted,t.longitude,t.latitude,t.birthday
+        select t.id, t.activity_desc, t.activity_type_name,t.activity_type_code, t.voice_url,t.voice_file_size, t.voice_time,t.pic_url,
+               t.avatar_images,t.user_uuid,t.user_name,t.is_friend,t.is_user,t.publish_time, t.deleted, t.longitude,t.latitude, t.birthday
         from t_activity t
-        where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
+        where fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) &lt; 10
           and deleted = 1
         having t.publish_time
         order by t.publish_time desc
     </select>
+
     <select id="queryActivityList" resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto"
             parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo">
-        select temp.* from
-            (
-                select t.*,fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) as dist,
-                       ROW_NUMBER() OVER(PARTITION BY t.user_uuid ORDER BY t.publish_time desc) AS row_num
-                from t_activity t
-                where fun_dist(#{longitude},#{latitude},t.longitude,t.latitude) &lt; 10
-                  and deleted = 1
-                order by dist ) as temp
+        select temp.*
+        from (
+                 select t.*,
+                        fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) as dist,
+                        ROW_NUMBER()                                                    OVER(PARTITION BY t.user_uuid ORDER BY t.publish_time desc) AS row_num
+                 from t_activity t
+                 where fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) &lt; 10
+                   and deleted = 1
+                 order by dist) as temp
         where temp.row_num = 1
     </select>
 
+    <select id="likeActivity" resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto">
+        select * from t_activity as s
+        where deleted = 1
+        <if test="likeActivity.activityTypeName !='' and likeActivity.activityTypeName !=null ">
+            and s.activity_type_name like concat ('%',#{likeActivity.activityTypeName},'%')
+        </if>
+<!--        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">-->
+<!--            and s.user_name like concat ('%',#{likeActivity.userName},'%')-->
+<!--        </if>-->
+        <if test="likeActivity.publishTime !=null and likeActivity.publishTime != '' ">
+            and s.publish_time like concat ('%',#{likeActivity.publishTime},'%')
+        </if>
+    </select>
 
+    <select id="selectgetUserActivityList"
+            resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
+        select * from t_activity  as t where  user_uuid = #{id}  and deleted = 1 and is_user = 1
+        having t.publish_time
+        order by t.publish_time desc
+    </select>
 
 
 </mapper>

@@ -14,29 +14,29 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLocationDto  {
+public class UserLocationDto {
 
     private Long id;
     /**
-     *用户id
+     * 用户id
      */
     private Long userId;
-     /**
-     *活动id
+    /**
+     * 活动id
      */
     private Long aId;
     /**
      * x:经度
      */
     @NotNull(message = "经度不能为空")
-     private Double longitude;
+    private Double longitude;
     /**
      * y:维度
      */
     @NotNull(message = "维度不能为空")
     private Double latitude;
     /**
-     *位置描述
+     * 位置描述
      */
     @NotNull(message = "位置描述不能为空")
     private String address;
@@ -44,14 +44,12 @@ public class UserLocationDto  {
      * 是否是好友 0 否 | 1 是
      */
     @NotNull(message = "好友不能为空")
-    private  String userFriend;
+    private String userFriend;
 
     /**
      * 限制
      */
-    private  Integer limit;
-
-
+    private Integer limit;
 
 
 }

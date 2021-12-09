@@ -40,8 +40,6 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
 
     /**
      * 查询活动类型
-     *
-     *
      */
     @Override
     public List<ActivityType> selectList() {
@@ -73,7 +71,6 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
      * 修改活动类型
      *
      * @param activityTypeDto
-     *
      */
     @Override
     public int updateActivityType(ActivityTypeDto activityTypeDto) {
@@ -100,21 +97,22 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
 
     /**
      * 查询所有的活动
+     *
      * @return
      */
     @Override
     public List<ActivityReqDto> selectActivityList() {
         List<ActivityReqDto> activityReqDtos = this.activityTypeMapper.selectActivityList();
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
-        for (ActivityReqDto activity:activityReqDtos){
-           activity.setSex(userDetail.getSex());
-           activity.setPhone(userDetail.getPhone());
+        for (ActivityReqDto activity : activityReqDtos) {
+            if (activity.getUserName().equals(userDetail.getNickName())) {
+                activity.setSex(userDetail.getSex());
+                activity.setPhone(userDetail.getPhone());
+            }
+            //假如他不是当前用户的话，我其他的电话号码和性别获取不到
         }
         return activityReqDtos;
     }
-
-
-
 
 
     /**
