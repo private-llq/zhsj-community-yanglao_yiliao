@@ -25,8 +25,6 @@ public class ActivityListDto {
      */
     @TableId
     private Long id;
-
-
     /**
      * 活动描述
      */

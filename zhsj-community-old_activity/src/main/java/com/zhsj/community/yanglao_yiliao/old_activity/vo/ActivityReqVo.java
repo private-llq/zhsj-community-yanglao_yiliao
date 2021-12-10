@@ -1,6 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.vo;
 
-import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.PageVoed;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityReqVo extends pageVoed {
+public class ActivityReqVo extends PageVoed {
     /**
      * 经度
      */

@@ -23,8 +23,6 @@ public class ActivityFromDto {
      * 活动类型编码
      */
     private String activityTypeCode;
-
-
     /**
      * 活动类型名称
      */

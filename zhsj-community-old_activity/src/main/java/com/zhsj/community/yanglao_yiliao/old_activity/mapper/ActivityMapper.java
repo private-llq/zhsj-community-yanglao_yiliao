@@ -26,14 +26,6 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      */
     List<ActivityDto> queryNearbyActivityList(ActivityReqBo reqBo);
 
-    /**
-     * 其他人查询自己的活动详情
-     *
-     * @param id
-     * @return
-     */
-    List<ActivityListDto> getActivityedge(@Param("id") Long id);
-
 
     /**
      * 获取附近活动
@@ -58,8 +50,24 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @param activityPageDto
      * @return
      */
-    @Select("select * from t_activity  where  user_uuid = #{id}  and deleted = 1 and is_user = 1")
+
     List<ActivityDto> selectgetUserActivityList(ActivityPageDto activityPageDto);
 
+    /**
+     * 根据id查询活动信息
+     *
+     * @return
+     */
+    @Select("SELECT * from  t_activity where id=#{id}")
+    Activity selectByIdActivity(@Param("id") Long id);
+
+
+    /**
+     * 模糊查询活动信息
+     *
+     * @param likeActivity
+     * @return
+     */
+    List<ActivityReqDto> likeActivity(@Param("likeActivity") LikeActivityDto likeActivity);
 
 }

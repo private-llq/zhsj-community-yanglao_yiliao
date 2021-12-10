@@ -27,7 +27,7 @@ public class addActivityDto {
     /**
      * 用户id
      */
-    private  Long uId;
+    private Long uId;
     /**
      * 活动类型
      */
@@ -38,9 +38,9 @@ public class addActivityDto {
      */
     private String activityExplain;
     /**
-     *语音
+     * 语音
      */
-    private  String voice;
+    private String voice;
     /**
      * 图片路径
      */
@@ -59,21 +59,20 @@ public class addActivityDto {
      * 距离
      */
     @NotNull(message = "距离不能为空")
-    private  String distance;
+    private String distance;
 
     /**
      * 性别
      */
-    private  String sex;
+    private String sex;
     /**
      * 年龄
      */
-    private  String age;
+    private String age;
     /**
      * 用户昵称
      */
-    private  String nickname;
-
+    private String nickname;
 
 
 }
