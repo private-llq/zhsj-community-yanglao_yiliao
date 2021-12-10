@@ -105,10 +105,8 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
         List<ActivityReqDto> activityReqDtos = this.activityTypeMapper.selectActivityList();
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityReqDto activity : activityReqDtos) {
-            if (activity.getUserName().equals(userDetail.getNickName())) {
                 activity.setSex(userDetail.getSex());
                 activity.setPhone(userDetail.getPhone());
-            }
             //假如他不是当前用户的话，我其他的电话号码和性别获取不到
         }
         return activityReqDtos;

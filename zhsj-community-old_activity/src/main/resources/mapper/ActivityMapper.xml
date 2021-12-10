@@ -17,11 +17,10 @@
 
     <select id="pageListed" parameterType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqBo"
             resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityDto">
-        select t.id, t.activity_desc, t.activity_type_name,t.activity_type_code, t.voice_url,t.voice_file_size, t.voice_time,t.pic_url,
-               t.avatar_images,t.user_uuid,t.user_name,t.is_friend,t.is_user,t.publish_time, t.deleted, t.longitude,t.latitude, t.birthday
+        select t.*, fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) as dist
         from t_activity t
         where fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) &lt; 10
-          and deleted = 1
+        and deleted = 1
         having t.publish_time
         order by t.publish_time desc
     </select>
@@ -32,7 +31,7 @@
         from (
                  select t.*,
                         fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) as dist,
-                        ROW_NUMBER()                                                    OVER(PARTITION BY t.user_uuid ORDER BY t.publish_time desc) AS row_num
+                        ROW_NUMBER() OVER(PARTITION BY t.user_uuid ORDER BY t.publish_time desc) AS row_num
                  from t_activity t
                  where fun_dist(#{longitude}, #{latitude}, t.longitude, t.latitude) &lt; 10
                    and deleted = 1
@@ -46,9 +45,9 @@
         <if test="likeActivity.activityTypeName !='' and likeActivity.activityTypeName !=null ">
             and s.activity_type_name like concat ('%',#{likeActivity.activityTypeName},'%')
         </if>
-<!--        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">-->
-<!--            and s.user_name like concat ('%',#{likeActivity.userName},'%')-->
-<!--        </if>-->
+        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">
+            and s.user_name like concat ('%',#{likeActivity.userName},'%')
+        </if>
         <if test="likeActivity.publishTime !=null and likeActivity.publishTime != '' ">
             and s.publish_time like concat ('%',#{likeActivity.publishTime},'%')
         </if>

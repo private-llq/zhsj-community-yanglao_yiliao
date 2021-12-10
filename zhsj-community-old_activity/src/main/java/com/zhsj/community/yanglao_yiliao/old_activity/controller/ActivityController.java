@@ -189,10 +189,11 @@ public class ActivityController {
     }
 
     /**
-     * 大后台展示活动信息
-     *
-     * @param pageVoed
-     * @return
+     * @Description: 大后台展示活动信息
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
      */
     @PostMapping("selectActivityList")
     public PageInfo<?> selectActivityList(@RequestBody PageVoed pageVoed) {
@@ -203,10 +204,11 @@ public class ActivityController {
 
 
     /**
-     * 根据活动id查询活动
-     *
-     * @param id
-     * @return
+     * @Description: 根据活动id查询活动
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
      */
     @GetMapping("getByIdActivity")
     public R getByIdActivity(@RequestParam Long id) {
@@ -215,18 +217,22 @@ public class ActivityController {
         return R.ok(byIdActivity);
     }
 
+
     /**
-     * 大后台模糊查询活动
-     *
-     * @param likeActivity
-     * @return
+     * @Description: 大后台模糊查询活动
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
      */
     @PostMapping("likeActivity")
-    public R likeActivity(@RequestBody LikeActivityDto likeActivity) {
+    public PageInfo likeActivity(@RequestBody LikeActivityDto likeActivity) {
         log.info("likeActivity的值{}", likeActivity);
         List<ActivityReqDto> activityReqDtos = this.activityService.likeActivity(likeActivity);
-        return R.ok(activityReqDtos);
+        PageInfo<ActivityReqDto> activityDtoPageInfo = MyPageUtils.pageMap(likeActivity.getPage(), likeActivity.getData(), activityReqDtos);
+        return activityDtoPageInfo;
     }
+
 
 
 }
