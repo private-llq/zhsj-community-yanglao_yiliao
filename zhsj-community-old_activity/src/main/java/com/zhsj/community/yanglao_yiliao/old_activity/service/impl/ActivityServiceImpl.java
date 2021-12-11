@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.base.api.vo.PageVO;
+import com.zhsj.base.api.vo.UserImVo;
 import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
@@ -71,7 +72,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
             activity.setAge(userDetail.getAge());
-            activity.setImId(userAuth().getImId());
+            UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
+            activity.setImId(eHomeUserIm.getImId());
         }
         return activityDtos;
     }
@@ -96,8 +98,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
             activity.setAge(userDetail.getAge());
-            activity.setImId(userAuth().getImId());
-
+            UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
+            activity.setImId(eHomeUserIm.getImId());
         }
         return activityDtos;
     }
@@ -164,8 +166,12 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         log.info("用户的uid{}", activityPageDto);
         List<ActivityDto> activityDtos = this.activityMapper.selectgetUserActivityList(activityPageDto);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
+        UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activityPageDto.getId());
+        log.info("当前用户的Account:{}",userDetail.getAccount());
+        log.info("当前用户的eHomeUserIm:{}",eHomeUserIm.getImId());
         for (ActivityDto activity : activityDtos) {
-            if (activity.getUserUuid().equals(userDetail.getAccount())) {
+            if (activity.getUserUuid().equals(userAuth().getAccount())) {
+                //这个是自己
                 long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                         activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
                 activity.setDistance(apiDistance / 1000);
@@ -176,6 +182,19 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 activity.setAge(userDetail.getAge());
                 activity.setImId(userAuth().getImId());
+            }
+            if (!activity.getUserUuid().equals(userAuth().getAccount())) {
+                //这个不是自己
+                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
+                        activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
+                activity.setDistance(apiDistance / 1000);
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime publishTime = activity.getPublishTime();
+                //相差的分钟数
+                long minutes = Duration.between(publishTime, now).toMinutes();
+                activity.setPublishTimed(minutes);
+                activity.setAge(userDetail.getAge());
+                activity.setImId(eHomeUserIm.getImId());
             }
         }
         return activityDtos;
@@ -199,7 +218,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             //相差的分钟数
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
-            activity.setImId(userAuth().getImId());
+            UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
+            activity.setImId(eHomeUserIm.getImId());
         }
         return activityDtos;
     }
