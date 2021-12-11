@@ -120,7 +120,7 @@ public class SosController {
     public R<Boolean> saveAgency(@RequestBody AgencySosEntity agencySosEntity){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<AgencySosEntity> list = agencySosService.list(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getAccount()));
-        if (list!=null){
+        if (list.size()!=0){
             return R.fail("机构最大添加数量1！");
         }
         agencySosEntity.setId(SnowFlake.nextId());

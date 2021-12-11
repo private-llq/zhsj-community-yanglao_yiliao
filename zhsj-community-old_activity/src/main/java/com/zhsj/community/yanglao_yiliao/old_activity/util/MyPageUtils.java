@@ -2,7 +2,9 @@ package com.zhsj.community.yanglao_yiliao.old_activity.util;
 
 
 
-import com.zhsj.community.yanglao_yiliao.old_activity.exception.BootException;
+
+import com.zhsj.basecommon.enums.ErrorEnum;
+import com.zhsj.basecommon.exception.BaseException;
 
 import java.util.List;
 
@@ -27,9 +29,9 @@ public class MyPageUtils {
         pageInfo.setSize(pageSize);
         return pageInfo;
     }
+
     /**
-     *
-     * @param pageNo 第几页 （从1计数）
+     * @param pageNo   第几页 （从1计数）
      * @param pageSize 每页展示几条数据
      * @param dataSize 数据源元素个数
      * @return 第一个开始位置 第二个结束位置
@@ -42,7 +44,7 @@ public class MyPageUtils {
         if (pageSize < 1) {
             pageSize = 0;
         }
-        final int start=  (pageNo - 1) * pageSize;
+        final int start = (pageNo - 1) * pageSize;
         if (pageSize < 1) {
             pageSize = 0;
         }
@@ -51,8 +53,8 @@ public class MyPageUtils {
             end = dataSize;
         }
         if (start > end) {
-            throw new BootException("页码错误,重新输入");
+            throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
-        return new int[] { start, end };
+        return new int[]{start, end};
     }
 }

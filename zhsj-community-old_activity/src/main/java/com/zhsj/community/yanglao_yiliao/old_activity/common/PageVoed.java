@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  * @create: 2021-11-26 16:02
  */
 @Data
-public class pageVoed {
+public class PageVoed {
     /**
      * 当前页
      */

@@ -1,9 +1,8 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 
 
-
 import com.zhsj.basecommon.vo.R;
-import com.zhsj.community.yanglao_yiliao.old_activity.common.pageVoed;
+import com.zhsj.community.yanglao_yiliao.old_activity.common.PageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import lombok.extern.slf4j.Slf4j;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class ActivityController {
         log.info("reqBo的值{}", reqBo);
         List<ActivityDto> rspList = this.activityService.queryActivityList(reqBo);
         PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(reqBo.getPage(), reqBo.getData(), rspList);
-        return  activityDtoPageInfo;
+        return activityDtoPageInfo;
     }
 
 
@@ -143,7 +143,6 @@ public class ActivityController {
     }
 
 
-
     /*****************************************************大后台*******************************************************/
 
     /**
@@ -156,7 +155,7 @@ public class ActivityController {
     @PostMapping("addActivityType")
     public R addActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDto的值：{}", activityTypeDto);
-        this.activityTypeService.ActivityType(activityTypeDto);
+        this.activityTypeService.activityType(activityTypeDto);
         return R.ok("新增活动类型成功");
     }
 
@@ -176,58 +175,63 @@ public class ActivityController {
     }
 
     /**
-    *@Description: 删除活动类型
-    *@Param:  * @param null
-    *@return: 
-    *@Author: liulq
-    *@date: 2021-12-06
-    */
+     * @Description: 删除活动类型
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-06
+     */
     @DeleteMapping("deleteActivityType")
-    public R deleteActivityType(@RequestParam  String activityTypeCode){
+    public R deleteActivityType(@RequestParam String activityTypeCode) {
         log.info("activityTypeCode的值：{}", activityTypeCode);
-         this.activityTypeService.deleteActivityType(activityTypeCode);
+        this.activityTypeService.deleteActivityType(activityTypeCode);
         return R.ok("删除成功");
     }
 
     /**
-     * 大后台展示活动信息
-     * @param pageVoed
-     * @return
+     * @Description: 大后台展示活动信息
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
      */
     @PostMapping("selectActivityList")
-    public R<?> selectActivityList(@RequestBody  pageVoed pageVoed){
+    public PageInfo<?> selectActivityList(@RequestBody PageVoed pageVoed) {
         List<ActivityReqDto> activityReqDtos = this.activityTypeService.selectActivityList();
         PageInfo<ActivityReqDto> activityReqDtoPageInfo = MyPageUtils.pageMap(pageVoed.getPage(), pageVoed.getData(), activityReqDtos);
-        return R.ok(activityReqDtoPageInfo);
+        return activityReqDtoPageInfo;
     }
 
-
-    /***
-     * 大后台根据id删除活动
-     * @param id
-     * @return
-     */
-    @DeleteMapping("/deleteActivityById")
-    public R<String> deleteActivityById(@RequestParam Long id) {
-        log.info("id的值{}", id);
-        this.activityService.deleteById(id);
-        return R.ok("删除成功！");
-    }
 
     /**
-     * 大后台模糊查询活动
-     * @param likeActivity
-     * @return
+     * @Description: 根据活动id查询活动
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
      */
-    @PostMapping("likeActivity")
-    public R likeActivity(@RequestBody LikeActivityDto likeActivity){
-        log.info("likeActivity的值{}", likeActivity);
-        this.activityService.likeActivity(likeActivity);
-        return R.ok();
+    @GetMapping("getByIdActivity")
+    public R getByIdActivity(@RequestParam Long id) {
+        log.info("活动id的值{}", id);
+        ActivityReqDto byIdActivity = this.activityService.getByIdActivity(id);
+        return R.ok(byIdActivity);
     }
 
 
-
+    /**
+     * @Description: 大后台模糊查询活动
+     * @Param: * @param null
+     * @return:
+     * @Author: liulq
+     * @date: 2021-12-09
+     */
+    @PostMapping("likeActivity")
+    public PageInfo likeActivity(@RequestBody LikeActivityDto likeActivity) {
+        log.info("likeActivity的值{}", likeActivity);
+        List<ActivityReqDto> activityReqDtos = this.activityService.likeActivity(likeActivity);
+        PageInfo<ActivityReqDto> activityDtoPageInfo = MyPageUtils.pageMap(likeActivity.getPage(), likeActivity.getData(), activityReqDtos);
+        return activityDtoPageInfo;
+    }
 
 
 }

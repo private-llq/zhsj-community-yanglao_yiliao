@@ -18,13 +18,13 @@ public class ActivityUpdateDto {
     /**
      * 性别
      */
-    private  String sex;
+    private String sex;
     /**
      * 年龄
      */
-    private  String age;
+    private String age;
     /**
      * 用户昵称
      */
-    private  String nickname;
+    private String nickname;
 }

@@ -1,13 +1,11 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 /**
  * @author chengl
@@ -22,13 +20,8 @@ public interface ActivityTypeMapper extends BaseMapper<ActivityType> {
      * @param activityTypeCode
      */
     @Delete("DELETE FROM t_activity_type where activity_type_code=#{activityTypeCode}")
-    void deleteActivityType(String activityTypeCode);
+    void deleteActivityType(@Param("activityTypeCode") String activityTypeCode);
 
-    /**
-     * 查询所有的活动
-     * @return
-     */
-    @Select("SELECT * from  t_activity")
-    List<ActivityReqDto> selectActivityList();
+
 
 }

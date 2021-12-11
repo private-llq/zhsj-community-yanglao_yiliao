@@ -63,8 +63,8 @@ public class EventJob {
                     UserImVo userIm = userInfoRpcService.getEHomeUserIm(uid);
                     iImChatPublicPushRpcService.sendMessage(new TextAppMsg("事件提醒",
                             entity.getContent(),
-                            "url",
-                            "temp",
+                            "",
+                            "",
                             entity.getContent(),
                             null,
                             "sysMessage",

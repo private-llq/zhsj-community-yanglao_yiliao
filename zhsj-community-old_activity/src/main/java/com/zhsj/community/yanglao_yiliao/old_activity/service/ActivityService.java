@@ -4,6 +4,8 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
+
+
 import java.util.List;
 
 
@@ -39,8 +41,8 @@ public interface ActivityService extends IService<Activity> {
      * @Description: 删除
      * @author: liulq
      * @date 2021/11/23 10:43
-     * @Param:
-     * @return:
+     * @Param: id
+     * @return: void
      */
     void delete(Long id);
 
@@ -52,19 +54,18 @@ public interface ActivityService extends IService<Activity> {
     int publishActivity(ActivitySaveReqBo reqBo);
 
 
-
     /**
      * 查询自己的所有活动
      *
-     * @param
-     * @return
+     * @param activityPageDto
+     * @return ActivityDto
      */
     List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto);
 
     /**
      * @Description: 分页查询所有活动
-     * @Param:
-     * @return:
+     * @Param: activityReqBo
+     * @return: ActivityDto
      * @Author: liulq
      * @date: 2021-11-29
      */
@@ -72,18 +73,20 @@ public interface ActivityService extends IService<Activity> {
 
 
     /**
-     * 大后台根据id删除活动
-     * @param id
-     */
-    void deleteById(Long id);
-
-    /**
      * 大后台模糊查询活动
+     *
      * @param likeActivity
-     * @return
+     * @return ActivityReqDto
      */
     List<ActivityReqDto> likeActivity(LikeActivityDto likeActivity);
 
+    /**
+     * 根据id查询活动信息
+     *
+     * @param id
+     * @return ActivityReqDto
+     */
+    ActivityReqDto getByIdActivity(Long id);
 
 
 }

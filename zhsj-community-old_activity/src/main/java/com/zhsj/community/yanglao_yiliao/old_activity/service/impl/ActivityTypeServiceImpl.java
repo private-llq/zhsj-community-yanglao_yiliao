@@ -7,18 +7,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
-import com.zhsj.baseweb.support.ContextHolder;
-import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypeDto;
+import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityTypeMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,16 +31,17 @@ import java.util.List;
 @Service
 public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, ActivityType> implements ActivityTypeService {
 
-    @Resource
+    @Autowired
     private ActivityTypeMapper activityTypeMapper;
 
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
     private IBaseUserInfoRpcService iBaseUserInfoRpcService;
 
+    @Autowired
+    private ActivityMapper activityMapper;
+
     /**
      * 查询活动类型
-     *
-     *
      */
     @Override
     public List<ActivityType> selectList() {
@@ -56,8 +56,8 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
      * @param activityTypeDto
      */
     @Override
-    public int ActivityType(ActivityTypeDto activityTypeDto) {
-        log.info("activityTypeDt的值{}", activityTypeDto);
+    public int activityType(ActivityTypeDto activityTypeDto) {
+        log.info("activityTypeDt的值:{}", activityTypeDto);
         ActivityType type = new ActivityType();
         LocalDateTime now = LocalDateTime.now();
         type.setActivityTypeCode(activityTypeDto.getActivityTypeCode());
@@ -73,11 +73,10 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
      * 修改活动类型
      *
      * @param activityTypeDto
-     *
      */
     @Override
     public int updateActivityType(ActivityTypeDto activityTypeDto) {
-        log.info("activityTypeDt的值{}", activityTypeDto);
+        log.info("activityTypeDt的值:{}", activityTypeDto);
         ActivityType type = new ActivityType();
         type.setActivityTypeCode(activityTypeDto.getActivityTypeCode());
         type.setActivityTypeName(activityTypeDto.getActivityTypeName());
@@ -94,34 +93,26 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
      */
     @Override
     public void deleteActivityType(String activityTypeCode) {
-        log.info("activityTypeCode{}", activityTypeCode);
+        log.info("activityTypeCode:{}", activityTypeCode);
         this.activityTypeMapper.deleteActivityType(activityTypeCode);
     }
 
     /**
      * 查询所有的活动
+     *
      * @return
      */
     @Override
     public List<ActivityReqDto> selectActivityList() {
-        List<ActivityReqDto> activityReqDtos = this.activityTypeMapper.selectActivityList();
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
-        for (ActivityReqDto activity:activityReqDtos){
-           activity.setSex(userDetail.getSex());
-           activity.setPhone(userDetail.getPhone());
+        List<ActivityReqDto> activityReqDtos = this.activityMapper.selectActivityList();
+        for (ActivityReqDto activity : activityReqDtos) {
+            UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
+            activity.setPhone(userDetail.getPhone());
+            activity.setAge(userDetail.getAge());
+            activity.setSex(userDetail.getSex());
         }
         return activityReqDtos;
     }
 
 
-
-
-
-    /**
-     * ***************************************获取当前登录用户**********************************************************
-     * *****************************************************************************************************
-     */
-    private LoginUser userAuth() {
-        return ContextHolder.getContext().getLoginUser();
-    }
 }

@@ -24,8 +24,6 @@ public class ActivityDto {
      * id
      */
     private Long id;
-
-
     /**
      * 活动描述
      */
@@ -96,10 +94,6 @@ public class ActivityDto {
      * 语音的时长
      */
     private Integer voiceTime;
-    /**
-     * 是否是自己   1 是 | 0 不是
-     */
-    private Integer userSelf;
     /**
      * 发布时间
      */
