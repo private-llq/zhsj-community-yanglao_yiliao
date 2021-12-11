@@ -104,7 +104,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setImId(eHomeUserIm.getImId());
-            activity.setActivityDesc(userDetail1.getAvatarThumbnail());
+            activity.setAvatarImages(userDetail1.getAvatarThumbnail());
             activity.setBirthday(userDetail1.getBirthday());
         }
         return activityDtos;
