@@ -51,10 +51,6 @@ public class Activity {
      */
     private String picUrl;
     /**
-     * 出生年月
-     */
-    private String birthday;
-    /**
      * 语音的url
      */
     private String voiceUrl;
@@ -76,10 +72,6 @@ public class Activity {
      * 1:自己 ，0 不是自己
      */
     private Boolean isUser;
-    /**
-     * 头像图片
-     */
-    private String avatarImages;
     /**
      * 经度
      */

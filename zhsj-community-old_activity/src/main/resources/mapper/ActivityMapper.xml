@@ -45,9 +45,9 @@
         <if test="likeActivity.activityTypeName !='' and likeActivity.activityTypeName !=null ">
             and s.activity_type_name like concat ('%',#{likeActivity.activityTypeName},'%')
         </if>
-        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">
-            and s.user_name like concat ('%',#{likeActivity.userName},'%')
-        </if>
+<!--        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">-->
+<!--            and s.user_name like concat ('%',#{likeActivity.userName},'%')-->
+<!--        </if>-->
         <if test="likeActivity.publishTime !=null and likeActivity.publishTime != '' ">
             and s.publish_time like concat ('%',#{likeActivity.publishTime},'%')
         </if>

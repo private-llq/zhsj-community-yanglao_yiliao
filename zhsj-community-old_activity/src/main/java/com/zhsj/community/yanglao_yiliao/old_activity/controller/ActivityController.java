@@ -155,7 +155,7 @@ public class ActivityController {
     @PostMapping("addActivityType")
     public R addActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDto的值：{}", activityTypeDto);
-        this.activityTypeService.ActivityType(activityTypeDto);
+        this.activityTypeService.activityType(activityTypeDto);
         return R.ok("新增活动类型成功");
     }
 
@@ -232,7 +232,6 @@ public class ActivityController {
         PageInfo<ActivityReqDto> activityDtoPageInfo = MyPageUtils.pageMap(likeActivity.getPage(), likeActivity.getData(), activityReqDtos);
         return activityDtoPageInfo;
     }
-
 
 
 }

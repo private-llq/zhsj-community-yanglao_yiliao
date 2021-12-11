@@ -31,7 +31,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 获取附近活动
      *
      * @param activityReqVoDto
-     * @return
+     * @return ActivityDto
      */
     List<ActivityDto> queryActivityList(ActivityReqVoDto activityReqVoDto);
 
@@ -39,7 +39,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 分页查询所有活动
      *
      * @param activityReqBo
-     * @return
+     * @return ActivityDto
      */
     List<ActivityDto> pageListed(ActivityReqBo activityReqBo);
 
@@ -48,7 +48,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 根据id查询自己的活动详情
      *
      * @param activityPageDto
-     * @return
+     * @return ActivityDto
      */
 
     List<ActivityDto> selectgetUserActivityList(ActivityPageDto activityPageDto);
@@ -56,7 +56,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
     /**
      * 根据id查询活动信息
      *
-     * @return
+     * @return Activity
      */
     @Select("SELECT * from  t_activity where id=#{id}")
     Activity selectByIdActivity(@Param("id") Long id);
@@ -66,8 +66,15 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * 模糊查询活动信息
      *
      * @param likeActivity
-     * @return
+     * @return ActivityReqDto
      */
     List<ActivityReqDto> likeActivity(@Param("likeActivity") LikeActivityDto likeActivity);
 
+    /**
+     * 大后台查询所有的活动
+     *
+     * @return ActivityReqDto
+     */
+    @Select("SELECT * from  t_activity")
+    List<ActivityReqDto> selectActivityList();
 }

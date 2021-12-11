@@ -18,19 +18,23 @@ public interface ActivityTypeService {
     /**
      * 查询活动类型
      *
-     * @return
+     * @return ActivityType
      */
     List<ActivityType> selectList();
 
     /**
      * 新增活动类型
+     *
+     * @param activityTypeDto
+     * @return int
      */
-    int ActivityType(ActivityTypeDto activityTypeDto);
+    int activityType(ActivityTypeDto activityTypeDto);
 
     /**
      * 修改活动类型
      *
-     * @return
+     * @param activityTypeDto
+     * @return int
      */
     int updateActivityType(ActivityTypeDto activityTypeDto);
 
@@ -41,7 +45,7 @@ public interface ActivityTypeService {
     void deleteActivityType(String activityTypeCode);
 
     /**
-     * 查询所有的活动
+     * 大后台查询所有的活动
      */
     List<ActivityReqDto> selectActivityList();
 }
