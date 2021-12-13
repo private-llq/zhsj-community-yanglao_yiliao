@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -272,7 +273,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                     .le(Temperature::getCreateTime, now)
                     .eq(Temperature::getDeleted, true));
             int k = 0;
-            double totalAvg = 0;
+            BigDecimal totalAvg = new BigDecimal("0.0");
             List<TempTitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
                 LocalDateTime time1 = todayZeroClock.plusHours(i);
@@ -280,7 +281,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 if (!temperatureList.isEmpty()) {
                     double c1 = 0;
                     int j1 = 0;
-                    double avg1 = 0;
+                    BigDecimal avg1 = new BigDecimal("0.0");
                     for (Temperature temperature : temperatureList) {
                         if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
                             c1 += temperature.getTmpHandler();
@@ -288,9 +289,11 @@ public class HealthDataServiceImpl implements HealthDataService {
                         }
                     }
                     if (j1 != 0) {
-                        avg1 = c1 / j1;
+                        BigDecimal bigDecimal = new BigDecimal(Double.toString(c1));
+                        BigDecimal bigDecimal1 = new BigDecimal(j1);
+                        avg1 = bigDecimal.divide(bigDecimal1, 1, BigDecimal.ROUND_HALF_UP);
                         k += 1;
-                        totalAvg += avg1;
+                        totalAvg = totalAvg.add(avg1);
                     }
                     if (now.compareTo(time2) > 0) {
                         list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), String.format("%.1f", avg1)));
@@ -481,13 +484,13 @@ public class HealthDataServiceImpl implements HealthDataService {
      */
     private void tmpHandlerHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
                                         @NotNull Double tmpHandler) {
-        if (tmpHandler >= 36 && tmpHandler <= 37) {
+        if (tmpHandler >= 34.5 && tmpHandler <= 37.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpHandler > 37 && tmpHandler <= 38 || tmpHandler >= 35 && tmpHandler < 36) {
+        if (tmpHandler >= 33.5 && tmpHandler <= 34.5 || tmpHandler > 37.5 && tmpHandler <= 38.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpHandler < 35 || tmpHandler > 38) {
+        if (tmpHandler < 33.5 || tmpHandler > 38.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -497,13 +500,13 @@ public class HealthDataServiceImpl implements HealthDataService {
      */
     private void tmpForeheadHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
                                          @NotNull Double tmpForehead) {
-        if (tmpForehead >= 36 && tmpForehead <= 37) {
+        if (tmpForehead >= 34.5 && tmpForehead <= 37.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpForehead > 37 && tmpForehead <= 38 || tmpForehead >= 35 && tmpForehead < 36) {
+        if (tmpForehead > 33.5 && tmpForehead <= 34.5 || tmpForehead >= 37.5 && tmpForehead < 38.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpForehead < 35 || tmpForehead > 38) {
+        if (tmpForehead < 33.5 || tmpForehead > 38.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -580,21 +583,6 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /**
-     * 根据条件查询用户体温异常列表
-     */
-    private List<Temperature> temperatureList(@NotNull AbnormalDataReqBo reqBo,
-                                              @NotNull LocalDateTime zeroClock,
-                                              @NotNull LocalDateTime now) {
-        return temperatureService.list(new LambdaQueryWrapper<Temperature>()
-                .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
-                .ge(Temperature::getCreateTime, zeroClock)
-                .le(Temperature::getCreateTime, now)
-                .notBetween(Temperature::getTmpHandler, 36, 37)
-                .eq(Temperature::getDeleted, true)
-                .orderByAsc(Temperature::getCreateTime));
-    }
-
-    /**
      * 查询用户异常心率
      */
     private void queryAbnormalHeartRate(@NotNull AbnormalDataReqBo reqBo,
@@ -635,24 +623,18 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /**
-     * 查询用户异常体温
+     * 根据条件查询用户体温异常列表
      */
-    private void queryAbnormalTemperature(@NotNull AbnormalDataReqBo reqBo,
-                                          @NotNull Integer timeNo,
-                                          @NotNull LocalDateTime now,
-                                          @NotNull LocalDateTime todayZeroClock,
-                                          @NotNull List<AbnormalDataRspBo> list) {
-        LocalDateTime pastTime = todayZeroClock.plusDays(-timeNo);
-        List<Temperature> temperatureList = temperatureList(reqBo, pastTime, now);
-        if (CollectionUtil.isEmpty(temperatureList)) {
-            return;
-        }
-        String today = TimeUtils.formatLocalDateTimeSecond(now);
-        queryAbnormalTemperatureFormat(temperatureList, today, list);
-        for (int i = 1; i <= timeNo; i++) {
-            String daysAge = TimeUtils.formatLocalDateTimeSecond(todayZeroClock.plusDays(-i));
-            queryAbnormalTemperatureFormat(temperatureList, daysAge, list);
-        }
+    private List<Temperature> temperatureList(@NotNull AbnormalDataReqBo reqBo,
+                                              @NotNull LocalDateTime zeroClock,
+                                              @NotNull LocalDateTime now) {
+        return temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
+                .ge(Temperature::getCreateTime, zeroClock)
+                .le(Temperature::getCreateTime, now)
+                .notBetween(Temperature::getTmpHandler, 34.5, 37.5)
+                .eq(Temperature::getDeleted, true)
+                .orderByAsc(Temperature::getCreateTime));
     }
 
     /**
@@ -671,6 +653,27 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (!dtoList.isEmpty()) {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(timeFormat, dtoList);
             list.add(abnormalDataRspBo);
+        }
+    }
+
+    /**
+     * 查询用户异常体温
+     */
+    private void queryAbnormalTemperature(@NotNull AbnormalDataReqBo reqBo,
+                                          @NotNull Integer timeNo,
+                                          @NotNull LocalDateTime now,
+                                          @NotNull LocalDateTime todayZeroClock,
+                                          @NotNull List<AbnormalDataRspBo> list) {
+        LocalDateTime pastTime = todayZeroClock.plusDays(-timeNo);
+        List<Temperature> temperatureList = temperatureList(reqBo, pastTime, now);
+        if (CollectionUtil.isEmpty(temperatureList)) {
+            return;
+        }
+        String today = TimeUtils.formatLocalDateTimeSecond(now);
+        queryAbnormalTemperatureFormat(temperatureList, today, list);
+        for (int i = 1; i <= timeNo; i++) {
+            String daysAge = TimeUtils.formatLocalDateTimeSecond(todayZeroClock.plusDays(-i));
+            queryAbnormalTemperatureFormat(temperatureList, daysAge, list);
         }
     }
 
@@ -752,7 +755,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 .le(Temperature::getCreateTime, todayZeroClock.plusDays(1))
                 .eq(Temperature::getDeleted, true));
         int k = 0;
-        double totalAvg = 0;
+        BigDecimal totalAvg = new BigDecimal("0.0");
         List<TempTitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
             LocalDateTime time1 = todayZeroClock.plusDays(i);
@@ -760,7 +763,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             if (!tempList.isEmpty()) {
                 double c1 = 0;
                 int j1 = 0;
-                double avg1 = 0;
+                BigDecimal avg1 = new BigDecimal("0.0");
                 for (Temperature temperature : tempList) {
                     if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
                         c1 += temperature.getTmpHandler();
@@ -768,9 +771,11 @@ public class HealthDataServiceImpl implements HealthDataService {
                     }
                 }
                 if (j1 != 0) {
-                    avg1 = c1 / j1;
+                    BigDecimal bigDecimal = new BigDecimal(Double.toString(c1));
+                    BigDecimal bigDecimal1 = new BigDecimal(j1);
+                    avg1 = bigDecimal.divide(bigDecimal1, 1, BigDecimal.ROUND_HALF_UP);
                     k += 1;
-                    totalAvg += avg1;
+                    totalAvg = totalAvg.add(avg1);
                 }
                 list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), String.format("%.1f", avg1)));
             } else {
@@ -786,18 +791,20 @@ public class HealthDataServiceImpl implements HealthDataService {
     /**
      * 构建用户体温平均值和健康状态并设值返回
      */
-    private void buildTempAvgAndStatus(@NotNull Double totalAvg,
+    private void buildTempAvgAndStatus(@NotNull BigDecimal totalAvg,
                                        @NotNull Integer k,
                                        @NotNull TempChartRspBo rspBos) {
-        double dayHeartRateAvg = totalAvg / k;
-        rspBos.setTemptAvg(String.format("%.1f", dayHeartRateAvg));
-        if (dayHeartRateAvg >= 36 && dayHeartRateAvg <= 37) {
+        BigDecimal dayHeartRateAvg = totalAvg.divide(new BigDecimal(k), 1, BigDecimal.ROUND_HALF_UP);
+        String format = String.format("%.1f", dayHeartRateAvg);
+        rspBos.setTemptAvg(format);
+        double v = Double.parseDouble(format);
+        if (v >= 34.5 && v <= 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
         }
-        if (dayHeartRateAvg < 36) {
+        if (v < 34.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
         }
-        if (dayHeartRateAvg > 37) {
+        if (v > 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
         }
     }
