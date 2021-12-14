@@ -196,7 +196,7 @@ public class ActivityController {
      * @date: 2021-12-09
      */
     @PostMapping("selectActivityList")
-    public PageInfo<?> selectActivityList(@RequestBody PageVoed pageVoed) {
+    public PageInfo<?> selectActivityList(@RequestBody @Valid PageVoed pageVoed) {
         List<ActivityReqDto> activityReqDtos = this.activityTypeService.selectActivityList();
         PageInfo<ActivityReqDto> activityReqDtoPageInfo = MyPageUtils.pageMap(pageVoed.getPage(), pageVoed.getData(), activityReqDtos);
         return activityReqDtoPageInfo;
