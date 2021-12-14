@@ -59,6 +59,7 @@ public class HealthDataServiceImpl implements HealthDataService {
     public RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo) {
         log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        log.info("loginuser = {}",loginUser);
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
         List<LocalDateTime> refreshTimeList = new ArrayList<>();
         // ---HEART RATE
@@ -273,7 +274,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                     .le(Temperature::getCreateTime, now)
                     .eq(Temperature::getDeleted, true));
             int k = 0;
-            BigDecimal totalAvg = new BigDecimal("0.0");
+            double totalAvg = 0;
             List<TempTitleTimeValueDto> list = new ArrayList<>();
             for (int i = -6; i <= 24; i += 6) {
                 LocalDateTime time1 = todayZeroClock.plusHours(i);
@@ -281,7 +282,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 if (!temperatureList.isEmpty()) {
                     double c1 = 0;
                     int j1 = 0;
-                    BigDecimal avg1 = new BigDecimal("0.0");
+                    double avg1 = 0;
                     for (Temperature temperature : temperatureList) {
                         if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
                             c1 += temperature.getTmpHandler();
@@ -289,11 +290,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                         }
                     }
                     if (j1 != 0) {
-                        BigDecimal bigDecimal = new BigDecimal(Double.toString(c1));
-                        BigDecimal bigDecimal1 = new BigDecimal(j1);
-                        avg1 = bigDecimal.divide(bigDecimal1, 1, BigDecimal.ROUND_HALF_UP);
+                        avg1 = c1 / j1;
                         k += 1;
-                        totalAvg = totalAvg.add(avg1);
+                        totalAvg += avg1;
                     }
                     if (now.compareTo(time2) > 0) {
                         list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), String.format("%.1f", avg1)));
@@ -303,9 +302,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                     }
                 } else {
                     if (now.compareTo(time2) > 0) {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0.0"));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0"));
                     } else {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0.0"));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0"));
                         break;
                     }
                 }
@@ -418,7 +417,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 Integer c = commonBuildSleepChart(sleepList, sleepTitleTimeValueDto, arr);
                 sevenDayTotalSleepTime += c;
             }
-
+            // ---LAST WEEK AVG
             LocalDateTime time5 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + reqBo.getPageTurnStatus());
             LocalDateTime time6 = toDayElevenClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + 6 + reqBo.getPageTurnStatus());
             List<Sleep> sleepList = selectSleepChartData(reqBo, time5, time6);
@@ -755,7 +754,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 .le(Temperature::getCreateTime, todayZeroClock.plusDays(1))
                 .eq(Temperature::getDeleted, true));
         int k = 0;
-        BigDecimal totalAvg = new BigDecimal("0.0");
+        double totalAvg = 0;
         List<TempTitleTimeValueDto> list = new ArrayList<>();
         for (int i = -num; i <= 0; i++) {
             LocalDateTime time1 = todayZeroClock.plusDays(i);
@@ -763,7 +762,7 @@ public class HealthDataServiceImpl implements HealthDataService {
             if (!tempList.isEmpty()) {
                 double c1 = 0;
                 int j1 = 0;
-                BigDecimal avg1 = new BigDecimal("0.0");
+                double avg1 = 0;
                 for (Temperature temperature : tempList) {
                     if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
                         c1 += temperature.getTmpHandler();
@@ -771,15 +770,13 @@ public class HealthDataServiceImpl implements HealthDataService {
                     }
                 }
                 if (j1 != 0) {
-                    BigDecimal bigDecimal = new BigDecimal(Double.toString(c1));
-                    BigDecimal bigDecimal1 = new BigDecimal(j1);
-                    avg1 = bigDecimal.divide(bigDecimal1, 1, BigDecimal.ROUND_HALF_UP);
+                    avg1 = c1 / j1;
                     k += 1;
-                    totalAvg = totalAvg.add(avg1);
+                    totalAvg += avg1;
                 }
                 list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), String.format("%.1f", avg1)));
             } else {
-                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), "0.0"));
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), "0"));
             }
         }
         rspBos.setList(list);
@@ -791,20 +788,19 @@ public class HealthDataServiceImpl implements HealthDataService {
     /**
      * 构建用户体温平均值和健康状态并设值返回
      */
-    private void buildTempAvgAndStatus(@NotNull BigDecimal totalAvg,
+    private void buildTempAvgAndStatus(@NotNull Double totalAvg,
                                        @NotNull Integer k,
                                        @NotNull TempChartRspBo rspBos) {
-        BigDecimal dayHeartRateAvg = totalAvg.divide(new BigDecimal(k), 1, BigDecimal.ROUND_HALF_UP);
+        double dayHeartRateAvg = totalAvg / k;
         String format = String.format("%.1f", dayHeartRateAvg);
         rspBos.setTemptAvg(format);
-        double v = Double.parseDouble(format);
-        if (v >= 34.5 && v <= 37.5) {
+        if (dayHeartRateAvg >= 34.5 && dayHeartRateAvg <= 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
         }
-        if (v < 34.5) {
+        if (dayHeartRateAvg < 34.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
         }
-        if (v > 37.5) {
+        if (dayHeartRateAvg > 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
         }
     }
