@@ -7,13 +7,13 @@ import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.base.api.vo.UserImVo;
 import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.utils.RedisUtils;
 import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.im.chat.api.appmsg.impl.TextAppMsg;
 import com.zhsj.im.chat.api.constant.RpcConst;
-import com.zhsj.im.chat.api.entity.PublicRegister;
 import com.zhsj.im.chat.api.rpc.IImChatPublicPushRpcService;
 import com.zhsj.yanglao_yiliao.interfaces.myself.FamilyRecordFeign;
 import com.zhsj.yanglao_yiliao.interfaces.myself.SosFeign;
@@ -62,14 +62,14 @@ public class AsyncMsg {
         }
         // 推送APP消息（身体健康状态一般）
         if (healthDataState.equals(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW)) {
-            List<String> list = getFamilyId(userId);
+            List<FamilyRecordEntity> list = getFamilyId(userId);
             if (CollectionUtil.isEmpty(list)) {
                 return;
             }
-            for (String familyId : list) {
-                UserImVo eHomeUserIm = iBaseUserInfoRpcService.getEHomeUserIm(familyId);
+            for (FamilyRecordEntity family : list) {
+                UserImVo eHomeUserIm = iBaseUserInfoRpcService.getEHomeUserIm(family.getUid());
                 if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
-                    log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，familyId = {},UserImVo = {}", familyId, eHomeUserIm);
+                    log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，familyId = {},UserImVo = {}", family.getUid(), eHomeUserIm);
                     continue;
                 }
                 iImChatPublicPushRpcService.sendMessage(
@@ -77,7 +77,7 @@ public class AsyncMsg {
                                 "健康数据提醒",
                                 "",
                                 "",
-                                "老人健康数据提醒：您的家人数据比较危险，建议近期带他检查身体，多注意一些服药习惯、饮食生活习惯。",
+                                "老人健康数据提醒：您的家人【" + family.getName() + "】数据比较危险，建议近期带他检查身体，多注意一些服药习惯、饮食生活习惯。",
                                 null,
                                 "pensionMedicalNotice",
                                 1,
@@ -110,9 +110,9 @@ public class AsyncMsg {
     /**
      * 根据当前登录用户的id获取所有绑定的家人
      */
-    private List<String> getFamilyId(@NotNull String loginUserId) {
+    private List<FamilyRecordEntity> getFamilyId(@NotNull String loginUserId) {
         log.info("调用【FamilyRecordFeign】服务的【userList】方法获取用户的家人关系");
-        ArrayList<String> arr = new ArrayList<>();
+        ArrayList<FamilyRecordEntity> arr = new ArrayList<>();
         List<FamilyRecordEntity> list = familyRecordFeign.userList(loginUserId).getData();
         if (CollectionUtil.isEmpty(list)) {
             log.error("调用【FamilyRecordFeign】服务的【userList】方法获取用户的家人关系为null, loginUserId = {}", loginUserId);
@@ -123,7 +123,10 @@ public class AsyncMsg {
                 if (familyRecordEntity.getRelation() != null && familyRecordEntity.getRelation() == 0) {
                     continue;
                 }
-                arr.add(familyRecordEntity.getUid());
+                if (familyRecordEntity.getUid() == null) {
+                    continue;
+                }
+                arr.add(familyRecordEntity);
             }
         }
         return arr;
@@ -140,12 +143,19 @@ public class AsyncMsg {
             return null;
         }
         // 获取SOS绑定的家人
-        String json = JSON.toJSONString(map.get("familyList"));
-        if (json == null) {
+        String familyJson = JSON.toJSONString(map.get("familyList"));
+        if (familyJson == null) {
             return null;
         }
-        // TODO map.get("agency") SOS绑定机构暂时没有
-        return JSONArray.parseArray(json, FamilySosEntity.class);
+        // TODO 获取SOS绑定的机构
+//        String agencyJson = JSON.toJSONString(map.get("agency"));
+//        if (familyJson == null && agencyJson == null) {
+//            return null;
+//        }
+//        if (agencyJson != null) {
+//            List<AgencySosEntity> agencySosEntities = JSONArray.parseArray(agencyJson, AgencySosEntity.class);
+//        }
+        return JSONArray.parseArray(familyJson, FamilySosEntity.class);
     }
 
 //    PublicRegister publicRegister = new PublicRegister("纵横世纪-养老医疗", "pensionMedicalNotice", "养老医疗信息通知", null, null);
