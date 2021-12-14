@@ -250,10 +250,15 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         //假如没有电话和昵称，调别人的接口
         List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
         for (ActivityReqDto a : activityReqDtos) {
-            PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(a.getUserName(), a.getPhone(), likeActivity.getPage(), likeActivity.getData());
-            for (UserDetail d : userDetailPageVO.getData()) {
-                a.setPhone(d.getPhone());
-                a.setUserName(d.getNickName());
+            if (!Objects.equals(a.getUserName(), "") || !Objects.equals(a.getPhone(), "")) {
+                PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getData(), likeActivity.getPage());
+                List<UserDetail> data = userDetailPageVO.getData();
+                for (UserDetail d : data) {
+                    UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(d.getAccount());
+                    a.setPhone(userDetail.getPhone());
+                    a.setSex(userDetail.getSex());
+                    a.setAge(userDetail.getAge());
+                }
             }
         }
         return activityReqDtos;
@@ -268,15 +273,14 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Override
     public ActivityReqDto getByIdActivity(Long id) {
         log.info("id 的值:{}", id);
-        Activity activity = this.activityMapper.selectByIdActivity(id);
-        ActivityReqDto activityReqDto = new ActivityReqDto();
-        BeanUtils.copyProperties(activity, activityReqDto);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
+        ActivityReqDto activityReqDto = this.activityMapper.selectByIdActivity(id);
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activityReqDto.getUserUuid());
         activityReqDto.setSex(userDetail.getSex());
+        activityReqDto.setAge(userDetail.getAge());
         activityReqDto.setPhone(userDetail.getPhone());
-        activityReqDto.setUserName(userDetail.getNickName());
         return activityReqDto;
     }
+
 
 
     /**
