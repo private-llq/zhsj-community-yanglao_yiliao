@@ -73,8 +73,12 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setPublishTimed(minutes);
             activity.setAge(userDetail.getAge());
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
-            UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
+            if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
+                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                continue;
+            }
             activity.setImId(eHomeUserIm.getImId());
+            UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
             activity.setBirthday(userDetail1.getBirthday());
         }
@@ -102,8 +106,12 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setPublishTimed(minutes);
             activity.setAge(userDetail.getAge());
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
-            UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
+            if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
+                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                continue;
+            }
             activity.setImId(eHomeUserIm.getImId());
+            UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
             activity.setBirthday(userDetail1.getBirthday());
         }
@@ -169,10 +177,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     public List<ActivityDto> getUserActivityList(ActivityPageDto activityPageDto) {
         log.info("用户的uid:{}", activityPageDto);
         List<ActivityDto> activityDtos = this.activityMapper.selectgetUserActivityList(activityPageDto);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
-        UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activityPageDto.getId());
-        log.info("当前用户的Account:{}", userDetail.getAccount());
-        log.info("当前用户的eHomeUserIm:{}", eHomeUserIm.getImId());
         for (ActivityDto activity : activityDtos) {
             if (activity.getUserUuid().equals(userAuth().getAccount())) {
                 //这个是自己
@@ -184,11 +188,14 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 //相差的分钟数
                 long minutes = Duration.between(publishTime, now).toMinutes();
                 activity.setPublishTimed(minutes);
-                activity.setAge(userDetail.getAge());
+                if (userAuth() == null || userAuth().getImId() == null) {
+                    log.error("调用【userAuth()】的【getEHomeUserIm】获取【E到家用户imid】为null，userAuth() = {},userAuth().getImId() = {}", activity.getUserUuid(), userAuth());
+                }
                 activity.setImId(userAuth().getImId());
                 UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
-                activity.setBirthday(userDetail1.getBirthday());
                 activity.setAvatarImages(userDetail1.getAvatarThumbnail());
+                activity.setBirthday(userDetail1.getBirthday());
+                activity.setAge(userDetail1.getAge());
             }
             if (!activity.getUserUuid().equals(userAuth().getAccount())) {
                 //这个不是自己
@@ -200,11 +207,16 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 //相差的分钟数
                 long minutes = Duration.between(publishTime, now).toMinutes();
                 activity.setPublishTimed(minutes);
-                activity.setAge(userDetail.getAge());
+                UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activityPageDto.getId());
+                if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
+                    log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                    continue;
+                }
                 activity.setImId(eHomeUserIm.getImId());
                 UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
-                activity.setBirthday(userDetail1.getBirthday());
                 activity.setAvatarImages(userDetail1.getAvatarThumbnail());
+                activity.setBirthday(userDetail1.getBirthday());
+                activity.setAge(userDetail1.getAge());
             }
         }
         return activityDtos;
@@ -229,6 +241,10 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
+            if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
+                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                continue;
+            }
             activity.setImId(eHomeUserIm.getImId());
             UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail.getAvatarThumbnail());
@@ -250,16 +266,16 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         //假如没有电话和昵称，调别人的接口
         List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
         for (ActivityReqDto a : activityReqDtos) {
-            if (!Objects.equals(a.getUserName(), "") || !Objects.equals(a.getPhone(), "")) {
-                PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getData(), likeActivity.getPage());
+            if (a.getUserName()!=null||a.getPhone()!=null||a.getPhone().length()>0||a.getUserName().length()>0){
+                PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
                 List<UserDetail> data = userDetailPageVO.getData();
-                for (UserDetail d : data) {
-                    UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(d.getAccount());
-                    a.setPhone(userDetail.getPhone());
-                    a.setSex(userDetail.getSex());
-                    a.setAge(userDetail.getAge());
+                for (UserDetail d : data){
+                    a.setPhone(d.getPhone());
+                    a.setAge(d.getAge());
+                    a.setSex(d.getSex());
                 }
             }
+
         }
         return activityReqDtos;
     }
@@ -273,14 +289,15 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Override
     public ActivityReqDto getByIdActivity(Long id) {
         log.info("id 的值:{}", id);
-        ActivityReqDto activityReqDto = this.activityMapper.selectByIdActivity(id);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activityReqDto.getUserUuid());
+        Activity activity = this.activityMapper.selectByIdActivity(id);
+        ActivityReqDto activityReqDto = new ActivityReqDto();
+        BeanUtils.copyProperties(activity, activityReqDto);
+        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
         activityReqDto.setSex(userDetail.getSex());
-        activityReqDto.setAge(userDetail.getAge());
         activityReqDto.setPhone(userDetail.getPhone());
+        activityReqDto.setUserName(userDetail.getNickName());
         return activityReqDto;
     }
-
 
 
     /**

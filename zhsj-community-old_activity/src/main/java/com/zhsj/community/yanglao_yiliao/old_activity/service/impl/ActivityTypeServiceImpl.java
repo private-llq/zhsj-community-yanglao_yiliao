@@ -100,7 +100,7 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
     /**
      * 查询所有的活动
      *
-     * @return
+     * @return activityReqDtos
      */
     @Override
     public List<ActivityReqDto> selectActivityList() {

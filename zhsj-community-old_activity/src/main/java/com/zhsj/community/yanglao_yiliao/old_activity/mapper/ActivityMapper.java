@@ -59,7 +59,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      * @return Activity
      */
     @Select("SELECT * from  t_activity where id=#{id}")
-    ActivityReqDto selectByIdActivity(@Param("id") Long id);
+    Activity selectByIdActivity(@Param("id") Long id);
 
 
     /**
