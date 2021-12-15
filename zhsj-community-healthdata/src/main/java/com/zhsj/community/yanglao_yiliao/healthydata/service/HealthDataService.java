@@ -32,6 +32,15 @@ public interface HealthDataService {
     HeartRateChartRspBo heartRateChart(HeartRateChartReqBo reqBo);
 
     /***************************************************************************************************************************
+     * @description 重构查询心率图表信息接口
+     * @author zzm
+     * @date 2021/12/15 9:56
+     * @param reqBo 家人信息 时间条件
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
+    HeartRateChartRspBo tHeartRate(HeartRateChartReqBo reqBo);
+
+    /***************************************************************************************************************************
      * @description 获取用户心率异常记录列表
      * @author zzm
      * @date 2021/11/15 10:43
@@ -48,6 +57,15 @@ public interface HealthDataService {
      * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
      **************************************************************************************************************************/
     TempChartRspBo tempChart(TempChartReqBo reqBo);
+
+    /***************************************************************************************************************************
+     * @description 重构查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    TempChartRspBo tTempChart(TempChartReqBo reqBo);
 
     /***************************************************************************************************************************
      * @description 根据时间类型获取用户体温异常记录
