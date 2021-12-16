@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.myself.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity;
@@ -45,11 +46,11 @@ public class UserDataRecordServiceImpl extends ServiceImpl<UserDataRecordMapper,
      * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity>
      */
     @Override
-    public List<DataRecordEntity> treeForm() {
+    public List<DataRecordEntity> treeForm(DataRecordEntity record) {
         List<DataRecordEntity> fuList = new LinkedList<>();
         List<DataRecordEntity> ziList = new LinkedList<>();
 
-        List<DataRecordEntity> entityList = dataRecordMapper.selectList(null);
+        List<DataRecordEntity> entityList = dataRecordMapper.selectList(new QueryWrapper<DataRecordEntity>().eq("site",record.getSite()).eq("type",record.getType()));
         if (entityList.size()!=0){
             for (DataRecordEntity dataRecordEntity : entityList) {
                 if (dataRecordEntity.getPid()==null){
@@ -58,11 +59,10 @@ public class UserDataRecordServiceImpl extends ServiceImpl<UserDataRecordMapper,
                     ziList.add(dataRecordEntity);
                 }
             }
-
             if (fuList.size()!=0){
                 for (DataRecordEntity entity : fuList) {
                     for (DataRecordEntity recordEntity : ziList) {
-                        if (recordEntity.getPid()==entity.getId()){
+                        if (recordEntity.getPid().equals(entity.getId())){
                             entity.getSubmenu().add(recordEntity);
                         }
                     }

@@ -5,6 +5,7 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IUserDataRecordService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * @create: 2021-11-22 14:54
  **/
 @RestController
-@RequestMapping("data")
+@RequestMapping("dataRecord")
 public class UserDataRecordController {
 
     @Resource
@@ -33,8 +34,9 @@ public class UserDataRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity>>
      */
     @GetMapping("treeForm")
-    public R<List<DataRecordEntity>> treeForm(){
-        return R.ok(userDataRecordService.treeForm());
+    public R<List<DataRecordEntity>> treeForm(@RequestBody DataRecordEntity dataRecordEntity){
+        ValidatorUtils.validateEntity(dataRecordEntity,DataRecordEntity.DataRecordValidate.class);
+        return R.ok(userDataRecordService.treeForm(dataRecordEntity));
     }
 
 

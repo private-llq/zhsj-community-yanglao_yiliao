@@ -21,7 +21,7 @@ public interface IUserDataRecordService extends IService<UserDataRecordEntity> {
      * @Param:
      * @return:
      */
-    List<DataRecordEntity> treeForm();
+    List<DataRecordEntity> treeForm(DataRecordEntity dataRecordEntity);
 
     /**
      * @Description: 查询我的健康档案列表
