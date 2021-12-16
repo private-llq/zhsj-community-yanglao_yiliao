@@ -52,6 +52,19 @@ public class HealthDataController {
     }
 
     /***************************************************************************************************************************
+     * @description 重构查询心率图表信息接口
+     * @author zzm
+     * @date 2021/12/15 9:56
+     * @param reqBo 家人信息 时间条件
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
+    @PostMapping("/tHeartRate")
+    public R<HeartRateChartRspBo> tHeartRate(@RequestBody @Valid HeartRateChartReqBo reqBo) {
+        HeartRateChartRspBo heartRateChartRspBo = healthDataService.tHeartRate(reqBo);
+        return R.ok(heartRateChartRspBo);
+    }
+
+    /***************************************************************************************************************************
      * @description 获取用户心率异常记录列表
      * @author zzm
      * @date 2021/11/15 10:43
@@ -74,6 +87,19 @@ public class HealthDataController {
     @PostMapping("/tempChart")
     public R<TempChartRspBo> tempChart(@RequestBody @Valid TempChartReqBo reqBo) {
         TempChartRspBo tempChartRspBo = healthDataService.tempChart(reqBo);
+        return R.ok(tempChartRspBo);
+    }
+
+    /***************************************************************************************************************************
+     * @description 重构查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    @PostMapping("/tTempChart")
+    public R<TempChartRspBo> tTempChart(@RequestBody @Valid TempChartReqBo reqBo) {
+        TempChartRspBo tempChartRspBo = healthDataService.tTempChart(reqBo);
         return R.ok(tempChartRspBo);
     }
 

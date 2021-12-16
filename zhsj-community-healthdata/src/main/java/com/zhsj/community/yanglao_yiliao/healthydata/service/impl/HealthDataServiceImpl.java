@@ -58,10 +58,10 @@ public class HealthDataServiceImpl implements HealthDataService {
     public RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo) {
         log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        log.info("loginuser = {}", loginUser);
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate localDate = now.toLocalDate();
-        // HEART RATE
+        List<LocalDateTime> refreshTimeList = new ArrayList<>();
+        // ---HEART RATE
         Page<HeartRate> page = heartRateService.page(
                 new Page<HeartRate>(1, 1),
                 new QueryWrapper<HeartRate>()
@@ -71,10 +71,11 @@ public class HealthDataServiceImpl implements HealthDataService {
         List<HeartRate> records = page.getRecords();
         if (CollectionUtil.isNotEmpty(records)) {
             Integer silentHeart = records.get(0).getSilentHeart();
+            refreshTimeList.add(records.get(0).getCreateTime());
             healthDataRspBo.setSilentHeart(silentHeart);
             heartRateHealthStatus(healthDataRspBo, silentHeart);
         }
-        // TEMP
+        // ---TEMP
         Page<Temperature> tempPage = temperatureService.page(
                 new Page<Temperature>(1, 1),
                 new QueryWrapper<Temperature>()
@@ -83,6 +84,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .orderByDesc("create_time"));
         List<Temperature> tempRecords = tempPage.getRecords();
         if (CollectionUtil.isNotEmpty(tempRecords)) {
+            refreshTimeList.add(tempRecords.get(0).getCreateTime());
             Double tmpHandler = tempRecords.get(0).getTmpHandler();
             healthDataRspBo.setTmpHandler(tmpHandler);
             tmpHandlerHealthStatus(healthDataRspBo, tmpHandler);
@@ -90,9 +92,18 @@ public class HealthDataServiceImpl implements HealthDataService {
             healthDataRspBo.setTmpForehead(tmpForehead);
             tmpForeheadHealthStatus(healthDataRspBo, tmpForehead);
         }
-        // SLEEP 已过当天11点（以十一点为准）
-        if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-            LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
+        // ---SLEEP
+        Page<Sleep> sleepPage = sleepService.page(
+                new Page<Sleep>(1, 1),
+                new QueryWrapper<Sleep>()
+                        .eq("user_uuid", reqBo.getFamilyMemberId())
+                        .eq("deleted", true)
+                        .orderByDesc("create_time"));
+        List<Sleep> sleepList = sleepPage.getRecords();
+        if (CollectionUtil.isNotEmpty(sleepList)) {
+            refreshTimeList.add(sleepList.get(0).getCreateTime());
+            LocalDate lastSleepLocalDate = sleepList.get(0).getCreateTime().toLocalDate();
+            LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(lastSleepLocalDate.getYear(), lastSleepLocalDate.getMonthValue(), lastSleepLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sleepCount = buildSleepTimeCounts(reqBo, yesterdayNineClock, toDayElevenClock);
             if (sleepCount != 0) {
@@ -101,25 +112,25 @@ public class HealthDataServiceImpl implements HealthDataService {
                 sleepTimeHealthStatus(healthDataRspBo, sleepTime);
             }
         }
-        // SLEEP 未过当天11点（以现在时间为准）
-        if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-            LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
-            int sleepCount = buildSleepTimeCounts(reqBo, yesterdayNineClock, now);
-            if (sleepCount != 0) {
-                int sleepTime = sleepCount * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-                healthDataRspBo.setSleepTime(sleepTime);
-                sleepTimeHealthStatus(healthDataRspBo, sleepTime);
+        // ---LAST REFRESH DATA TIME
+        if (CollectionUtil.isNotEmpty(refreshTimeList)) {
+            LocalDateTime maxTime = refreshTimeList.get(0);
+            for (LocalDateTime localDateTime : refreshTimeList) {
+                if (localDateTime.compareTo(maxTime) > 0) {
+                    maxTime = localDateTime;
+                }
             }
+            healthDataRspBo.setRefreshDataTime(TimeUtils.formatLocalDateTime(maxTime));
         }
-        healthDataRspBo.setRefreshDataTime(TimeUtils.formatLocalDateTime(LocalDateTime.now()));
+        // ---USER TOTAL HEALTH STATUS
         buildTotalHealthStatus(healthDataRspBo);
-        // 判断当前获取实时健康数据的用户是不是当前登录人，true：异步健康状况推送（一般：推送APP消息到绑定的家人，极差：短信推送到绑定的SOS通讯录人员）
+        // ---PUSH APP MSG AND SEND MSG
         if (loginUser.getAccount().equals(reqBo.getFamilyMemberId())) {
             if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getUserTotalHealthStatus())) {
-                asyncMsg.asyncMsg(loginUser.getAccount(),healthDataRspBo.getUserTotalHealthStatus());
+                asyncMsg.asyncMsg(loginUser.getAccount(), healthDataRspBo.getUserTotalHealthStatus());
             }
             if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getUserTotalHealthStatus())) {
-                asyncMsg.asyncMsg(loginUser.getAccount(),healthDataRspBo.getUserTotalHealthStatus());
+                asyncMsg.asyncMsg(loginUser.getAccount(), healthDataRspBo.getUserTotalHealthStatus());
             }
         }
         return healthDataRspBo;
@@ -139,7 +150,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-        // --- By day
+        // ---BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             List<HeartRate> arr = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getUserUuid, reqBo.getFamilyMemberId())
@@ -187,11 +198,84 @@ public class HealthDataServiceImpl implements HealthDataService {
                 buildHeartRateAvgAndStatus(totalAvg, k, rspBos);
             }
         }
-        // --- By week
+        // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
             buildHeartRateChartByDay(rspBos, todayZeroClock, reqBo, 6);
         }
-        // --- By month
+        // ---BY MONTH
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
+            buildHeartRateChartByDay(rspBos, todayZeroClock, reqBo, 29);
+        }
+        return rspBos;
+    }
+
+    /***************************************************************************************************************************
+     * @description 重构查询心率图表信息接口
+     * @author zzm
+     * @date 2021/12/15 9:56
+     * @param reqBo 家人信息 时间条件
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.HeartRateChartRspBo
+     **************************************************************************************************************************/
+    @Override
+    public HeartRateChartRspBo tHeartRate(HeartRateChartReqBo reqBo) {
+        log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
+        HeartRateChartRspBo rspBos = new HeartRateChartRspBo();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = now.toLocalDate();
+        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+        // ---BY DAY
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            List<HeartRate> arr = heartRateService.list(new LambdaQueryWrapper<HeartRate>()
+                    .eq(HeartRate::getUserUuid, reqBo.getFamilyMemberId())
+                    .ge(HeartRate::getCreateTime, todayZeroClock.plusHours(-1))
+                    .le(HeartRate::getCreateTime, now)
+                    .eq(HeartRate::getDeleted, true));
+            int k = 0;
+            int totalAvg = 0;
+            List<TitleTimeValueDto> list = new ArrayList<>();
+            for (int i = -1; i <= 24; i++) {
+                LocalDateTime time1 = todayZeroClock.plusHours(i);
+                LocalDateTime time2 = todayZeroClock.plusHours(i + 1);
+                if (!arr.isEmpty()) {
+                    int c1 = 0;
+                    int j1 = 0;
+                    int avg1 = 0;
+                    for (HeartRate heartRate : arr) {
+                        if (heartRate.getCreateTime().compareTo(time1) > 0 && heartRate.getCreateTime().compareTo(time2) < 0) {
+                            c1 += heartRate.getSilentHeart();
+                            j1++;
+                        }
+                    }
+                    if (j1 != 0) {
+                        avg1 = c1 / j1;
+                        k += 1;
+                        totalAvg += avg1;
+                    }
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), avg1));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), avg1));
+                        break;
+                    }
+                } else {
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), 0));
+                    } else {
+                        list.add(new TitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), 0));
+                        break;
+                    }
+                }
+            }
+            rspBos.setList(list);
+            if (k != 0) {
+                buildHeartRateAvgAndStatus(totalAvg, k, rspBos);
+            }
+        }
+        // ---BY WEEK
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+            buildHeartRateChartByDay(rspBos, todayZeroClock, reqBo, 6);
+        }
+        // ---BY MONTH
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
             buildHeartRateChartByDay(rspBos, todayZeroClock, reqBo, 29);
         }
@@ -212,7 +296,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-        // --- By day
+        // ---BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             List<HeartRate> rateList = heartRateList(reqBo, todayZeroClock, now);
             if (CollectionUtil.isEmpty(rateList)) {
@@ -226,11 +310,11 @@ public class HealthDataServiceImpl implements HealthDataService {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(TimeUtils.formatLocalDateTimeSecond(now), arr);
             list.add(abnormalDataRspBo);
         }
-        // --- By week
+        // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
             queryAbnormalHeartRate(reqBo, 6, now, todayZeroClock, list);
         }
-        // --- By month
+        // ---BY MONTH
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
             queryAbnormalHeartRate(reqBo, 29, now, todayZeroClock, list);
         }
@@ -254,7 +338,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-        // --- By day
+        // ---BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
@@ -290,9 +374,9 @@ public class HealthDataServiceImpl implements HealthDataService {
                     }
                 } else {
                     if (now.compareTo(time2) > 0) {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0.0"));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0"));
                     } else {
-                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0.0"));
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0"));
                         break;
                     }
                 }
@@ -302,11 +386,84 @@ public class HealthDataServiceImpl implements HealthDataService {
                 buildTempAvgAndStatus(totalAvg, k, rspBos);
             }
         }
-        // --- By week
+        // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
             buildTempChartByDay(rspBos, todayZeroClock, reqBo, 6);
         }
-        // --- By month
+        // ---BY MONTH
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
+            buildTempChartByDay(rspBos, todayZeroClock, reqBo, 29);
+        }
+        return rspBos;
+    }
+
+    /***************************************************************************************************************************
+     * @description 重构查询用户体温图表信息
+     * @author zzm
+     * @date 2021/11/17 9:57
+     * @param reqBo 用户信息、时间信息
+     * @return com.zhsj.community.yanglao_yiliao.healthydata.bo.TempChartRspBo
+     **************************************************************************************************************************/
+    @Override
+    public TempChartRspBo tTempChart(TempChartReqBo reqBo) {
+        log.info("Get temp chart request parameters, TempChartReqBo = {}", reqBo);
+        TempChartRspBo rspBos = new TempChartRspBo();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = now.toLocalDate();
+        LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
+        // ---BY DAY
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
+            List<Temperature> temperatureList = temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                    .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
+                    .ge(Temperature::getCreateTime, todayZeroClock.plusHours(-1))
+                    .le(Temperature::getCreateTime, now)
+                    .eq(Temperature::getDeleted, true));
+            int k = 0;
+            double totalAvg = 0;
+            List<TempTitleTimeValueDto> list = new ArrayList<>();
+            for (int i = -1; i <= 24; i++) {
+                LocalDateTime time1 = todayZeroClock.plusHours(i);
+                LocalDateTime time2 = todayZeroClock.plusHours(i + 1);
+                if (!temperatureList.isEmpty()) {
+                    double c1 = 0;
+                    int j1 = 0;
+                    double avg1 = 0;
+                    for (Temperature temperature : temperatureList) {
+                        if (temperature.getCreateTime().compareTo(time1) > 0 && temperature.getCreateTime().compareTo(time2) < 0) {
+                            c1 += temperature.getTmpHandler();
+                            j1++;
+                        }
+                    }
+                    if (j1 != 0) {
+                        avg1 = c1 / j1;
+                        k += 1;
+                        totalAvg += avg1;
+                    }
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), String.format("%.1f", avg1)));
+                    } else {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), String.format("%.1f", avg1)));
+                        break;
+                    }
+                } else {
+                    if (now.compareTo(time2) > 0) {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(time2), TimeUtils.formatLocalDateTimeThird(time2), "0"));
+                    } else {
+                        list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFourth(now), TimeUtils.formatLocalDateTimeThird(now), "0"));
+                        break;
+                    }
+                }
+            }
+            rspBos.setList(list);
+            if (k != 0) {
+                buildTempAvgAndStatus(totalAvg, k, rspBos);
+            }
+        }
+        // ---BY WEEK
+        if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
+            buildTempChartByDay(rspBos, todayZeroClock, reqBo, 6);
+        }
+        // ---BY MONTH
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
             buildTempChartByDay(rspBos, todayZeroClock, reqBo, 29);
         }
@@ -327,7 +484,7 @@ public class HealthDataServiceImpl implements HealthDataService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
         LocalDateTime todayZeroClock = TimeUtils.buildLocalDateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0, 0);
-        // --- By day
+        // ---BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
             List<Temperature> temperatureList = temperatureList(reqBo, todayZeroClock, now);
             if (CollectionUtil.isEmpty(temperatureList)) {
@@ -341,11 +498,11 @@ public class HealthDataServiceImpl implements HealthDataService {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(TimeUtils.formatLocalDateTimeSecond(now), arr);
             list.add(abnormalDataRspBo);
         }
-        // --- By week
+        // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
             queryAbnormalTemperature(reqBo, 6, now, todayZeroClock, list);
         }
-        // --- By month
+        // ---BY MONTH
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_MONTH.equals(reqBo.getTimeStatus())) {
             queryAbnormalTemperature(reqBo, 29, now, todayZeroClock, list);
         }
@@ -368,19 +525,11 @@ public class HealthDataServiceImpl implements HealthDataService {
         SleepChartRspBo sleepChartRspBo = new SleepChartRspBo();
         LocalDateTime nowLocalDateTime = LocalDateTime.now();
         LocalDate nowLocalDate = nowLocalDateTime.toLocalDate();
-        // --- BY DAY
+        // ---BY DAY
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_DAY.equals(reqBo.getTimeStatus())) {
-            // 已过当天11点（以十一点为准）
-            if (TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-                LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
-                LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
-                byDayBuildSleepChart(reqBo, sleepChartRspBo, yesterdayNineClock, toDayElevenClock);
-            }
-            // 未过当天11点（以现在时间为准）
-            if (!TimeUtils.isBefore(HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0)) {
-                LocalDateTime yesterdayNineClock = (TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), 0, 0, 0)).plusHours(-3);
-                byDayBuildSleepChart(reqBo, sleepChartRspBo, yesterdayNineClock, nowLocalDateTime);
-            }
+            LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(nowLocalDate.getYear(), nowLocalDate.getMonthValue(), nowLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
+            LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
+            byDayBuildSleepChart(reqBo, sleepChartRspBo, yesterdayNineClock, toDayElevenClock);
         }
         // ---BY WEEK
         if (HealthDataConstant.HEALTH_DATA_SELECT_CHART_TIME_WEEK.equals(reqBo.getTimeStatus())) {
@@ -413,7 +562,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 Integer c = commonBuildSleepChart(sleepList, sleepTitleTimeValueDto, arr);
                 sevenDayTotalSleepTime += c;
             }
-
+            // ---LAST WEEK AVG
             LocalDateTime time5 = yesterdayNineClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + reqBo.getPageTurnStatus());
             LocalDateTime time6 = toDayElevenClock.plusDays((reqBo.getPageTurnStatus() - 1) * 6 + 6 + reqBo.getPageTurnStatus());
             List<Sleep> sleepList = selectSleepChartData(reqBo, time5, time6);
@@ -479,13 +628,13 @@ public class HealthDataServiceImpl implements HealthDataService {
      */
     private void tmpHandlerHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
                                         @NotNull Double tmpHandler) {
-        if (tmpHandler >= 36 && tmpHandler <= 37) {
+        if (tmpHandler >= 34.5 && tmpHandler <= 37.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpHandler > 37 && tmpHandler <= 38 || tmpHandler >= 35 && tmpHandler < 36) {
+        if (tmpHandler >= 33.5 && tmpHandler <= 34.5 || tmpHandler > 37.5 && tmpHandler <= 38.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpHandler < 35 || tmpHandler > 38) {
+        if (tmpHandler < 33.5 || tmpHandler > 38.5) {
             healthDataRspBo.setTmpHandlerHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -495,13 +644,13 @@ public class HealthDataServiceImpl implements HealthDataService {
      */
     private void tmpForeheadHealthStatus(@NotNull RealTimeHealthDataRspBo healthDataRspBo,
                                          @NotNull Double tmpForehead) {
-        if (tmpForehead >= 36 && tmpForehead <= 37) {
+        if (tmpForehead >= 34.5 && tmpForehead <= 37.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_GREEN);
         }
-        if (tmpForehead > 37 && tmpForehead <= 38 || tmpForehead >= 35 && tmpForehead < 36) {
+        if (tmpForehead > 33.5 && tmpForehead <= 34.5 || tmpForehead >= 37.5 && tmpForehead < 38.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW);
         }
-        if (tmpForehead < 35 || tmpForehead > 38) {
+        if (tmpForehead < 33.5 || tmpForehead > 38.5) {
             healthDataRspBo.setTmpForeheadHealthStatus(HealthDataConstant.HEALTH_COLOR_STATUS_RED);
         }
     }
@@ -578,21 +727,6 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /**
-     * 根据条件查询用户体温异常列表
-     */
-    private List<Temperature> temperatureList(@NotNull AbnormalDataReqBo reqBo,
-                                              @NotNull LocalDateTime zeroClock,
-                                              @NotNull LocalDateTime now) {
-        return temperatureService.list(new LambdaQueryWrapper<Temperature>()
-                .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
-                .ge(Temperature::getCreateTime, zeroClock)
-                .le(Temperature::getCreateTime, now)
-                .notBetween(Temperature::getTmpHandler, 36, 37)
-                .eq(Temperature::getDeleted, true)
-                .orderByAsc(Temperature::getCreateTime));
-    }
-
-    /**
      * 查询用户异常心率
      */
     private void queryAbnormalHeartRate(@NotNull AbnormalDataReqBo reqBo,
@@ -633,24 +767,18 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /**
-     * 查询用户异常体温
+     * 根据条件查询用户体温异常列表
      */
-    private void queryAbnormalTemperature(@NotNull AbnormalDataReqBo reqBo,
-                                          @NotNull Integer timeNo,
-                                          @NotNull LocalDateTime now,
-                                          @NotNull LocalDateTime todayZeroClock,
-                                          @NotNull List<AbnormalDataRspBo> list) {
-        LocalDateTime pastTime = todayZeroClock.plusDays(-timeNo);
-        List<Temperature> temperatureList = temperatureList(reqBo, pastTime, now);
-        if (CollectionUtil.isEmpty(temperatureList)) {
-            return;
-        }
-        String today = TimeUtils.formatLocalDateTimeSecond(now);
-        queryAbnormalTemperatureFormat(temperatureList, today, list);
-        for (int i = 1; i <= timeNo; i++) {
-            String daysAge = TimeUtils.formatLocalDateTimeSecond(todayZeroClock.plusDays(-i));
-            queryAbnormalTemperatureFormat(temperatureList, daysAge, list);
-        }
+    private List<Temperature> temperatureList(@NotNull AbnormalDataReqBo reqBo,
+                                              @NotNull LocalDateTime zeroClock,
+                                              @NotNull LocalDateTime now) {
+        return temperatureService.list(new LambdaQueryWrapper<Temperature>()
+                .eq(Temperature::getUserUuid, reqBo.getFamilyMemberId())
+                .ge(Temperature::getCreateTime, zeroClock)
+                .le(Temperature::getCreateTime, now)
+                .notBetween(Temperature::getTmpHandler, 34.5, 37.5)
+                .eq(Temperature::getDeleted, true)
+                .orderByAsc(Temperature::getCreateTime));
     }
 
     /**
@@ -669,6 +797,27 @@ public class HealthDataServiceImpl implements HealthDataService {
         if (!dtoList.isEmpty()) {
             AbnormalDataRspBo abnormalDataRspBo = new AbnormalDataRspBo(timeFormat, dtoList);
             list.add(abnormalDataRspBo);
+        }
+    }
+
+    /**
+     * 查询用户异常体温
+     */
+    private void queryAbnormalTemperature(@NotNull AbnormalDataReqBo reqBo,
+                                          @NotNull Integer timeNo,
+                                          @NotNull LocalDateTime now,
+                                          @NotNull LocalDateTime todayZeroClock,
+                                          @NotNull List<AbnormalDataRspBo> list) {
+        LocalDateTime pastTime = todayZeroClock.plusDays(-timeNo);
+        List<Temperature> temperatureList = temperatureList(reqBo, pastTime, now);
+        if (CollectionUtil.isEmpty(temperatureList)) {
+            return;
+        }
+        String today = TimeUtils.formatLocalDateTimeSecond(now);
+        queryAbnormalTemperatureFormat(temperatureList, today, list);
+        for (int i = 1; i <= timeNo; i++) {
+            String daysAge = TimeUtils.formatLocalDateTimeSecond(todayZeroClock.plusDays(-i));
+            queryAbnormalTemperatureFormat(temperatureList, daysAge, list);
         }
     }
 
@@ -772,7 +921,7 @@ public class HealthDataServiceImpl implements HealthDataService {
                 }
                 list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), String.format("%.1f", avg1)));
             } else {
-                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), "0.0"));
+                list.add(new TempTitleTimeValueDto(TimeUtils.formatLocalDateTimeFifth(time1), TimeUtils.formatLocalDateTimeSixth(time1), "0"));
             }
         }
         rspBos.setList(list);
@@ -788,14 +937,15 @@ public class HealthDataServiceImpl implements HealthDataService {
                                        @NotNull Integer k,
                                        @NotNull TempChartRspBo rspBos) {
         double dayHeartRateAvg = totalAvg / k;
-        rspBos.setTemptAvg(String.format("%.1f", dayHeartRateAvg));
-        if (dayHeartRateAvg >= 36 && dayHeartRateAvg <= 37) {
+        String format = String.format("%.1f", dayHeartRateAvg);
+        rspBos.setTemptAvg(format);
+        if (dayHeartRateAvg >= 34.5 && dayHeartRateAvg <= 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_NORMAL);
         }
-        if (dayHeartRateAvg < 36) {
+        if (dayHeartRateAvg < 34.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_LOWER);
         }
-        if (dayHeartRateAvg > 37) {
+        if (dayHeartRateAvg > 37.5) {
             rspBos.setTempStatus(HealthDataConstant.HEART_RATE_AVG_STATUS_HIGHER);
         }
     }
@@ -817,7 +967,7 @@ public class HealthDataServiceImpl implements HealthDataService {
     private Integer commonBuildSleepChart(@NotNull List<Sleep> sleepList,
                                           @NotNull SleepTitleTimeValueDto sleepTitleTimeValueDto,
                                           @NotNull List<SleepTitleTimeValueDto> arr) {
-        int sevenDayTotalSleepTime = 0;
+        int oneDayTotalSleepTime = 0;
         int light = 0;
         int deep = 0;
         int wakeUp = 0;
@@ -835,14 +985,24 @@ public class HealthDataServiceImpl implements HealthDataService {
         int lightSleepTime = light * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
         int deepSleepTime = deep * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
         int wakeUpSleepTime = wakeUp * HealthDataConstant.GRAB_SLEEP_TIME_STEP;
-        sevenDayTotalSleepTime += lightSleepTime;
-        sevenDayTotalSleepTime += deepSleepTime;
-        double sleepScore = (deepSleepTime / (2.5 * 60)) * 0.4 + (lightSleepTime / (5.5 * 60)) * 0.6;
+        oneDayTotalSleepTime += lightSleepTime;
+        oneDayTotalSleepTime += deepSleepTime;
+        double sleepScore = 0;
+        if (deepSleepTime >= 2.5 * 60) {
+            sleepScore += 0.4;
+        } else {
+            sleepScore += (deepSleepTime / (2.5 * 60)) * 0.4;
+        }
+        if (lightSleepTime >= 5.5 * 60) {
+            sleepScore += 0.6;
+        } else {
+            sleepScore += (lightSleepTime / (5.5 * 60)) * 0.6;
+        }
         DecimalFormat df = new DecimalFormat("#");
         String formatSleepScore = df.format(sleepScore * 100);
-        sleepTitleTimeValueDto.setDeepSleepTime(deepSleepTime).setLightSleepTime(lightSleepTime).setWakeUpTime(wakeUpSleepTime).setSleepScore(formatSleepScore).setTotalSleepTime(lightSleepTime + deepSleepTime);
+        sleepTitleTimeValueDto.setDeepSleepTime(deepSleepTime).setLightSleepTime(lightSleepTime).setWakeUpTime(wakeUpSleepTime).setSleepScore(formatSleepScore).setTotalSleepTime(oneDayTotalSleepTime);
         arr.add(sleepTitleTimeValueDto);
-        return sevenDayTotalSleepTime;
+        return oneDayTotalSleepTime;
     }
 
     /**

@@ -95,10 +95,6 @@ public class ActivityDto {
      */
     private Integer voiceTime;
     /**
-     * 是否是自己   1 是 | 0 不是
-     */
-    private Integer userSelf;
-    /**
      * 发布时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

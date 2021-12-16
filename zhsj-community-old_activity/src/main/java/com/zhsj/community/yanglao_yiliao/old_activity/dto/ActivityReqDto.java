@@ -42,6 +42,12 @@ public class ActivityReqDto {
      * 当前登录用户名称
      */
     private String userName;
+
+    /**
+     * 当前登录用户id
+     */
+    private String userUuid;
+
     /**
      * 年龄
      */

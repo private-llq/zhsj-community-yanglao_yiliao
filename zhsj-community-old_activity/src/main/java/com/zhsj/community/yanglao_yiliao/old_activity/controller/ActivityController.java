@@ -155,7 +155,7 @@ public class ActivityController {
     @PostMapping("addActivityType")
     public R addActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDto的值：{}", activityTypeDto);
-        this.activityTypeService.ActivityType(activityTypeDto);
+        this.activityTypeService.activityType(activityTypeDto);
         return R.ok("新增活动类型成功");
     }
 
@@ -196,7 +196,7 @@ public class ActivityController {
      * @date: 2021-12-09
      */
     @PostMapping("selectActivityList")
-    public PageInfo<?> selectActivityList(@RequestBody PageVoed pageVoed) {
+    public PageInfo<?> selectActivityList(@RequestBody @Valid PageVoed pageVoed) {
         List<ActivityReqDto> activityReqDtos = this.activityTypeService.selectActivityList();
         PageInfo<ActivityReqDto> activityReqDtoPageInfo = MyPageUtils.pageMap(pageVoed.getPage(), pageVoed.getData(), activityReqDtos);
         return activityReqDtoPageInfo;
@@ -232,7 +232,6 @@ public class ActivityController {
         PageInfo<ActivityReqDto> activityDtoPageInfo = MyPageUtils.pageMap(likeActivity.getPage(), likeActivity.getData(), activityReqDtos);
         return activityDtoPageInfo;
     }
-
 
 
 }
