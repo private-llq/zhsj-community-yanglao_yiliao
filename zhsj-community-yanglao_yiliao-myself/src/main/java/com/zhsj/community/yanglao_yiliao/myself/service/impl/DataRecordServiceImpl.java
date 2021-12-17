@@ -61,9 +61,11 @@ public class DataRecordServiceImpl extends ServiceImpl<DataRecordMapper, DataRec
 
     @Override
     public void saveData(DataRecordEntity dataRecordEntity) {
-        dataRecordEntity.setId(SnowFlake.nextId());
-        dataRecordMapper.insert(dataRecordEntity);
+            dataRecordEntity.setId(SnowFlake.nextId());
+            dataRecordMapper.insert(dataRecordEntity);
+
     }
+
 
 
     @Override
