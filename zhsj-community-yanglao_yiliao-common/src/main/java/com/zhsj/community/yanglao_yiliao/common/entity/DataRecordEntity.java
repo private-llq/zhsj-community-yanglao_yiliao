@@ -32,8 +32,8 @@ public class DataRecordEntity extends BaseEntity {
     /**
      * 1b端，2c端
      */
-    @NotNull(message = "站点不能为空！",groups = {DataRecordValidate.class,SaveDataRecordValidate.class})
-    @Range(min = 1,max = 2, message = "站点不存在",groups = {DataRecordValidate.class,SaveDataRecordValidate.class})
+    @NotNull(message = "端点不能为空！",groups = {DataRecordValidate.class,SaveDataRecordValidate.class})
+    @Range(min = 1,max = 2, message = "端点不存在",groups = {DataRecordValidate.class,SaveDataRecordValidate.class})
     private Integer site;
     /**
      * 1便民生活需求定制，2美食需求定制，3休闲娱乐需求定制，4社区医疗需求定制

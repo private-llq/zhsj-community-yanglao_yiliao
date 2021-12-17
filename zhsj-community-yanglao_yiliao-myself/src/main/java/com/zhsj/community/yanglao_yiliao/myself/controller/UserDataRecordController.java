@@ -33,7 +33,7 @@ public class UserDataRecordController {
      * @Param: []
      * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity>>
      */
-    @GetMapping("treeForm")
+    @PostMapping("treeForm")
     public R<List<DataRecordEntity>> treeForm(@RequestBody DataRecordEntity dataRecordEntity){
         ValidatorUtils.validateEntity(dataRecordEntity,DataRecordEntity.DataRecordValidate.class);
         return R.ok(userDataRecordService.treeForm(dataRecordEntity));
