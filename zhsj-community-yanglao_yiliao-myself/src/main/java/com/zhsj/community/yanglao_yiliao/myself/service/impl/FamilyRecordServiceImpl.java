@@ -218,7 +218,7 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         List<FamilyRecordEntity> records = page.getRecords();
         for (FamilyRecordEntity record : records) {
             List<FamilyRecordEntity> list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", record.getUid()));
-            for (int i = 0; i < list.size()-1; i++) {
+            for (int i = 0; i < list.size(); i++) {
                 record.setIncidenceRelation(list.get(i).getName());
                 if (i!=list.size()-1){
                     record.setIncidenceRelation(",");
