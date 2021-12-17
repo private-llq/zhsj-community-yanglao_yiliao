@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.myself.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.constant.RpcConst;
 import com.zhsj.base.api.entity.UserDetail;
@@ -8,6 +9,7 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
 import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
@@ -18,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -197,5 +197,37 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     public List<FamilyRecordEntity> userByList(String uid) {
         List<FamilyRecordEntity> recordEntities = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", uid));
         return recordEntities;
+    }
+
+
+
+    /**
+     * @Description: 大后台分页查询
+     * @author: Hu
+     * @since: 2021/12/17 16:11
+     * @Param: [qo]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     */
+    @Override
+    public Map<String, Object> selectPage(BaseQo<String> qo) {
+        QueryWrapper<FamilyRecordEntity> wrapper = new QueryWrapper<>();
+        if (qo.getQuery()!=null){
+            wrapper.like("name",qo.getQuery());
+        }
+        Page<FamilyRecordEntity> page = familyRecordMapper.selectPage(new Page<FamilyRecordEntity>(qo.getPage(), qo.getSize()), wrapper);
+        List<FamilyRecordEntity> records = page.getRecords();
+        for (FamilyRecordEntity record : records) {
+            List<FamilyRecordEntity> list = familyRecordMapper.selectList(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", record.getUid()));
+            for (int i = 0; i < list.size()-1; i++) {
+                record.setIncidenceRelation(list.get(i).getName());
+                if (i!=list.size()-1){
+                    record.setIncidenceRelation(",");
+                }
+            }
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("total",page.getTotal());
+        map.put("list",records);
+        return map;
     }
 }

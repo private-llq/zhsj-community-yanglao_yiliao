@@ -74,6 +74,12 @@ public class FamilyRecordEntity extends BaseEntity {
     private Integer status;
 
     /**
+     * 关联关系
+     */
+    @TableField(exist = false)
+    private String incidenceRelation;
+
+    /**
      * 验证码
      */
     @TableField(exist = false)

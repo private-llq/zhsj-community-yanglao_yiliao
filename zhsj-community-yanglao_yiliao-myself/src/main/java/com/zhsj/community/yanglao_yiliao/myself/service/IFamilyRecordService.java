@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -49,4 +51,13 @@ public interface IFamilyRecordService extends IService<FamilyRecordEntity> {
      * @return:
      */
     List<FamilyRecordEntity> userByList(String uid);
+
+    /**
+     * @Description: 大后台分页查询
+     * @author: Hu
+     * @since: 2021/12/17 16:02
+     * @Param:
+     * @return:
+     */
+    Map<String, Object> selectPage(BaseQo<String> qo);
 }
