@@ -21,7 +21,7 @@ public interface IUserDataRecordService extends IService<UserDataRecordEntity> {
      * @Param:
      * @return:
      */
-    List<DataRecordEntity> treeForm();
+    List<DataRecordEntity> treeForm(DataRecordEntity dataRecordEntity);
 
     /**
      * @Description: 查询我的健康档案列表
@@ -30,5 +30,5 @@ public interface IUserDataRecordService extends IService<UserDataRecordEntity> {
      * @Param: [loginUser]
      * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
      */
-    List<UserDataRecordEntity> getList(LoginUser loginUser);
+    List<UserDataRecordEntity> getList(DataRecordEntity dataRecordEntity,LoginUser loginUser);
 }

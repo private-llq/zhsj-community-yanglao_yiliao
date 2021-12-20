@@ -9,6 +9,7 @@ import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
+import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import com.zhsj.community.yanglao_yiliao.myself.utils.MinioUtils;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
@@ -172,6 +174,10 @@ public class FamilyRecordController {
      */
     @DeleteMapping("delete")
     public R<Boolean> delete(@RequestParam Long id){
+        FamilyRecordEntity entity = familyRecordService.getById(id);
+        if (entity != null) {
+            
+        }
         return R.ok(familyRecordService.removeById(id));
     }
 
@@ -187,6 +193,20 @@ public class FamilyRecordController {
     public R<Void> importFamily(@RequestBody FamilysQo familysQo){
         familyRecordService.importFamily(familysQo,ContextHolder.getContext().getLoginUser());
         return R.ok();
+    }
+
+
+    /**
+     * @Description: 大后台分页查询
+     * @author: Hu
+     * @since: 2021/12/17 16:11
+     * @Param: [qo]
+     * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
+     */
+    @PostMapping("page")
+    public R<Map<String, Object>> importFamily(@RequestBody BaseQo<String> qo){
+        Map<String, Object> map = familyRecordService.selectPage(qo);
+        return R.ok(map);
     }
 
 

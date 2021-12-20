@@ -5,6 +5,8 @@ import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity;
+import com.zhsj.community.yanglao_yiliao.common.utils.SnowFlake;
+import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IUserDataRecordService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +20,7 @@ import java.util.List;
  * @create: 2021-11-22 14:54
  **/
 @RestController
-@RequestMapping("data")
+@RequestMapping("dataRecord")
 public class UserDataRecordController {
 
     @Resource
@@ -32,9 +34,10 @@ public class UserDataRecordController {
      * @Param: []
      * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.DataRecordEntity>>
      */
-    @GetMapping("treeForm")
-    public R<List<DataRecordEntity>> treeForm(){
-        return R.ok(userDataRecordService.treeForm());
+    @PostMapping("treeForm")
+    public R<List<DataRecordEntity>> treeForm(@RequestBody DataRecordEntity dataRecordEntity){
+        ValidatorUtils.validateEntity(dataRecordEntity,DataRecordEntity.DataRecordValidate.class);
+        return R.ok(userDataRecordService.treeForm(dataRecordEntity));
     }
 
 
@@ -45,10 +48,11 @@ public class UserDataRecordController {
      * @Param: [loginUser]
      * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
      */
-    @GetMapping("list")
-    public R<List<UserDataRecordEntity>> list(){
+    @PostMapping("list")
+    public R<List<UserDataRecordEntity>> list(@RequestBody DataRecordEntity dataRecordEntity){
+        ValidatorUtils.validateEntity(dataRecordEntity,DataRecordEntity.DataRecordValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<UserDataRecordEntity> list = userDataRecordService.getList(loginUser);
+        List<UserDataRecordEntity> list = userDataRecordService.getList(dataRecordEntity,loginUser);
         return R.ok(list);
     }
 
@@ -62,6 +66,7 @@ public class UserDataRecordController {
     @PostMapping("save")
     public R<Void> save(@RequestBody UserDataRecordEntity userDataRecordEntity){
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        userDataRecordEntity.setId(SnowFlake.nextId());
         userDataRecordEntity.setUid(loginUser.getAccount());
         userDataRecordService.save(userDataRecordEntity);
         return R.ok();

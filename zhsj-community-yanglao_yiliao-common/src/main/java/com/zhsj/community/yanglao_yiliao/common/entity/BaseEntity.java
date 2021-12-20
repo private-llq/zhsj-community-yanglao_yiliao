@@ -1,5 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.common.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -35,4 +36,10 @@ public class BaseEntity implements Serializable {
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
 	private LocalDateTime updateTime;
+
+	@TableField(exist = false)
+	private String idStr;
+	public String getIdStr(){
+		return String.valueOf(id);
+	}
 }

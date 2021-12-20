@@ -81,6 +81,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
             activity.setBirthday(userDetail1.getBirthday());
+            activity.setAge(userDetail1.getAge());
         }
         return activityDtos;
     }
@@ -114,6 +115,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
             activity.setBirthday(userDetail1.getBirthday());
+            activity.setAge(userDetail1.getAge());
         }
         return activityDtos;
     }
@@ -249,6 +251,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail.getAvatarThumbnail());
             activity.setBirthday(userDetail.getBirthday());
+            activity.setAge(userDetail.getAge());
         }
         return activityDtos;
     }
