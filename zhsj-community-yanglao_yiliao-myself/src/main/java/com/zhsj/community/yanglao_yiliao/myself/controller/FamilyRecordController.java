@@ -174,6 +174,10 @@ public class FamilyRecordController {
      */
     @DeleteMapping("delete")
     public R<Boolean> delete(@RequestParam Long id){
+        FamilyRecordEntity entity = familyRecordService.getById(id);
+        if (entity != null) {
+            
+        }
         return R.ok(familyRecordService.removeById(id));
     }
 
