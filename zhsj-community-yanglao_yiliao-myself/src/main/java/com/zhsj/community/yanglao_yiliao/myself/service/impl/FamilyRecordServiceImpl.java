@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.constant.RpcConst;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseAuthRpcService;
+import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.constant.BusinessEnum;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
@@ -36,6 +37,9 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
     private IBaseAuthRpcService baseAuthRpcService;
 
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
+    private IBaseUserInfoRpcService userInfoRpcService;
+
     /**
      * @Description: 添加家人档案
      * @author: Hu
@@ -47,12 +51,17 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     @Transactional(rollbackFor = Exception.class)
     public void saveUser(FamilyRecordEntity familyRecordEntity,LoginUser loginUser) {
         FamilyRecordEntity entity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()).eq("relation", 0));
+        UserDetail detail = null;
+        detail = userInfoRpcService.getUserDetailByPhone(familyRecordEntity.getMobile());
+        if (detail == null) {
+            //注册用户
+            detail = baseAuthRpcService.eHomeUserPhoneRegister(familyRecordEntity.getMobile());
+        }
 
-        //注册用户
-       UserDetail userDetail = baseAuthRpcService.eHomeUserPhoneRegister(familyRecordEntity.getMobile());
+
 
         familyRecordEntity.setId(SnowFlake.nextId());
-        familyRecordEntity.setUid(userDetail.getAccount());
+        familyRecordEntity.setUid(detail.getAccount());
         familyRecordEntity.setCreateTime(LocalDateTime.now());
         familyRecordEntity.setCreateUid(loginUser.getAccount());
         familyRecordMapper.insert(familyRecordEntity);
@@ -61,7 +70,7 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         recordEntity.setName(entity.getName());
         recordEntity.setMobile(entity.getMobile());
         recordEntity.setUid(entity.getUid());
-        recordEntity.setCreateUid(userDetail.getAccount());
+        recordEntity.setCreateUid(detail.getAccount());
         recordEntity.setId(SnowFlake.nextId());
         recordEntity.setCreateTime(LocalDateTime.now());
         familyRecordMapper.insert(recordEntity);

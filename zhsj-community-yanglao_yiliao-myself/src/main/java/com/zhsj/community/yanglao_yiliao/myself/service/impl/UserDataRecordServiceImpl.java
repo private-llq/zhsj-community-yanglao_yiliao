@@ -34,8 +34,8 @@ public class UserDataRecordServiceImpl extends ServiceImpl<UserDataRecordMapper,
      * @return: java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.UserDataRecordEntity>
      */
     @Override
-    public List<UserDataRecordEntity> getList(LoginUser loginUser) {
-        return dataRecordMapper.getList(loginUser.getAccount());
+    public List<UserDataRecordEntity> getList(DataRecordEntity dataRecordEntity,LoginUser loginUser) {
+        return dataRecordMapper.getList(dataRecordEntity,loginUser.getAccount());
     }
 
     /**

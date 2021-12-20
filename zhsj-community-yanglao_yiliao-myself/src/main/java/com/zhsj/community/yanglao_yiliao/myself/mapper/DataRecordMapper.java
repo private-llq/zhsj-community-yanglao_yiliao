@@ -21,5 +21,5 @@ public interface DataRecordMapper extends BaseMapper<DataRecordEntity> {
      * @Param:
      * @return:
      */
-    List<UserDataRecordEntity> getList(@Param("uid") String uid);
+    List<UserDataRecordEntity> getList(@Param("data")DataRecordEntity dataRecordEntity,@Param("uid") String uid);
 }
