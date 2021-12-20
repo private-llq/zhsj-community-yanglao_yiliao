@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
@@ -268,18 +269,17 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         log.info("likeActivity 的值:{}", likeActivity);
         //假如没有电话和昵称，调别人的接口
         List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
-        for (ActivityReqDto a : activityReqDtos) {
-            if (a.getUserName()!=null||a.getPhone()!=null||a.getPhone().length()>0||a.getUserName().length()>0){
+            if (likeActivity.getUserName()!=null || likeActivity.getPhone()!=null) {
                 PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
-                List<UserDetail> data = userDetailPageVO.getData();
-                for (UserDetail d : data){
-                    a.setPhone(d.getPhone());
-                    a.setAge(d.getAge());
-                    a.setSex(d.getSex());
+                for (UserDetail d : userDetailPageVO.getData()) {
+                    Activity activity = this.activityMapper.selectOne(new QueryWrapper<Activity>().eq("user_uuid", d.getAccount()));
+                    ActivityReqDto activityReqDto = new ActivityReqDto();
+                    BeanUtils.copyProperties(activity, activityReqDtos);
+                    activityReqDto.setPhone(d.getPhone());
+                    activityReqDto.setAge(d.getAge());
+                    activityReqDto.setSex(d.getSex());
                 }
             }
-
-        }
         return activityReqDtos;
     }
 
