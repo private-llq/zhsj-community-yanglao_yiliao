@@ -1,5 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.myself.controller;
 
+import com.zhsj.base.api.constant.RpcConst;
+import com.zhsj.base.api.rpc.IBaseAuthRpcService;
 import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.basecommon.vo.R;
@@ -39,6 +41,9 @@ public class FamilyRecordController {
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
     private IBaseSmsRpcService baseSmsRpcService;
 
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
+    private IBaseAuthRpcService baseAuthRpcService;
+
     private final String[] img ={"jpg","png","jpeg"};
 
 
@@ -52,6 +57,10 @@ public class FamilyRecordController {
     @PostMapping("save")
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
         ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.AddFamilyValidate.class);
+        boolean verification = baseAuthRpcService.smsVerification(familyRecordEntity.getMobile(), familyRecordEntity.getCode());
+        if (!verification) {
+            R.fail("验证码错误！");
+        }
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         familyRecordService.saveUser(familyRecordEntity,loginUser);
         return R.ok();
@@ -68,12 +77,12 @@ public class FamilyRecordController {
     public R<FamilyRecordEntity> getOne(@RequestParam Long id){
         FamilyRecordEntity entity = familyRecordService.getById(id);
         if (entity.getRelation()!=null){
-            if (entity.getRelation()==0){
-                entity.setRelationText("我自己");
-                entity.setOneself(1);
-            } else {
+            if (entity.getRelation()!=0){
                 entity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(entity.getRelation()));
                 entity.setOneself(0);
+            } else {
+                entity.setRelationText("我自己");
+                entity.setOneself(1);
             }
         }
         return R.ok(entity);

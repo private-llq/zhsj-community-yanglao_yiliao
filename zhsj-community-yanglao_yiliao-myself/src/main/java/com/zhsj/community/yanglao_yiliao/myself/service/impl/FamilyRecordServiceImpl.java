@@ -64,6 +64,7 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         familyRecordEntity.setUid(detail.getAccount());
         familyRecordEntity.setCreateTime(LocalDateTime.now());
         familyRecordEntity.setCreateUid(loginUser.getAccount());
+        familyRecordEntity.setAvatarUrl(detail.getAvatarThumbnail());
         familyRecordMapper.insert(familyRecordEntity);
 
         FamilyRecordEntity recordEntity = new FamilyRecordEntity();
@@ -72,6 +73,7 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         recordEntity.setUid(entity.getUid());
         recordEntity.setCreateUid(detail.getAccount());
         recordEntity.setId(SnowFlake.nextId());
+        recordEntity.setAvatarUrl(detail.getAvatarThumbnail());
         recordEntity.setCreateTime(LocalDateTime.now());
         familyRecordMapper.insert(recordEntity);
     }
@@ -88,10 +90,12 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
         List<FamilyRecordEntity> list = null;
         FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("uid", loginUser.getAccount()).eq("relation", 0));
         if (Objects.isNull(recordEntity)) {
+            UserDetail detail = userInfoRpcService.getUserDetail(loginUser.getAccount());
             FamilyRecordEntity familyRecordEntity = new FamilyRecordEntity();
             familyRecordEntity.setRelation(0);
             familyRecordEntity.setRelationText("我自己");
             familyRecordEntity.setName(loginUser.getNickName());
+            familyRecordEntity.setAvatarUrl(detail.getAvatarThumbnail());
             familyRecordEntity.setMobile(loginUser.getPhone());
             familyRecordEntity.setUid(loginUser.getAccount());
             familyRecordEntity.setId(SnowFlake.nextId());
