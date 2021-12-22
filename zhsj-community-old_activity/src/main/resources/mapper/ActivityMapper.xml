@@ -42,14 +42,11 @@
     <select id="likeActivity" resultType="com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto">
         select * from t_activity as s
         where deleted = 1
-        <if test="likeActivity.activityTypeName !='' and likeActivity.activityTypeName !=null ">
-            and s.activity_type_name like concat ('%',#{likeActivity.activityTypeName},'%')
-        </if>
-        <if test="likeActivity.userName !='' and likeActivity.userName !=null ">
-            and s.user_name like concat ('%',#{likeActivity.userName},'%')
+        <if test="likeActivity.activityTypeName !=null and likeActivity.activityTypeName !='' ">
+            and s.activity_type_name like concat ('%',#{likeActivity.activityTypeName,jdbcType=VARCHAR},'%')
         </if>
         <if test="likeActivity.publishTime !=null and likeActivity.publishTime != '' ">
-            and s.publish_time like concat ('%',#{likeActivity.publishTime},'%')
+            and s.publish_time like concat ('%',#{likeActivity.publishTime,jdbcType=VARCHAR},'%')
         </if>
     </select>
 

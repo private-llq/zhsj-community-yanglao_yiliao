@@ -110,6 +110,7 @@ public class ActivityTypeServiceImpl extends ServiceImpl<ActivityTypeMapper, Act
             activity.setPhone(userDetail.getPhone());
             activity.setAge(userDetail.getAge());
             activity.setSex(userDetail.getSex());
+            activity.setUserName(userDetail.getNickName());
         }
         return activityReqDtos;
     }
