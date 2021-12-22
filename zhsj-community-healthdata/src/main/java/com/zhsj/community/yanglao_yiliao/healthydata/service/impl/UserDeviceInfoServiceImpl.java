@@ -87,7 +87,6 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
             log.error("User device does not exist, userUuid = {}, mDeviceAddress = {}", user.getAccount(), bo.getDeviceAddress());
             throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
         }
-        deviceInfo.setUpdateTime(LocalDateTime.now());
         removeById(deviceInfo.getId());
     }
 
@@ -107,7 +106,8 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
                 .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
             log.error("The user has no device bound, familyMemberId = {}", reqBo.getFamilyMemberId());
-            throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
+//            throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
+            return null;
         }
         return BeanUtil.copyProperties(list.get(0), DeviceInfoRspBo.class);
     }
