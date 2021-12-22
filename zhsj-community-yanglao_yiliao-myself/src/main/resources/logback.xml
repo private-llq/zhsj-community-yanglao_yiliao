@@ -3,7 +3,7 @@
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
     <!-- 定义日志文件 输入位置 -->
     <property name="log_dir" value="../logs/contract" />
-    <property name="log_error_dir" value="../logs/healthdata" />
+    <property name="log_error_dir" value="../logs/yiliao_myself" />
     <!-- 日志最大的历史 文件数量-1 -->
     <!--    <property name="maxHistory" value="2" />-->
     <!-- 格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
