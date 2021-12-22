@@ -68,12 +68,12 @@ public class FamilyRecordController {
     public R<FamilyRecordEntity> getOne(@RequestParam Long id){
         FamilyRecordEntity entity = familyRecordService.getById(id);
         if (entity.getRelation()!=null){
-            if (entity.getRelation()==0){
-                entity.setRelationText("我自己");
-                entity.setOneself(1);
-            } else {
+            if (entity.getRelation()!=0){
                 entity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(entity.getRelation()));
                 entity.setOneself(0);
+            } else {
+                entity.setRelationText("我自己");
+                entity.setOneself(1);
             }
         }
         return R.ok(entity);
