@@ -105,7 +105,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
                 .eq(UserDeviceInfo::getBind, true)
                 .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
-            log.error("The user has no device bound, familyMemberId = {}", reqBo.getFamilyMemberId());
+            log.info("The user has no device bound, familyMemberId = {}", reqBo.getFamilyMemberId());
 //            throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
             return null;
         }

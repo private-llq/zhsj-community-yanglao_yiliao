@@ -127,10 +127,10 @@ public class HealthDataServiceImpl implements HealthDataService {
         // ---PUSH APP MSG AND SEND MSG
         if (loginUser.getAccount().equals(reqBo.getFamilyMemberId())) {
             if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getUserTotalHealthStatus())) {
-                asyncMsg.asyncMsg(loginUser.getAccount(), healthDataRspBo.getUserTotalHealthStatus());
+                asyncMsg.asyncMsg(loginUser, healthDataRspBo.getUserTotalHealthStatus());
             }
             if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getUserTotalHealthStatus())) {
-                asyncMsg.asyncMsg(loginUser.getAccount(), healthDataRspBo.getUserTotalHealthStatus());
+                asyncMsg.asyncMsg(loginUser, healthDataRspBo.getUserTotalHealthStatus());
             }
         }
         return healthDataRspBo;

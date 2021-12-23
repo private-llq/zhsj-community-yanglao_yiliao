@@ -1,12 +1,14 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.async;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.base.api.vo.UserImVo;
 import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilySosEntity;
@@ -22,9 +24,11 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -53,16 +57,16 @@ public class AsyncMsg {
     private SosFeign sosFeign;
 
     @Async
-    public void asyncMsg(@NotNull String userId,
+    public void asyncMsg(@NotNull LoginUser loginUser,
                          @NotNull Integer healthDataState) {
         // 判断是否在规定时间内已经推送了消息（一天推两次）
-        String uid = (String) redisService.get(HealthDataConstant.HEALTH_DATA_PUSH_MSG + userId);
+        String uid = (String) redisService.get(HealthDataConstant.HEALTH_DATA_PUSH_MSG + loginUser.getAccount());
         if (uid != null) {
             return;
         }
         // 推送APP消息（身体健康状态一般）
         if (healthDataState.equals(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW)) {
-            List<FamilyRecordEntity> list = getFamilyId(userId);
+            List<FamilyRecordEntity> list = getFamilyId(loginUser.getAccount());
             if (CollectionUtil.isEmpty(list)) {
                 return;
             }
@@ -77,7 +81,7 @@ public class AsyncMsg {
                                 "健康数据提醒",
                                 "",
                                 "",
-                                "老人健康数据提醒：您的家人【" + family.getName() + "】数据比较危险，建议近期带他检查身体，多注意一些服药习惯、饮食生活习惯。",
+                                "老人健康数据提醒：您的家人【" + loginUser.getNickName() + "】数据比较危险，建议近期带他检查身体，多注意一些服药习惯、饮食生活习惯。",
                                 null,
                                 "pensionMedicalNotice",
                                 1,
@@ -87,24 +91,22 @@ public class AsyncMsg {
         }
         // 发送短信（身体健康状态极差）
         if (healthDataState.equals(HealthDataConstant.HEALTH_COLOR_STATUS_RED)) {
-            List<FamilySosEntity> list = getSosUid(userId);
+            List<String> list = getSosUid(loginUser.getAccount());
             if (CollectionUtil.isEmpty(list)) {
                 return;
             }
-            for (FamilySosEntity sosEntity : list) {
-                if (sosEntity == null || sosEntity.getMobile() == null) {
-                    log.error("调用【SosFeign】服务的【selectUser】方法获取用户的SOS通讯录为null, FamilySosEntity = {}", sosEntity);
-                    continue;
-                }
+            Map<String, Object> map = new HashMap<>(1);
+            map.put("name", loginUser.getNickName());
+            for (String mobile : list) {
                 iBaseSmsRpcService.sendSms(
-                        sosEntity.getMobile(),
+                        mobile,
                         "纵横世纪",
-                        "SMS_228846724",
-                        null);
+                        "SMS_231205242",
+                        map);
             }
         }
         // 设置推送消息缓存
-        redisService.set(HealthDataConstant.HEALTH_DATA_PUSH_MSG + userId, userId, 720L, TimeUnit.MINUTES);
+        redisService.set(HealthDataConstant.HEALTH_DATA_PUSH_MSG + loginUser.getAccount(), loginUser.getAccount(), 720L, TimeUnit.MINUTES);
     }
 
     /**
@@ -135,7 +137,7 @@ public class AsyncMsg {
     /**
      * 根据当前登录用户的id获取所有SOS通讯录用户
      */
-    private List<FamilySosEntity> getSosUid(@NotNull String loginUserId) {
+    private List<String> getSosUid(@NotNull String loginUserId) {
         log.info("调用【SosFeign】服务的【selectUser】方法获取用户的SOS通讯录");
         Map<String, Object> map = sosFeign.selectUser(loginUserId).getData();
         if (CollectionUtil.isEmpty(map)) {
@@ -144,28 +146,29 @@ public class AsyncMsg {
         }
         // 获取SOS绑定的家人
         String familyJson = JSON.toJSONString(map.get("familyList"));
-        if (familyJson == null) {
-            return null;
+        // 获取SOS绑定的机构
+        String agencyJson = JSON.toJSONString(map.get("agency"));
+        List<String> list = new ArrayList<>();
+        if (familyJson != null) {
+            List<FamilySosEntity> familySosEntityList = JSONArray.parseArray(familyJson, FamilySosEntity.class);
+            for (FamilySosEntity familySosEntity : familySosEntityList) {
+                if (familySosEntity.getMobile() != null) {
+                    list.add(familySosEntity.getMobile());
+                }
+            }
         }
-        // TODO 获取SOS绑定的机构
-//        String agencyJson = JSON.toJSONString(map.get("agency"));
-//        if (familyJson == null && agencyJson == null) {
-//            return null;
-//        }
-//        if (agencyJson != null) {
-//            List<AgencySosEntity> agencySosEntities = JSONArray.parseArray(agencyJson, AgencySosEntity.class);
-//        }
-        return JSONArray.parseArray(familyJson, FamilySosEntity.class);
+        if (StrUtil.isNotBlank(agencyJson) && !"null".equals(agencyJson)) {
+            List<AgencySosEntity> agencySosEntityList = JSONArray.parseArray(agencyJson, AgencySosEntity.class);
+            for (AgencySosEntity agencySosEntity : agencySosEntityList) {
+                if (agencySosEntity.getAgencyMobile() != null) {
+                    list.add(agencySosEntity.getAgencyMobile());
+                }
+            }
+        }
+        return list;
     }
 
 //    PublicRegister publicRegister = new PublicRegister("纵横世纪-养老医疗", "pensionMedicalNotice", "养老医疗信息通知", null, null);
 //        iImChatPublicPushRpcService.registerPublicPush(publicRegister);
-
-    //                // todo 测试用的，正式需删除--------------------------------------------------------------------------
-//                if (familyRecordEntity.getUid().equals("55374") || familyRecordEntity.getUid().equals("666666")
-//                        || familyRecordEntity.getUid().equals("55333") || familyRecordEntity.getUid().equals("test0001")
-//                        || familyRecordEntity.getUid().equals("test0002")) {
-//                    continue;
-//                }
 
 }
