@@ -150,11 +150,14 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
     public void importFamily(FamilysQo familysQo,LoginUser loginUser) {
         List<FamilyRecordEntity> list = new LinkedList<>();
         FamilyRecordEntity familyRecordEntity = null;
+        UserDetail detail = null;
 
         for (FamilysQo family : familysQo.getFamilies()) {
-            FamilyRecordEntity recordEntity = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()).eq("mobile", family.getMobile()));
-            if (Objects.isNull(recordEntity)){
-                if (!"".equals(family.getUid())&&family.getUid()!=null){
+            if (!"".equals(family.getUid())&&family.getUid()!=null){
+                FamilyRecordEntity recordEntity1 = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()).eq("mobile", family.getMobile()).eq("uid",family.getUid()));
+                FamilyRecordEntity recordEntity2 = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", family.getUid()).eq("mobile", family.getMobile()).eq("uid",loginUser.getAccount()));
+
+                if (recordEntity1 == null) {
                     familyRecordEntity = new FamilyRecordEntity();
                     familyRecordEntity.setId(SnowFlake.nextId());
                     familyRecordEntity.setMobile(family.getMobile());
@@ -162,7 +165,9 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
                     familyRecordEntity.setUid(family.getUid());
                     familyRecordEntity.setCreateUid(loginUser.getAccount());
                     list.add(familyRecordEntity);
+                }
 
+                if (recordEntity2 == null) {
                     familyRecordEntity = new FamilyRecordEntity();
                     familyRecordEntity.setName(family.getName());
                     familyRecordEntity.setMobile(family.getMobile());
@@ -170,26 +175,38 @@ public class FamilyRecordServiceImpl extends ServiceImpl<FamilyRecordMapper, Fam
                     familyRecordEntity.setCreateUid(family.getUid());
                     familyRecordEntity.setId(SnowFlake.nextId());
                     list.add(familyRecordEntity);
-                } else {
-                    //注册用户
-                    UserDetail userDetail = baseAuthRpcService.eHomeUserPhoneRegister(family.getMobile());
+                }
+            } else {
 
+                detail = userInfoRpcService.getUserDetailByPhone(family.getMobile());
+                if (detail == null) {
+                    detail = baseAuthRpcService.eHomeUserPhoneRegister(family.getMobile());
+                }
+
+                FamilyRecordEntity recordEntity1 = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", loginUser.getAccount()).eq("mobile", family.getMobile()).eq("uid",family.getUid()));
+                FamilyRecordEntity recordEntity2 = familyRecordMapper.selectOne(new QueryWrapper<FamilyRecordEntity>().eq("create_uid", family.getUid()).eq("mobile", family.getMobile()).eq("uid",loginUser.getAccount()));
+
+
+                if (recordEntity1 == null) {
                     familyRecordEntity = new FamilyRecordEntity();
                     familyRecordEntity.setId(SnowFlake.nextId());
-                    familyRecordEntity.setName(family.getName());
                     familyRecordEntity.setMobile(family.getMobile());
-                    familyRecordEntity.setUid(userDetail.getAccount());
+                    familyRecordEntity.setName(family.getName());
+                    familyRecordEntity.setUid(family.getUid());
                     familyRecordEntity.setCreateUid(loginUser.getAccount());
                     list.add(familyRecordEntity);
+                }
 
+                if (recordEntity2 == null) {
                     familyRecordEntity = new FamilyRecordEntity();
                     familyRecordEntity.setName(family.getName());
                     familyRecordEntity.setMobile(family.getMobile());
                     familyRecordEntity.setUid(loginUser.getAccount());
-                    familyRecordEntity.setCreateUid(userDetail.getAccount());
+                    familyRecordEntity.setCreateUid(family.getUid());
                     familyRecordEntity.setId(SnowFlake.nextId());
                     list.add(familyRecordEntity);
                 }
+
             }
         }
         if (list.size()!=0){
