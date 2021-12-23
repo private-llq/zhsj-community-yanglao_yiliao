@@ -59,10 +59,6 @@ public class ActivityDto {
      */
     private String userName;
     /**
-     * 是否好友（0：否false，1：是true）
-     */
-    private Boolean isFriend;
-    /**
      * 1:自己 ，0 不是自己
      */
     private Boolean isUser;
@@ -70,6 +66,10 @@ public class ActivityDto {
      * 年龄
      */
     private Integer age;
+    /**
+     * 性别  1 男生  | 0  女生
+     */
+    private Integer sex;
     /**
      * 距离
      */

@@ -66,7 +66,7 @@ public class EventServiceImpl implements IEventService {
             entity.setFamilyId(family);
             entity.setId(SnowFlake.nextId());
             entity.setEventId(eventEntity.getId());
-            entity.setUid(eventEntity.getUid());
+            entity.setUid(familyRecordMapper.selectById(family).getUid());
             entity.setCreateTime(LocalDateTime.now());
             familyList.add(entity);
         }
@@ -112,7 +112,7 @@ public class EventServiceImpl implements IEventService {
             entity.setFamilyId(family);
             entity.setId(SnowFlake.nextId());
             entity.setEventId(eventEntity.getId());
-            entity.setUid(eventEntity.getUid());
+            entity.setUid(familyRecordMapper.selectById(family).getUid());
             entity.setCreateTime(LocalDateTime.now());
             list.add(entity);
         }

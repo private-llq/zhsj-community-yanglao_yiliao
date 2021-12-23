@@ -54,20 +54,10 @@ public class Activity {
      * 语音的url
      */
     private String voiceUrl;
-
     /**
      * 当前登录用户id
      */
     private String userUuid;
-    /**
-     * 当前登录用户名称
-     */
-    private String userName;
-    /**
-     * 是否好友（0：否false，1：是true）
-     */
-    private Boolean isFriend;
-
     /**
      * 1:自己 ，0 不是自己
      */
@@ -95,7 +85,6 @@ public class Activity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime publishTime;
 
-
     /**
      * 是否删除（0：已删除false，1：未删除true）
      */
@@ -119,8 +108,6 @@ public class Activity {
     public static Activity build(LoginUser user, ActivityReqBo reqBo, LocalDateTime localDateTime) {
         return Activity.builder()
                 .userUuid(user.getAccount())
-                .userName(user.getNickName())
-//                .systolicPressure(reqBo.getSystolicPressure())
                 .publishTime(localDateTime)
                 .build();
     }

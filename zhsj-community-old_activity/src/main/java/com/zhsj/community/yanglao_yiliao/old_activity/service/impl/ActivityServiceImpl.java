@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
@@ -62,7 +63,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         log.info("Activity request parameters, ActivityReqBo = {}", reqBo);
         LocalDateTime now = LocalDateTime.now();
         List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     reqBo.getLatitude() + "," + reqBo.getLongitude());
@@ -71,7 +71,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             //相差的分钟数
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
-            activity.setAge(userDetail.getAge());
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
                 log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
@@ -80,8 +79,10 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setImId(eHomeUserIm.getImId());
             UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
-            activity.setBirthday(userDetail1.getBirthday());
             activity.setAge(userDetail1.getAge());
+            activity.setSex(userDetail1.getSex());
+            activity.setBirthday(userDetail1.getBirthday());
+            activity.setUserName(userDetail1.getNickName());
         }
         return activityDtos;
     }
@@ -95,7 +96,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     public List<ActivityDto> queryActivity(ActivityReqVoDto activityReqVoDto) {
         log.info("activityReqVo的参数{}", activityReqVoDto);
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVoDto);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         for (ActivityDto activity : activityDtos) {
             long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
                     activityReqVoDto.getLatitude() + "," + activityReqVoDto.getLongitude());
@@ -105,7 +105,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             //相差的分钟数
             long minutes = Duration.between(publishTime, now).toMinutes();
             activity.setPublishTimed(minutes);
-            activity.setAge(userDetail.getAge());
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
                 log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
@@ -114,8 +113,10 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setImId(eHomeUserIm.getImId());
             UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
             activity.setAvatarImages(userDetail1.getAvatarThumbnail());
-            activity.setBirthday(userDetail1.getBirthday());
             activity.setAge(userDetail1.getAge());
+            activity.setSex(userDetail1.getSex());
+            activity.setBirthday(userDetail1.getBirthday());
+            activity.setUserName(userDetail1.getNickName());
         }
         return activityDtos;
     }
@@ -151,8 +152,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LocalDateTime now = LocalDateTime.now();
         //默认不是好友  后期能查询 再调整 2021-11-23
         activity.setUserUuid(userAuth().getAccount());
-        activity.setUserName(userAuth().getNickName());
-        activity.setIsFriend(false);
         activity.setDeleted(true);
         activity.setIsUser(true);
         activity.setPublishTime(now);
@@ -198,6 +197,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setAvatarImages(userDetail1.getAvatarThumbnail());
                 activity.setBirthday(userDetail1.getBirthday());
                 activity.setAge(userDetail1.getAge());
+                activity.setSex(userDetail1.getSex());
+                activity.setUserName(userDetail1.getNickName());
             }
             if (!activity.getUserUuid().equals(userAuth().getAccount())) {
                 //这个不是自己
@@ -219,6 +220,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setAvatarImages(userDetail1.getAvatarThumbnail());
                 activity.setBirthday(userDetail1.getBirthday());
                 activity.setAge(userDetail1.getAge());
+                activity.setSex(userDetail1.getSex());
+                activity.setUserName(userDetail1.getNickName());
             }
         }
         return activityDtos;
@@ -252,6 +255,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setAvatarImages(userDetail.getAvatarThumbnail());
             activity.setBirthday(userDetail.getBirthday());
             activity.setAge(userDetail.getAge());
+            activity.setSex(userDetail.getSex());
+            activity.setUserName(userDetail.getNickName());
         }
         return activityDtos;
     }
@@ -269,16 +274,24 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         //假如没有电话和昵称，调别人的接口
         List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
         for (ActivityReqDto a : activityReqDtos) {
-            if (a.getUserName()!=null||a.getPhone()!=null||a.getPhone().length()>0||a.getUserName().length()>0){
-                PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
-                List<UserDetail> data = userDetailPageVO.getData();
-                for (UserDetail d : data){
-                    a.setPhone(d.getPhone());
-                    a.setAge(d.getAge());
-                    a.setSex(d.getSex());
-                }
+            UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(a.getUserUuid());
+            a.setSex(userDetail.getSex());
+            a.setPhone(userDetail.getPhone());
+            a.setUserName(userDetail.getNickName());
+            a.setAge(userDetail.getAge());
+        }
+        if (likeActivity.getUserName() != null || likeActivity.getPhone() != null) {
+            PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
+            for (UserDetail d : userDetailPageVO.getData()) {
+                Activity activity = this.activityMapper.selectOne(new QueryWrapper<Activity>().eq("user_uuid", d.getAccount()));
+                ActivityReqDto activityReqDto = new ActivityReqDto();
+                BeanUtils.copyProperties(activity, activityReqDtos);
+                activityReqDto.setPhone(d.getPhone());
+                activityReqDto.setAge(d.getAge());
+                activityReqDto.setSex(d.getSex());
+                activityReqDto.setUserName(d.getNickName());
             }
-
+            BeanUtils.copyProperties(userDetailPageVO.getData(),activityReqDtos);
         }
         return activityReqDtos;
     }
