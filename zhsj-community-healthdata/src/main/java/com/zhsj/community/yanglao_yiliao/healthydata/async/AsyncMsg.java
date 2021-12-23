@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.async;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.zhsj.base.api.rpc.IBaseSmsRpcService;
@@ -23,6 +24,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -99,7 +101,7 @@ public class AsyncMsg {
                 iBaseSmsRpcService.sendSms(
                         mobile,
                         "纵横世纪",
-                        "SMS_228846724",
+                        "SMS_231205242",
                         map);
             }
         }
@@ -155,7 +157,7 @@ public class AsyncMsg {
                 }
             }
         }
-        if (agencyJson != null) {
+        if (StrUtil.isNotBlank(agencyJson) && !"null".equals(agencyJson)) {
             List<AgencySosEntity> agencySosEntityList = JSONArray.parseArray(agencyJson, AgencySosEntity.class);
             for (AgencySosEntity agencySosEntity : agencySosEntityList) {
                 if (agencySosEntity.getAgencyMobile() != null) {
