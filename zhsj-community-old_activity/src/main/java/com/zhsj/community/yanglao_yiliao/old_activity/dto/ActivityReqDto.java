@@ -47,7 +47,10 @@ public class ActivityReqDto {
      * 当前登录用户id
      */
     private String userUuid;
-
+    /**
+     * 语音的url
+     */
+    private String voiceUrl;
     /**
      * 年龄
      */

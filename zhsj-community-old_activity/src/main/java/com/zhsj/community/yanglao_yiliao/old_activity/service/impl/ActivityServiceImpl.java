@@ -272,28 +272,54 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     public List<ActivityReqDto> likeActivity(LikeActivityDto likeActivity) {
         log.info("likeActivity 的值:{}", likeActivity);
         //假如没有电话和昵称，调别人的接口
-        List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
-        for (ActivityReqDto a : activityReqDtos) {
-            UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(a.getUserUuid());
-            a.setSex(userDetail.getSex());
-            a.setPhone(userDetail.getPhone());
-            a.setUserName(userDetail.getNickName());
-            a.setAge(userDetail.getAge());
+        List<ActivityReqDto> list = new ArrayList<>();
+        if (!likeActivity.getPublishTime().isEmpty() || !likeActivity.getActivityTypeName().isEmpty()) {
+            List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
+            for (ActivityReqDto a : activityReqDtos) {
+                UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(a.getUserUuid());
+                a.setSex(userDetail.getSex());
+                a.setPhone(userDetail.getPhone());
+                a.setUserName(userDetail.getNickName());
+                a.setAge(userDetail.getAge());
+            }
+            list.addAll(activityReqDtos);
         }
-        if (likeActivity.getUserName() != null || likeActivity.getPhone() != null) {
+        if (!likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty()) {
             PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
             for (UserDetail d : userDetailPageVO.getData()) {
-                Activity activity = this.activityMapper.selectOne(new QueryWrapper<Activity>().eq("user_uuid", d.getAccount()));
+                List<ActivityReqDto> activity = this.activityMapper.selectByIdActivityed(d.getAccount());
+                if (activity == null) {
+                    System.out.println("不存在:" + activity);
+                    continue;
+                }
                 ActivityReqDto activityReqDto = new ActivityReqDto();
-                BeanUtils.copyProperties(activity, activityReqDtos);
+                BeanUtils.copyProperties(activity, activityReqDto);
+                activityReqDto.setPhone(d.getPhone());
+                activityReqDto.setAge(d.getAge());
+                activityReqDto.setSex(d.getSex());
+                activityReqDto.setUserName(d.getNickName());
+                list.addAll(activity);
+            }
+        }
+        if (!likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty() || !likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty()) {
+            List<ActivityReqDto> objects = new ArrayList<>();
+            PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
+            for (UserDetail userDetail : userDetailPageVO.getData()) {
+                List<ActivityReqDto> list1 = this.activityMapper.selectByIdActivityed(userDetail.getAccount());
+                objects.addAll(list1);
+            }
+            List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
+            objects.addAll(activityReqDtos);
+            for (ActivityReqDto activityReqDto : objects) {
+                UserDetail d = this.iBaseUserInfoRpcService.getUserDetail(activityReqDto.getUserUuid());
                 activityReqDto.setPhone(d.getPhone());
                 activityReqDto.setAge(d.getAge());
                 activityReqDto.setSex(d.getSex());
                 activityReqDto.setUserName(d.getNickName());
             }
-            BeanUtils.copyProperties(userDetailPageVO.getData(),activityReqDtos);
+            list.addAll(objects);
         }
-        return activityReqDtos;
+        return list;
     }
 
     /**

@@ -75,6 +75,10 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      *
      * @return ActivityReqDto
      */
-    @Select("SELECT * from  t_activity")
+    @Select("SELECT * from  t_activity where deleted = 1 ")
     List<ActivityReqDto> selectActivityList();
+
+
+    @Select("SELECT * from  t_activity where user_uuid=#{id} and deleted = 1")
+    List<ActivityReqDto> selectByIdActivityed(String id);
 }
