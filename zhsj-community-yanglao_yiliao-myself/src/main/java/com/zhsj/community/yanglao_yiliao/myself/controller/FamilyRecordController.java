@@ -67,7 +67,7 @@ public class FamilyRecordController {
     }
 
     /**
-     * @Description: 查询详情
+     * @Description: 查询详情（大后台）
      * @author: Hu
      * @since: 2021/11/10 14:03
      * @Param: [id]
@@ -204,6 +204,8 @@ public class FamilyRecordController {
         return R.ok();
     }
 
+
+    //////////////////////大后台//////////////////
 
     /**
      * @Description: 大后台分页查询

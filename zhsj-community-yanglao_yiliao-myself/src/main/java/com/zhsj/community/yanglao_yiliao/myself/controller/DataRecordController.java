@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @program: zhsj-community-yanglao_yiliao
- * @description: 大数据管理
+ * @description: 大数据管理（大后台）
  * @author: Hu
  * @create: 2021-12-14 15:36
  **/
