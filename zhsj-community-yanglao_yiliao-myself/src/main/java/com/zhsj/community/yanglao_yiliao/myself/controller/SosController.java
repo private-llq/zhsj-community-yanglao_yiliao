@@ -39,7 +39,7 @@ public class SosController {
     @Autowired
     private IRouteSosService routeSosService;
 
-    private final int NUMBER=3;
+    private static final int NUMBER=3;
 
 
     /**
@@ -99,7 +99,7 @@ public class SosController {
         ValidatorUtils.validateEntity(familySosEntity,FamilySosEntity.SosValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getAccount()));
-        if (list.size()>NUMBER) {
+        if (list.size()>=NUMBER) {
             return R.fail("个人最大添加数量3！");
         }
         familySosEntity.setUid(loginUser.getAccount());
