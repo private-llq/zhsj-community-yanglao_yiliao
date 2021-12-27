@@ -124,7 +124,8 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     public static JSONObject getAgency(Long id) {
         String body=null;
         HttpClient httpClient = HttpClients.createDefault();
-        String url = "http://192.168.12.49:8090/shop/shop/newShop/getSupport/?shopId="+id;
+//        String url = "http://192.168.12.49:8090/shop/shop/newShop/getSupport/?shopId="+id;
+        String url = "http://222.178.212.29:8090/shop/shop/newShop/getSupport/?shopId="+id;
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("Content-type", "application/json;charset=UTF-8");
         try {
