@@ -70,7 +70,7 @@ public class ActivityController {
 
 
     /**
-     * @description 删除活动11
+     * @description 删除活动
      * @author liulq
      * @date 2021/11/24 19:00
      * @Param: [id]

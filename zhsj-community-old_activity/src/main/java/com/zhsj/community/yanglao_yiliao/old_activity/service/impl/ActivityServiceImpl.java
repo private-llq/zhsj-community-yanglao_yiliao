@@ -14,7 +14,6 @@ import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityDetails;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.GouldUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +144,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Transactional(rollbackFor = Exception.class)
     public int publishActivity(ActivitySaveReqBo reqBo) {
         log.info("Activity request parameters, ActivitySaveReqBo = {}", reqBo);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         Activity activity = new Activity();
         //辅助相同属性
         BeanUtils.copyProperties(reqBo, activity);
@@ -158,13 +156,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         activity.setCreateTime(now);
         activity.setUpdateTime(now);
         //新增详情表
-        ActivityDetails activityDetails = new ActivityDetails();
-        activityDetails.setAId(userAuth().getAccount());
-        activityDetails.setNickname(userAuth().getNickName());
-        activityDetails.setCreateTime(now);
-        activityDetails.setUpdateTime(now);
-        activityDetails.setDeleted(true);
-        this.activityDetailsMapper.insert(activityDetails);
         return this.activityMapper.insert(activity);
     }
 
