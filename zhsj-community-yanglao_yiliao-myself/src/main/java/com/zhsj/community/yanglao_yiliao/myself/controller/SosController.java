@@ -1,5 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.myself.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.annotation.LoginIgnore;
@@ -102,6 +104,11 @@ public class SosController {
         if (list.size()>=NUMBER) {
             return R.fail("个人最大添加数量3！");
         }
+        if (StrUtil.isNotBlank(familySosEntity.getMobile()) && StrUtil.isNotBlank(loginUser.getPhone())) {
+            if (familySosEntity.getMobile().equals(loginUser.getPhone())) {
+                return R.fail("SOS通讯录不能添加自己！");
+            }
+        }
         familySosEntity.setUid(loginUser.getAccount());
         familySosEntity.setId(SnowFlake.nextId());
         familySosEntity.setCreateTime(LocalDateTime.now());
@@ -155,7 +162,9 @@ public class SosController {
     @PutMapping("updateAgency")
     public R<Boolean> updateAgency(@RequestBody AgencySosEntity agencySosEntity){
         agencySosEntity.setUpdateTime(LocalDateTime.now());
-        return R.ok(agencySosService.updateById(agencySosEntity));
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        boolean update = agencySosService.update(agencySosEntity, new LambdaQueryWrapper<AgencySosEntity>().eq(AgencySosEntity::getUid, loginUser.getAccount()));
+        return R.ok(update);
     }
 
 
