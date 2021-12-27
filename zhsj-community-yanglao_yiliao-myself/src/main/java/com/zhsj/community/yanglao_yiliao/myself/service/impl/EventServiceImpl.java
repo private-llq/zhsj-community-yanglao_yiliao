@@ -102,8 +102,8 @@ public class EventServiceImpl implements IEventService {
         eventEntity.setUpdateTime(LocalDateTime.now());
         eventMapper.updateById(eventEntity);
 
-        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getAccount()));
-        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",eventEntity.getId()).eq("uid",loginUser.getAccount()));
+        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("deleted",0));
+        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",eventEntity.getId()).eq("deleted",0));
         //添加事件家人
         EventFamilyEntity entity;
         LinkedList<EventFamilyEntity> list = new LinkedList<>();
