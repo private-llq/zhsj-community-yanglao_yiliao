@@ -7,18 +7,23 @@ import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.common.utils.RedisUtils;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorHeartRateReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.HeartRateMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.HeartRate;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zzm
@@ -28,7 +33,11 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@EnableScheduling
 public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate> implements HeartRateService {
+
+    @Autowired
+    private RedisUtils redisService;
 
     /***************************************************************************************************************************
      * @description 监测用户实时心率以及历史心率并保存（历史心率需筛选）
@@ -47,14 +56,21 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
         HashSet<MonitorHeartRateReqBo> hashSet = new HashSet<>(list);
         List<HeartRate> arr = new ArrayList<>();
         for (MonitorHeartRateReqBo reqBo : hashSet) {
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-            HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
-                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
-                    .eq(HeartRate::getCreateTime, localDateTime)
-                    .eq(HeartRate::getDeleted, true));
-            if (heartRate != null) {
+            // ---排除历史重复数据
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            if (beforeTime != null) {
                 continue;
+            } else {
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime(), 10L, TimeUnit.DAYS);
             }
+            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+//            HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
+//                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
+//                    .eq(HeartRate::getCreateTime, localDateTime)
+//                    .eq(HeartRate::getDeleted, true));
+//            if (heartRate != null) {
+//                continue;
+//            }
             arr.add(HeartRate.build(loginUser, reqBo, localDateTime));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
