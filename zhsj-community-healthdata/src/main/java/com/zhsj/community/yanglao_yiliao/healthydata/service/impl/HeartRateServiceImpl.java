@@ -61,7 +61,7 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
             }
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
 //            HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()

@@ -20,8 +20,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
@@ -49,6 +51,15 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
     private IBaseSmsRpcService baseSmsRpcService;
 
+    @Value("${select.agency.url}")
+    private String u;
+
+    private static String URL;
+
+    @PostConstruct
+    private void init(){
+        URL = u;
+    }
 
     @Override
     public void sos(LoginUser loginUser,Long familyId) {
@@ -124,8 +135,7 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     public static JSONObject getAgency(Long id) {
         String body=null;
         HttpClient httpClient = HttpClients.createDefault();
-//        String url = "http://192.168.12.49:8090/shop/shop/newShop/getSupport/?shopId="+id;
-        String url = "http://222.178.212.29:8090/shop/shop/newShop/getSupport/?shopId="+id;
+        String url = URL+"/shop/shop/newShop/getSupport/?shopId="+id;
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("Content-type", "application/json;charset=UTF-8");
         try {
