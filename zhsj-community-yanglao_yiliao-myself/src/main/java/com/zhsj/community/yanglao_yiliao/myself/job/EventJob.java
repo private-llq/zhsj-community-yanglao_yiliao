@@ -44,7 +44,7 @@ public class EventJob {
     private IImChatPublicPushRpcService iImChatPublicPushRpcService;
 
 
-    /**
+    /**dd
      * @Description: 每分钟执行  事件提醒
      * @author: Hu
      * @since: 2021/11/15 11:24

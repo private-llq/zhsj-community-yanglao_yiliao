@@ -100,4 +100,10 @@ public class HealthDataConstant {
      * 推送APP消息和发送短信redis缓存键前缀
      */
     public static final String HEALTH_DATA_PUSH_MSG = "YangLao-YiLiao:HealthData:PushMsg:Uid:";
+
+    // --------------------------------------------健康数据清除脏数据--------------------------------------------------------------------------
+
+    public static final String HEALTH_DATA_REMOVE_REPEAT_HEART_RATE = "healthData:remove:repeat:heartRate:";
+    public static final String HEALTH_DATA_REMOVE_REPEAT_TEMP = "healthData:remove:repeat:temp:";
+    public static final String HEALTH_DATA_REMOVE_REPEAT_SLEEP = "healthData:remove:repeat:sleep:";
 }

@@ -7,18 +7,22 @@ import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.common.utils.RedisUtils;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorTemperatureReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.TemperatureMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Temperature;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.TemperatureService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zzm
@@ -30,6 +34,9 @@ import java.util.List;
 @Service
 public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Temperature> implements TemperatureService {
 
+    @Autowired
+    private RedisUtils redisService;
+
     /***************************************************************************************************************************
      * @description 检测用户体温并保存
      * @author zzm
@@ -39,7 +46,7 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
     @Override
     public void monitorTemperature(List<MonitorTemperatureReqBo> list) {
         log.info("Monitor user temperature request parameters,List<MonitorTemperatureReqBo> = {}", list);
-        LoginUser user = ContextHolder.getContext().getLoginUser();
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         if (CollectionUtil.isEmpty(list)) {
             log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
@@ -47,15 +54,22 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
         HashSet<MonitorTemperatureReqBo> hashSet = new HashSet<>(list);
         List<Temperature> arr = new ArrayList<Temperature>();
         for (MonitorTemperatureReqBo reqBo : hashSet) {
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-            Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
-                    .eq(Temperature::getUserUuid, user.getAccount())
-                    .eq(Temperature::getCreateTime, localDateTime)
-                    .eq(Temperature::getDeleted, true));
-            if (temperature != null) {
+            // ---排除历史重复数据
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            if (beforeTime != null) {
                 continue;
+            } else {
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime(), 10L, TimeUnit.DAYS);
             }
-            arr.add(Temperature.build(user, reqBo, localDateTime));
+            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+//            Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
+//                    .eq(Temperature::getUserUuid, user.getAccount())
+//                    .eq(Temperature::getCreateTime, localDateTime)
+//                    .eq(Temperature::getDeleted, true));
+//            if (temperature != null) {
+//                continue;
+//            }
+            arr.add(Temperature.build(loginUser, reqBo, localDateTime));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
