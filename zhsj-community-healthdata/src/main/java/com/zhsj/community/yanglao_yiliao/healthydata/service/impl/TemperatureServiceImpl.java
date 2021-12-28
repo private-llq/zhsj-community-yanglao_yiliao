@@ -59,7 +59,7 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
             }
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
 //            Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()

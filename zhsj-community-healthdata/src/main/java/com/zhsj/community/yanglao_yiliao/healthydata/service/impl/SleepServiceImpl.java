@@ -59,7 +59,7 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
             }
             LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
 //            Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
