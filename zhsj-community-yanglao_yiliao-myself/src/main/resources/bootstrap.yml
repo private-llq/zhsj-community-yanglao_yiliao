@@ -13,7 +13,7 @@ spring:
         service-id: base-config-server
         enabled: true
       name: application-yanglaoyiliao-myself
-      profile: dev
+      active: dev
 eureka:
   client:
     service-url:

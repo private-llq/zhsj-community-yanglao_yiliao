@@ -13,6 +13,8 @@ spring:
         enabled: true
       name: application-oldactivity
       profile: dev
+      username: ecf50273a250499a9ec28953c2c494ab
+      password: ecf50273a250499a9ec28953c2c494ab
 eureka:
   client:
     service-url:
@@ -32,6 +34,8 @@ spring:
         enabled: true
       name: application-oldactivity
       profile: test
+      username: f14550980f8c4070a43864e365a0e8fa
+      password: 8a33d8f0f7b3452ab52b9644c1188139
 eureka:
   client:
     service-url:
@@ -51,6 +55,8 @@ spring:
         enabled: true
       name: application-oldactivity
       profile: prod
+      username: cfd39a0d977742bba485998b7752a452
+      password: 6c6e06fc325b40379fa0687c0f197e1d
 eureka:
   client:
     service-url:
