@@ -158,11 +158,9 @@ public class AsyncMsg {
             }
         }
         if (StrUtil.isNotBlank(agencyJson) && !"null".equals(agencyJson)) {
-            List<AgencySosEntity> agencySosEntityList = JSONArray.parseArray(agencyJson, AgencySosEntity.class);
-            for (AgencySosEntity agencySosEntity : agencySosEntityList) {
-                if (agencySosEntity.getAgencyMobile() != null) {
-                    list.add(agencySosEntity.getAgencyMobile());
-                }
+            AgencySosEntity agencySosEntity = JSON.parseObject(agencyJson, AgencySosEntity.class);
+            if (agencySosEntity.getAgencyMobile() != null) {
+                list.add(agencySosEntity.getAgencyMobile());
             }
         }
         return list;
