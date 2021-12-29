@@ -2,7 +2,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   profiles:
-    active: test
+    active: dev
 logging:
   config: classpath:logback.xml
 
