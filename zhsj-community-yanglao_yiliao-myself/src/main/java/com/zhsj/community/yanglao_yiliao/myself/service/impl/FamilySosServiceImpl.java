@@ -51,14 +51,11 @@ public class FamilySosServiceImpl extends ServiceImpl<FamilySosMapper, FamilySos
     @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
     private IBaseSmsRpcService baseSmsRpcService;
 
-    @Value("${select.agency.url}")
-    private String u;
-
     private static String URL;
 
-    @PostConstruct
-    private void init(){
-        URL = u;
+    @Value("${select.agency.url}")
+    public void setURL(String URL) {
+        FamilySosServiceImpl.URL = URL;
     }
 
     @Override
