@@ -60,10 +60,6 @@ public class FamilyRecordController {
     @PostMapping("save")
     public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity) {
         ValidatorUtils.validateEntity(familyRecordEntity, FamilyRecordEntity.AddFamilyValidate.class);
-        if (familyRecordEntity.getName().length() > 6) {
-            log.error("用户姓名不能超过6个字");
-            throw new BaseException(30004, "姓名长不能超过6个字");
-        }
         boolean verification = baseAuthRpcService.smsVerification(familyRecordEntity.getMobile(), familyRecordEntity.getCode());
         if (!verification) {
             R.fail("验证码错误！");
@@ -137,10 +133,6 @@ public class FamilyRecordController {
     @PutMapping("update")
     public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity) {
         ValidatorUtils.validateEntity(familyRecordEntity, FamilyRecordEntity.UpdateFamilyValidate.class);
-        if (familyRecordEntity.getName().length() > 6) {
-            log.error("用户姓名不能超过6个字");
-            throw new BaseException(30004, "姓名长不能超过6个字");
-        }
         FamilyRecordEntity entity = familyRecordService.getById(familyRecordEntity.getId());
         if (entity.getRelation() != null && entity.getRelation() == 0 && familyRecordEntity.getRelation() != null && familyRecordEntity.getRelation() != 0) {
             return R.fail("自己的关系不能修改！");
