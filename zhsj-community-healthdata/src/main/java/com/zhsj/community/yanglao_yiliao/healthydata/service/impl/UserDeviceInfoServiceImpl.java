@@ -52,9 +52,8 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
      **************************************************************************************************************************/
     @Override
     public void userBindDevice(UserBindDeviceReqBo bo) {
-        log.info("Binding user device parameters,UserBindDeviceReqBo = {}", bo);
+        log.info("用户绑定切换设备请求参数, UserBindDeviceReqBo = {}", bo);
         LoginUser user = ContextHolder.getContext().getLoginUser();
-
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
@@ -77,14 +76,14 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
      **************************************************************************************************************************/
     @Override
     public void userUnbindDevice(UserUnbindDeviceReqBo bo) {
-        log.info("User unbinds device parameters,UserUnbindDeviceReqBo = {}", bo);
+        log.info("用户解绑设备请求参数, UserUnbindDeviceReqBo = {}", bo);
         LoginUser user = ContextHolder.getContext().getLoginUser();
         UserDeviceInfo deviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, user.getAccount())
                 .eq(UserDeviceInfo::getMDeviceAddress, bo.getDeviceAddress())
                 .eq(UserDeviceInfo::getBind, true));
         if (deviceInfo == null) {
-            log.error("User device does not exist, userUuid = {}, mDeviceAddress = {}", user.getAccount(), bo.getDeviceAddress());
+            log.error("要解绑定的设备不存在, userUuid = {}, mDeviceAddress = {}", user.getAccount(), bo.getDeviceAddress());
             throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
         }
         removeById(deviceInfo.getId());
@@ -99,14 +98,13 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
      **************************************************************************************************************************/
     @Override
     public DeviceInfoRspBo deviceInfo(DeviceInfoReqBo reqBo) {
-        log.info("Get user binding equipment information request parameters, DeviceInfoReqBo = {}", reqBo);
+        log.info("获取用户最后一次绑定设备信息请求参数, DeviceInfoReqBo = {}", reqBo);
         List<UserDeviceInfo> list = list(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, reqBo.getFamilyMemberId())
                 .eq(UserDeviceInfo::getBind, true)
                 .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
-            log.info("The user has no device bound, familyMemberId = {}", reqBo.getFamilyMemberId());
-//            throw new BaseException(ErrorEnum.NOT_FOUND_DEVICE);
+            log.info("该用户没有绑定任何设备, familyMemberId = {}", reqBo.getFamilyMemberId());
             return null;
         }
         return BeanUtil.copyProperties(list.get(0), DeviceInfoRspBo.class);
@@ -120,13 +118,14 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
      **************************************************************************************************************************/
     @Override
     public List<DeviceInfoRspBo> currentLoginUserDeviceInfo() {
-        log.info("Get the device information list bound by the current login user");
+        log.info("获取当前登录用户绑定的设备信息列表");
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<UserDeviceInfo> list = list(new LambdaQueryWrapper<UserDeviceInfo>()
                 .eq(UserDeviceInfo::getUserUuid, loginUser.getAccount())
                 .eq(UserDeviceInfo::getBind, true)
                 .orderByDesc(UserDeviceInfo::getUpdateTime));
         if (CollectionUtil.isEmpty(list)) {
+            log.info("该用户没有绑定任何设备, familyMemberId = {}", loginUser.getAccount());
             return null;
         }
         return list.stream().map(
@@ -189,14 +188,18 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
             log.error("请求参数为空");
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
+        List<Long> list = new ArrayList<>();
         for (Long id : ids) {
             UserDeviceInfo userDeviceInfo = getOne(new LambdaQueryWrapper<UserDeviceInfo>().eq(UserDeviceInfo::getId, id).eq(UserDeviceInfo::getBind, true));
             if (userDeviceInfo == null) {
-                log.error("要删除的用户设备绑定信息不存在");
-                throw new BaseException(30004, "要删除的用户设备绑定信息不存在");
+                log.error("要删除的用户设备不存在, id = {}", id);
+                continue;
             }
+            list.add(id);
         }
-        removeByIds(ids);
+        if (CollectionUtil.isNotEmpty(list)) {
+            removeByIds(list);
+        }
     }
 
     /**

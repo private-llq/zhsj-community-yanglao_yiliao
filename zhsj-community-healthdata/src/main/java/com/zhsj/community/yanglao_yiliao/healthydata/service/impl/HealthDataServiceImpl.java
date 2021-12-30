@@ -56,7 +56,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public RealTimeHealthDataRspBo realTimeHealthData(RealTimeHealthDataReqBo reqBo) {
-        log.info("Get user real-time health data request parameters, RealTimeHealthDataReqBo = {}", reqBo);
+        log.info("获取用户实时健康数据, RealTimeHealthDataReqBo = {}", reqBo);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         log.info("loginuser = {}", loginUser);
         RealTimeHealthDataRspBo healthDataRspBo = new RealTimeHealthDataRspBo();
@@ -145,7 +145,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public HeartRateChartRspBo heartRateChart(HeartRateChartReqBo reqBo) {
-        log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
+        log.info("查询用户心率图表信息, HeartRateChartReqBo = {}", reqBo);
         HeartRateChartRspBo rspBos = new HeartRateChartRspBo();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -210,7 +210,7 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /***************************************************************************************************************************
-     * @description 重构查询心率图表信息接口
+     * @description 重构查询心率图表信息接口(预留)
      * @author zzm
      * @date 2021/12/15 9:56
      * @param reqBo 家人信息 时间条件
@@ -218,7 +218,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public HeartRateChartRspBo tHeartRate(HeartRateChartReqBo reqBo) {
-        log.info("Get heart rate chart request parameters, HeartRateChartReqBo = {}", reqBo);
+        log.info("重构查询心率图表信息接口, HeartRateChartReqBo = {}", reqBo);
         HeartRateChartRspBo rspBos = new HeartRateChartRspBo();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -291,7 +291,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public List<AbnormalDataRspBo> abnormalHeartRateRecord(AbnormalDataReqBo reqBo) {
-        log.info("Abnormal heart rate recording request parameters, AbnormalDataReqBo = {}", reqBo);
+        log.info("获取用户心率异常记录列表, AbnormalDataReqBo = {}", reqBo);
         List<AbnormalDataRspBo> list = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -333,7 +333,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public TempChartRspBo tempChart(TempChartReqBo reqBo) {
-        log.info("Get temp chart request parameters, TempChartReqBo = {}", reqBo);
+        log.info("查询用户体温图表信息, TempChartReqBo = {}", reqBo);
         TempChartRspBo rspBos = new TempChartRspBo();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -398,7 +398,7 @@ public class HealthDataServiceImpl implements HealthDataService {
     }
 
     /***************************************************************************************************************************
-     * @description 重构查询用户体温图表信息
+     * @description 重构查询用户体温图表信息（预留）
      * @author zzm
      * @date 2021/11/17 9:57
      * @param reqBo 用户信息、时间信息
@@ -406,7 +406,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public TempChartRspBo tTempChart(TempChartReqBo reqBo) {
-        log.info("Get temp chart request parameters, TempChartReqBo = {}", reqBo);
+        log.info("重构查询用户体温图表信息, TempChartReqBo = {}", reqBo);
         TempChartRspBo rspBos = new TempChartRspBo();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -479,7 +479,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public List<AbnormalDataRspBo> abnormalTempRecord(AbnormalDataReqBo reqBo) {
-        log.info("Abnormal temperature recording request parameters, AbnormalDataReqBo = {}", reqBo);
+        log.info("根据时间类型获取用户体温异常记录, AbnormalDataReqBo = {}", reqBo);
         List<AbnormalDataRspBo> list = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         LocalDate localDate = now.toLocalDate();
@@ -521,7 +521,7 @@ public class HealthDataServiceImpl implements HealthDataService {
      **************************************************************************************************************************/
     @Override
     public SleepChartRspBo sleepChart(SleepChartReqBo reqBo) {
-        log.info("Query user sleep chart information request parameters, SleepChartReqBo = {}", reqBo);
+        log.info("根据用户按时间类型查询用户睡眠图表信息, SleepChartReqBo = {}", reqBo);
         SleepChartRspBo sleepChartRspBo = new SleepChartRspBo();
         LocalDateTime nowLocalDateTime = LocalDateTime.now();
         LocalDate nowLocalDate = nowLocalDateTime.toLocalDate();
