@@ -16,9 +16,7 @@ import com.zhsj.community.yanglao_yiliao.healthydata.service.HeartRateService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,31 +45,25 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
      **************************************************************************************************************************/
     @Override
     public void monitorHeartRate(List<MonitorHeartRateReqBo> list) {
-        log.info("Real time monitoring of user heart rate parameters,List<MonitorHeartRateReqBo> = {}", list);
+        log.info("监测用户实时心率以及历史心率并保存请求参数,List<MonitorHeartRateReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         if (CollectionUtil.isEmpty(list)) {
-            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            log.error("请求参数不能为空, List<MonitorHeartRateReqBo> = {}", list);
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
         HashSet<MonitorHeartRateReqBo> hashSet = new HashSet<>(list);
         List<HeartRate> arr = new ArrayList<>();
         for (MonitorHeartRateReqBo reqBo : hashSet) {
+            LocalDateTime time = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+            String s = TimeUtils.formatTime(time);
             // ---排除历史重复数据
-            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + s);
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_HEART_RATE + loginUser.getAccount() + ":" + s, s, 10L, TimeUnit.DAYS);
             }
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-//            HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
-//                    .eq(HeartRate::getUserUuid, loginUser.getAccount())
-//                    .eq(HeartRate::getCreateTime, localDateTime)
-//                    .eq(HeartRate::getDeleted, true));
-//            if (heartRate != null) {
-//                continue;
-//            }
-            arr.add(HeartRate.build(loginUser, reqBo, localDateTime));
+            arr.add(HeartRate.build(loginUser, reqBo, time));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
@@ -79,30 +71,32 @@ public class HeartRateServiceImpl extends ServiceImpl<HeartRateMapper, HeartRate
     }
 
     /***************************************************************************************************************************
-     * @description 批量删除用户心率数据
+     * @description 批量删除用户心率数据（预留大后台）
      * @author zzm
      * @date 2021/11/11 17:19
      * @param list 心率id列表
      **************************************************************************************************************************/
     @Override
     public void batchDeleteHeartRate(List<Long> list) {
-        log.info("Delete user heartRate in batch request parameter, list = {}", list);
-        LoginUser user = ContextHolder.getContext().getLoginUser();
+        log.info("批量删除用户心率数据, list = {}", list);
         if (CollectionUtil.isEmpty(list)) {
-            log.error("Please check the body heartRate to be deleted");
+            log.error("请求参数不能为空");
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
+        List<Long> arr = new ArrayList<>();
         for (Long id : list) {
             HeartRate heartRate = getOne(new LambdaQueryWrapper<HeartRate>()
                     .eq(HeartRate::getId, id)
-                    .eq(HeartRate::getDeleted, true)
-                    .eq(HeartRate::getUserUuid, user.getAccount()));
+                    .eq(HeartRate::getDeleted, true));
             if (heartRate == null) {
-                log.error("Body heartRate to delete not found, temperatureId = {}", id);
-                throw new BaseException(ErrorEnum.SERVER_BUSY);
+                log.error("要删除的心率不存在, id = {}", id);
+                continue;
             }
+            arr.add(id);
         }
-        removeByIds(list);
+        if (CollectionUtil.isNotEmpty(arr)) {
+            removeByIds(arr);
+        }
     }
 
 }
