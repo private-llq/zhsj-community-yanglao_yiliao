@@ -54,22 +54,16 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
         HashSet<MonitorTemperatureReqBo> hashSet = new HashSet<>(list);
         List<Temperature> arr = new ArrayList<Temperature>();
         for (MonitorTemperatureReqBo reqBo : hashSet) {
+            LocalDateTime time = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+            String s = TimeUtils.formatTime(time);
             // ---排除历史重复数据
-            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + s);
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_TEMP + loginUser.getAccount() + ":" + s, s, 10L, TimeUnit.DAYS);
             }
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-//            Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
-//                    .eq(Temperature::getUserUuid, user.getAccount())
-//                    .eq(Temperature::getCreateTime, localDateTime)
-//                    .eq(Temperature::getDeleted, true));
-//            if (temperature != null) {
-//                continue;
-//            }
-            arr.add(Temperature.build(loginUser, reqBo, localDateTime));
+            arr.add(Temperature.build(loginUser, reqBo, time));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
@@ -77,29 +71,31 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
     }
 
     /***************************************************************************************************************************
-     * @description 批量删除用户体温数据
+     * @description 批量删除用户体温数据（预留大后台）
      * @author zzm
      * @date 2021/11/11 17:19
      * @param list 体温id列表
      **************************************************************************************************************************/
     @Override
     public void batchDeleteTemperature(List<Long> list) {
-        log.info("Delete user temperature in batch request parameter, list = {}", list);
-        LoginUser user = ContextHolder.getContext().getLoginUser();
+        log.info("批量删除用户体温数据, list = {}", list);
         if (CollectionUtil.isEmpty(list)) {
-            log.error("Please check the body temperature to be deleted");
+            log.error("参数不能为空");
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
+        List<Long> arr = new ArrayList<>();
         for (Long id : list) {
             Temperature temperature = getOne(new LambdaQueryWrapper<Temperature>()
                     .eq(Temperature::getId, id)
-                    .eq(Temperature::getDeleted, true)
-                    .eq(Temperature::getUserUuid, user.getAccount()));
+                    .eq(Temperature::getDeleted, true));
             if (temperature == null) {
-                log.error("Body temperature to delete not found, temperatureId = {}", id);
-                throw new BaseException(ErrorEnum.SERVER_BUSY);
+                log.error("要删除的体温数据不存在, id = {}", id);
+                continue;
             }
+            arr.add(id);
         }
-        removeByIds(list);
+        if (CollectionUtil.isNotEmpty(arr)) {
+            removeByIds(list);
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.zhsj.base.api.constant.RpcConst;
 import com.zhsj.base.api.rpc.IBaseAuthRpcService;
 import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.annotation.LoginIgnore;
 import com.zhsj.baseweb.support.ContextHolder;
@@ -15,6 +16,7 @@ import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
 import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilyRecordService;
 import com.zhsj.community.yanglao_yiliao.myself.utils.MinioUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,7 @@ import java.util.Map;
  * @author: Hu
  * @create: 2021-11-10 11:55
  **/
+@Slf4j
 @RestController
 @RequestMapping("family")
 public class FamilyRecordController {
@@ -44,7 +47,7 @@ public class FamilyRecordController {
     @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
     private IBaseAuthRpcService baseAuthRpcService;
 
-    private final String[] img ={"jpg","png","jpeg"};
+    private final String[] img = {"jpg", "png", "jpeg"};
 
 
     /**
@@ -55,14 +58,18 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @PostMapping("save")
-    public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.AddFamilyValidate.class);
+    public R<Boolean> save(@RequestBody FamilyRecordEntity familyRecordEntity) {
+        ValidatorUtils.validateEntity(familyRecordEntity, FamilyRecordEntity.AddFamilyValidate.class);
+        if (familyRecordEntity.getName().length() > 6) {
+            log.error("用户姓名不能超过6个字");
+            throw new BaseException(30004, "姓名长不能超过6个字");
+        }
         boolean verification = baseAuthRpcService.smsVerification(familyRecordEntity.getMobile(), familyRecordEntity.getCode());
         if (!verification) {
             R.fail("验证码错误！");
         }
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        familyRecordService.saveUser(familyRecordEntity,loginUser);
+        familyRecordService.saveUser(familyRecordEntity, loginUser);
         return R.ok();
     }
 
@@ -74,10 +81,10 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>
      */
     @GetMapping("getOne")
-    public R<FamilyRecordEntity> getOne(@RequestParam Long id){
+    public R<FamilyRecordEntity> getOne(@RequestParam Long id) {
         FamilyRecordEntity entity = familyRecordService.getById(id);
-        if (entity.getRelation()!=null){
-            if (entity.getRelation()!=0){
+        if (entity.getRelation() != null) {
+            if (entity.getRelation() != 0) {
                 entity.setRelationText(BusinessEnum.FamilyRelationTextEnum.getName(entity.getRelation()));
                 entity.setOneself(0);
             } else {
@@ -96,11 +103,11 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.String>
      */
     @PostMapping("upload")
-    public R<String> upload(@RequestParam MultipartFile file){
+    public R<String> upload(@RequestParam MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String s = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         if (!Arrays.asList(img).contains(s)) {
-            return R.fail("请上传图片！可用后缀"+ Arrays.toString(img));
+            return R.fail("请上传图片！可用后缀" + Arrays.toString(img));
         }
         String upload = MinioUtils.upload(file, "portrait");
         return R.ok(upload);
@@ -114,7 +121,7 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>
      */
     @GetMapping("sendCode")
-    public R<Void> code(@RequestParam String mobile){
+    public R<Void> code(@RequestParam String mobile) {
         baseSmsRpcService.sendVerificationCode(mobile);
         return R.ok();
     }
@@ -128,13 +135,17 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @PutMapping("update")
-    public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity){
-        ValidatorUtils.validateEntity(familyRecordEntity,FamilyRecordEntity.UpdateFamilyValidate.class);
+    public R<Boolean> update(@RequestBody FamilyRecordEntity familyRecordEntity) {
+        ValidatorUtils.validateEntity(familyRecordEntity, FamilyRecordEntity.UpdateFamilyValidate.class);
+        if (familyRecordEntity.getName().length() > 6) {
+            log.error("用户姓名不能超过6个字");
+            throw new BaseException(30004, "姓名长不能超过6个字");
+        }
         FamilyRecordEntity entity = familyRecordService.getById(familyRecordEntity.getId());
-        if (entity.getRelation()!=null&&entity.getRelation()==0&&familyRecordEntity.getRelation()!=null&&familyRecordEntity.getRelation()!=0){
+        if (entity.getRelation() != null && entity.getRelation() == 0 && familyRecordEntity.getRelation() != null && familyRecordEntity.getRelation() != 0) {
             return R.fail("自己的关系不能修改！");
         }
-        if (!entity.getMobile().equals(familyRecordEntity.getMobile())){
+        if (!entity.getMobile().equals(familyRecordEntity.getMobile())) {
             return R.fail("手机号不能在这里修改哦！");
         }
         familyRecordEntity.setUpdateTime(LocalDateTime.now());
@@ -142,16 +153,15 @@ public class FamilyRecordController {
     }
 
 
-
     /**
      * @Description: 查询列表
      * @author: Hu
      * @since: 2021/11/10 14:07
      * @Param: []
-     * @return: com.zhsj.basecommon.vo.R<java.util.List<com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>>
+     * @return: com.zhsj.basecommon.vo.R<java.util.List < com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity>>
      */
     @PostMapping("list")
-    public R<List<FamilyRecordEntity>> list(){
+    public R<List<FamilyRecordEntity>> list() {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         List<FamilyRecordEntity> list = familyRecordService.userList(loginUser);
         return R.ok(list);
@@ -167,11 +177,10 @@ public class FamilyRecordController {
      */
     @PostMapping("userList")
     @LoginIgnore
-    public R<List<FamilyRecordEntity>> userList(@RequestParam String uid){
+    public R<List<FamilyRecordEntity>> userList(@RequestParam String uid) {
         List<FamilyRecordEntity> list = familyRecordService.userByList(uid);
         return R.ok(list);
     }
-
 
 
     /**
@@ -182,10 +191,10 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @DeleteMapping("delete")
-    public R<Boolean> delete(@RequestParam Long id){
+    public R<Boolean> delete(@RequestParam Long id) {
         FamilyRecordEntity entity = familyRecordService.getById(id);
         if (entity != null) {
-            
+
         }
         return R.ok(familyRecordService.removeById(id));
     }
@@ -199,8 +208,8 @@ public class FamilyRecordController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @PostMapping("importFamily")
-    public R<Void> importFamily(@RequestBody FamilysQo familysQo){
-        familyRecordService.importFamily(familysQo,ContextHolder.getContext().getLoginUser());
+    public R<Void> importFamily(@RequestBody FamilysQo familysQo) {
+        familyRecordService.importFamily(familysQo, ContextHolder.getContext().getLoginUser());
         return R.ok();
     }
 
@@ -212,10 +221,10 @@ public class FamilyRecordController {
      * @author: Hu
      * @since: 2021/12/17 16:11
      * @Param: [qo]
-     * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
+     * @return: com.zhsj.basecommon.vo.R<java.util.Map < java.lang.String, java.lang.Object>>
      */
     @PostMapping("page")
-    public R<Map<String, Object>> importFamily(@RequestBody BaseQo<String> qo){
+    public R<Map<String, Object>> importFamily(@RequestBody BaseQo<String> qo) {
         Map<String, Object> map = familyRecordService.selectPage(qo);
         return R.ok(map);
     }

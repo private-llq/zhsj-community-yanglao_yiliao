@@ -45,31 +45,25 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
      **************************************************************************************************************************/
     @Override
     public void monitorSleep(List<MonitorSleepReqBo> list) {
-        log.info("Monitor user sleep request parameters, List<MonitorSleepReqBo> = {}", list);
+        log.info("监控用户睡眠并保存, List<MonitorSleepReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         if (CollectionUtil.isEmpty(list)) {
-            log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
+            log.error("请求参数不能为空, List<MonitorHeartRateReqBo> = {}", list);
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
         HashSet<MonitorSleepReqBo> hashSet = new HashSet<>(list);
         List<Sleep> arr = new ArrayList<Sleep>();
         for (MonitorSleepReqBo reqBo : hashSet) {
+            LocalDateTime time = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+            String s = TimeUtils.formatTime(time);
             // ---排除历史重复数据
-            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + s);
             if (beforeTime != null) {
                 continue;
             } else {
-                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + s, s, 10L, TimeUnit.DAYS);
             }
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-//            Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
-//                    .eq(Sleep::getUserUuid, user.getAccount())
-//                    .eq(Sleep::getCreateTime, localDateTime)
-//                    .eq(Sleep::getDeleted, true));
-//            if (sleep != null) {
-//                continue;
-//            }
-            arr.add(Sleep.build(loginUser, reqBo, localDateTime));
+            arr.add(Sleep.build(loginUser, reqBo, time));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);
@@ -77,31 +71,32 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
     }
 
     /***************************************************************************************************************************
-     * @description 批量删除用户睡眠数据
+     * @description 批量删除用户睡眠数据（预留大后台）
      * @author zzm
      * @date 2021/11/11 17:19
      * @param list 睡眠id列表
      **************************************************************************************************************************/
     @Override
     public void batchDeleteSleep(List<Long> list) {
-        log.info("Delete user sleep in batch request parameter, list = {}", list);
-        LoginUser user = ContextHolder.getContext().getLoginUser();
+        log.info("批量删除用户睡眠数据, list = {}", list);
         if (CollectionUtil.isEmpty(list)) {
-            log.error("Please check the body sleep to be deleted");
+            log.error("请求参数不能为空");
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
         }
+        List<Long> arr = new ArrayList<>();
         for (Long id : list) {
             Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
                     .eq(Sleep::getId, id)
-                    .eq(Sleep::getDeleted, true)
-                    .eq(Sleep::getUserUuid, user.getAccount()));
+                    .eq(Sleep::getDeleted, true));
             if (sleep == null) {
-                log.error("Body sleep to delete not found, temperatureId = {}", id);
-                throw new BaseException(ErrorEnum.SERVER_BUSY);
+                log.error("要删除的睡眠数据不存在, id = {}", id);
+                continue;
             }
+            arr.add(id);
         }
-        removeByIds(list);
+        if (CollectionUtil.isNotEmpty(arr)) {
+            removeByIds(list);
+        }
     }
-
 
 }
