@@ -1,7 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
@@ -14,7 +13,6 @@ import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityDetails;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.GouldUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +62,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         LocalDateTime now = LocalDateTime.now();
         List<ActivityDto> activityDtos = this.activityMapper.queryNearbyActivityList(reqBo);
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    reqBo.getLatitude() + "," + reqBo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
+                    reqBo.getLongitude() + "," + reqBo.getLatitude());
+            activity.setDistance(apiDistance);
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数
             long minutes = Duration.between(publishTime, now).toMinutes();
@@ -97,9 +95,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         log.info("activityReqVo的参数{}", activityReqVoDto);
         List<ActivityDto> activityDtos = this.activityMapper.queryActivityList(activityReqVoDto);
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityReqVoDto.getLatitude() + "," + activityReqVoDto.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
+                    activityReqVoDto.getLongitude() + "," + activityReqVoDto.getLatitude());
+            activity.setDistance(apiDistance);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数
@@ -145,7 +143,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Transactional(rollbackFor = Exception.class)
     public int publishActivity(ActivitySaveReqBo reqBo) {
         log.info("Activity request parameters, ActivitySaveReqBo = {}", reqBo);
-        UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getId());
         Activity activity = new Activity();
         //辅助相同属性
         BeanUtils.copyProperties(reqBo, activity);
@@ -158,13 +155,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         activity.setCreateTime(now);
         activity.setUpdateTime(now);
         //新增详情表
-        ActivityDetails activityDetails = new ActivityDetails();
-        activityDetails.setAId(userAuth().getAccount());
-        activityDetails.setNickname(userAuth().getNickName());
-        activityDetails.setCreateTime(now);
-        activityDetails.setUpdateTime(now);
-        activityDetails.setDeleted(true);
-        this.activityDetailsMapper.insert(activityDetails);
         return this.activityMapper.insert(activity);
     }
 
@@ -181,9 +171,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         for (ActivityDto activity : activityDtos) {
             if (activity.getUserUuid().equals(userAuth().getAccount())) {
                 //这个是自己
-                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                        activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-                activity.setDistance(apiDistance / 1000);
+                long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
+                        activityPageDto.getLongitude() + "," + activityPageDto.getLatitude());
+                activity.setDistance(apiDistance);
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime publishTime = activity.getPublishTime();
                 //相差的分钟数
@@ -202,9 +192,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             }
             if (!activity.getUserUuid().equals(userAuth().getAccount())) {
                 //这个不是自己
-                long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                        activityPageDto.getLatitude() + "," + activityPageDto.getLongitude());
-                activity.setDistance(apiDistance / 1000);
+                long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
+                        activityPageDto.getLongitude() + "," + activityPageDto.getLatitude());
+                activity.setDistance(apiDistance);
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime publishTime = activity.getPublishTime();
                 //相差的分钟数
@@ -237,9 +227,9 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         log.info("activityReqBo的参数:{}", activityReqBo);
         List<ActivityDto> activityDtos = this.activityMapper.pageListed(activityReqBo);
         for (ActivityDto activity : activityDtos) {
-            long apiDistance = (long) GouldUtil.getDistance(activity.getLatitude() + "," + activity.getLongitude(),
-                    activityReqBo.getLatitude() + "," + activityReqBo.getLongitude());
-            activity.setDistance(apiDistance / 1000);
+            long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
+                    activityReqBo.getLongitude() + "," + activityReqBo.getLatitude());
+            activity.setDistance(apiDistance);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime publishTime = activity.getPublishTime();
             //相差的分钟数

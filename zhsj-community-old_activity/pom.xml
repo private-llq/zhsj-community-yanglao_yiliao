@@ -32,6 +32,9 @@
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>
                     <mainClass>com.zhsj.OldActivityApplication</mainClass>
+                    <outputDirectory>
+                        ${basedir}../../jar
+                    </outputDirectory>
                 </configuration>
                 <executions>
                     <execution>

@@ -7,18 +7,22 @@ import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
+import com.zhsj.community.yanglao_yiliao.common.utils.RedisUtils;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.MonitorSleepReqBo;
+import com.zhsj.community.yanglao_yiliao.healthydata.constant.HealthDataConstant;
 import com.zhsj.community.yanglao_yiliao.healthydata.mapper.SleepMapper;
 import com.zhsj.community.yanglao_yiliao.healthydata.pojo.Sleep;
 import com.zhsj.community.yanglao_yiliao.healthydata.service.SleepService;
 import com.zhsj.community.yanglao_yiliao.healthydata.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zzm
@@ -30,6 +34,9 @@ import java.util.List;
 @Service
 public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements SleepService {
 
+    @Autowired
+    private RedisUtils redisService;
+
     /***************************************************************************************************************************
      * @description 监控用户睡眠并保存
      * @author zzm
@@ -39,7 +46,7 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
     @Override
     public void monitorSleep(List<MonitorSleepReqBo> list) {
         log.info("Monitor user sleep request parameters, List<MonitorSleepReqBo> = {}", list);
-        LoginUser user = ContextHolder.getContext().getLoginUser();
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         if (CollectionUtil.isEmpty(list)) {
             log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);
             throw new BaseException(ErrorEnum.PARAMS_ERROR);
@@ -47,15 +54,22 @@ public class SleepServiceImpl extends ServiceImpl<SleepMapper, Sleep> implements
         HashSet<MonitorSleepReqBo> hashSet = new HashSet<>(list);
         List<Sleep> arr = new ArrayList<Sleep>();
         for (MonitorSleepReqBo reqBo : hashSet) {
-            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
-            Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
-                    .eq(Sleep::getUserUuid, user.getAccount())
-                    .eq(Sleep::getCreateTime, localDateTime)
-                    .eq(Sleep::getDeleted, true));
-            if (sleep != null) {
+            // ---排除历史重复数据
+            Object beforeTime = redisService.get(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime());
+            if (beforeTime != null) {
                 continue;
+            } else {
+                redisService.set(HealthDataConstant.HEALTH_DATA_REMOVE_REPEAT_SLEEP + loginUser.getAccount() + ":" + reqBo.getCreateTime(), reqBo.getCreateTime().toString(), 10L, TimeUnit.DAYS);
             }
-            arr.add(Sleep.build(user, reqBo, localDateTime));
+            LocalDateTime localDateTime = TimeUtils.formatTimestamp(reqBo.getCreateTime());
+//            Sleep sleep = getOne(new LambdaQueryWrapper<Sleep>()
+//                    .eq(Sleep::getUserUuid, user.getAccount())
+//                    .eq(Sleep::getCreateTime, localDateTime)
+//                    .eq(Sleep::getDeleted, true));
+//            if (sleep != null) {
+//                continue;
+//            }
+            arr.add(Sleep.build(loginUser, reqBo, localDateTime));
         }
         if (CollectionUtil.isNotEmpty(arr)) {
             saveBatch(arr);

@@ -36,6 +36,9 @@
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>
                     <mainClass>com.zhsj.HealthDataApplication</mainClass>
+                    <outputDirectory>
+                        ${basedir}../../jar
+                    </outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
