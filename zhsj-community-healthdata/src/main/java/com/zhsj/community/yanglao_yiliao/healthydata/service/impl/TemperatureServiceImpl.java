@@ -45,7 +45,7 @@ public class TemperatureServiceImpl extends ServiceImpl<TemperatureMapper, Tempe
      **************************************************************************************************************************/
     @Override
     public void monitorTemperature(List<MonitorTemperatureReqBo> list) {
-        log.info("Monitor user temperature request parameters,List<MonitorTemperatureReqBo> = {}", list);
+        log.info("检测用户体温并保存,List<MonitorTemperatureReqBo> = {}", list);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
         if (CollectionUtil.isEmpty(list)) {
             log.error("request parameter is empty, List<MonitorHeartRateReqBo> = {}", list);

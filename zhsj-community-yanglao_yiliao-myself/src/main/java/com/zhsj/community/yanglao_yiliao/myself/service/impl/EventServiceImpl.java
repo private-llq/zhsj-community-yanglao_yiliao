@@ -1,5 +1,9 @@
 package com.zhsj.community.yanglao_yiliao.myself.service.impl;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhsj.base.api.constant.RpcConst;
+import com.zhsj.base.api.entity.UserDetail;
+import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.basecommon.enums.ErrorEnum;
 import com.zhsj.basecommon.exception.BaseException;
 import com.zhsj.baseweb.support.LoginUser;
@@ -13,6 +17,8 @@ import com.zhsj.community.yanglao_yiliao.myself.mapper.EventMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.EventWeekMapper;
 import com.zhsj.community.yanglao_yiliao.myself.mapper.FamilyRecordMapper;
 import com.zhsj.community.yanglao_yiliao.myself.service.IEventService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,22 +32,20 @@ import java.util.*;
  * @author: Hu
  * @create: 2021-11-12 14:46
  **/
+@Slf4j
 @Service
 public class EventServiceImpl implements IEventService {
 
     @Resource
     private FamilyRecordMapper familyRecordMapper;
-
     @Resource
     private EventMapper eventMapper;
-
     @Resource
     private EventFamilyMapper eventFamilyMapper;
-
     @Resource
     private EventWeekMapper eventWeekMapper;
-
-
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER, check = false)
+    private IBaseUserInfoRpcService userInfoRpcService;
 
     /**
      * @Description: 新增
@@ -53,12 +57,12 @@ public class EventServiceImpl implements IEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long save(EventEntity eventEntity, LoginUser loginUser) {
+        // ---添加事件提醒
         eventEntity.setId(SnowFlake.nextId());
         eventEntity.setUid(loginUser.getAccount());
         eventEntity.setCreateTime(LocalDateTime.now());
         eventMapper.insert(eventEntity);
-
-        //添加事件提醒家人
+        // ---添加事件提醒家人
         EventFamilyEntity entity;
         LinkedList<EventFamilyEntity> familyList = new LinkedList<>();
         for (Long family : eventEntity.getFamilies()) {
@@ -71,8 +75,7 @@ public class EventServiceImpl implements IEventService {
             familyList.add(entity);
         }
         eventFamilyMapper.saveAll(familyList);
-
-        //添加事件周天
+        // ---添加事件提醒
         EventWeekEntity eventWeekEntity;
         LinkedList<EventWeekEntity> weekList = new LinkedList<>();
         for (Integer week : eventEntity.getWeeks()) {
@@ -98,13 +101,14 @@ public class EventServiceImpl implements IEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(EventEntity eventEntity, LoginUser loginUser) {
+        // ---修改事件提醒
         eventEntity.setUid(loginUser.getAccount());
         eventEntity.setUpdateTime(LocalDateTime.now());
         eventMapper.updateById(eventEntity);
-
-        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",eventEntity.getId()).eq("deleted",0));
-        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",eventEntity.getId()).eq("deleted",0));
-        //添加事件家人
+        // ---删除事件提醒成员和周时间
+        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id", eventEntity.getId()).eq("deleted", 0));
+        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id", eventEntity.getId()).eq("deleted", 0));
+        // ---添加事件提醒家人
         EventFamilyEntity entity;
         LinkedList<EventFamilyEntity> list = new LinkedList<>();
         for (Long family : eventEntity.getFamilies()) {
@@ -117,8 +121,7 @@ public class EventServiceImpl implements IEventService {
             list.add(entity);
         }
         eventFamilyMapper.saveAll(list);
-
-        //添加事件周天
+        // ---添加事件提醒周时间
         EventWeekEntity eventWeekEntity;
         LinkedList<EventWeekEntity> weekList = new LinkedList<>();
         for (Integer week : eventEntity.getWeeks()) {
@@ -134,7 +137,7 @@ public class EventServiceImpl implements IEventService {
 
 
     /**
-     * @Description: 根据时间查询详情
+     * @Description: 根据时间查询事件提醒列表
      * @author: Hu
      * @since: 2021/11/13 16:23
      * @Param: [localDate, loginUser]
@@ -143,22 +146,28 @@ public class EventServiceImpl implements IEventService {
     @Override
     public List<EventEntity> list(Integer week, LoginUser loginUser) {
         Map<String, Object> paramMap;
+        // ---查询事件提醒列表
         List<EventEntity> entityList = eventMapper.selectByDate(week, loginUser.getAccount());
         for (EventEntity entity : entityList) {
-            //封装提醒家人信息
+            // ---封装事件提醒家人信息
             Set<Long> longSet = eventFamilyMapper.getByFamilyId(entity.getId());
             List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(longSet);
-            if (entities.size()!=0){
+            if (entities.size() != 0) {
                 for (FamilyRecordEntity recordEntity : entities) {
+                    UserDetail userDetail = userInfoRpcService.getUserDetail(recordEntity.getUid());
+                    if (userDetail == null) {
+                        log.error("该用户有可能已经被注销，或者数据被串改，uid = {}", recordEntity.getUid());
+                        continue;
+                    }
                     paramMap = new HashMap<>(2);
-                    paramMap.put("id",recordEntity.getId());
-                    paramMap.put("name",recordEntity.getName());
+                    paramMap.put("id", recordEntity.getId());
+                    paramMap.put("name", userDetail.getNickName());
                     entity.getRecords().add(paramMap);
                 }
             }
-            //封装事件周天
+            // ---封装事件提醒周时间
             List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", entity.getId()));
-            if (weekEntities.size()!=0) {
+            if (weekEntities.size() != 0) {
                 for (EventWeekEntity weekEntity : weekEntities) {
                     entity.getWeeks().add(weekEntity.getWeek());
                 }
@@ -166,7 +175,6 @@ public class EventServiceImpl implements IEventService {
         }
         return entityList;
     }
-
 
 
     /**
@@ -179,22 +187,27 @@ public class EventServiceImpl implements IEventService {
     @Override
     public List<EventEntity> pageList(LoginUser loginUser) {
         Map<String, Object> paramMap;
-        List<EventEntity> entityList = eventMapper.selectList(new QueryWrapper<EventEntity>().eq("uid",loginUser.getAccount()));
+        List<EventEntity> entityList = eventMapper.selectList(new QueryWrapper<EventEntity>().eq("uid", loginUser.getAccount()));
         for (EventEntity entity : entityList) {
-            //封装提醒家人信息
+            // ---封装提醒家人信息
             Set<Long> longSet = eventFamilyMapper.getByFamilyId(entity.getId());
             List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(longSet);
-            if (entities.size()!=0){
+            if (entities.size() != 0) {
                 for (FamilyRecordEntity recordEntity : entities) {
+                    UserDetail userDetail = userInfoRpcService.getUserDetail(recordEntity.getUid());
+                    if (userDetail == null) {
+                        log.error("该用户有可能已经被注销，或者数据被串改，uid = {}", recordEntity.getUid());
+                        continue;
+                    }
                     paramMap = new HashMap<>(2);
-                    paramMap.put("id",recordEntity.getId());
-                    paramMap.put("name",recordEntity.getName());
+                    paramMap.put("id", recordEntity.getId());
+                    paramMap.put("name", userDetail.getNickName());
                     entity.getRecords().add(paramMap);
                 }
             }
-            //封装事件周天
+            // ---封装事件周天
             List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", entity.getId()));
-            if (weekEntities.size()!=0) {
+            if (weekEntities.size() != 0) {
                 for (EventWeekEntity weekEntity : weekEntities) {
                     entity.getWeeks().add(weekEntity.getWeek());
                 }
@@ -214,8 +227,8 @@ public class EventServiceImpl implements IEventService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         eventMapper.deleteById(id);
-        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id",id));
-        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id",id));
+        eventFamilyMapper.delete(new QueryWrapper<EventFamilyEntity>().eq("event_id", id));
+        eventWeekMapper.delete(new QueryWrapper<EventWeekEntity>().eq("event_id", id));
     }
 
 
@@ -232,16 +245,21 @@ public class EventServiceImpl implements IEventService {
         EventEntity entity = eventMapper.selectById(id);
         Set<Long> ids = eventFamilyMapper.getByFamilyId(id);
         List<FamilyRecordEntity> entities = familyRecordMapper.selectBatchIds(ids);
-        if (entities.size()!=0){
+        if (entities.size() != 0) {
             for (FamilyRecordEntity recordEntity : entities) {
+                UserDetail userDetail = userInfoRpcService.getUserDetail(recordEntity.getUid());
+                if (userDetail == null) {
+                    log.error("该用户有可能已经被注销，或者数据被串改，uid = {}", recordEntity.getUid());
+                    continue;
+                }
                 paramMap = new HashMap<>(2);
-                paramMap.put("id",recordEntity.getId());
-                paramMap.put("name",recordEntity.getName());
+                paramMap.put("id", recordEntity.getId());
+                paramMap.put("name", userDetail.getNickName());
                 entity.getRecords().add(paramMap);
             }
         }
         List<EventWeekEntity> weekEntities = eventWeekMapper.selectList(new QueryWrapper<EventWeekEntity>().eq("event_id", id));
-        if (weekEntities.size()!=0) {
+        if (weekEntities.size() != 0) {
             for (EventWeekEntity weekEntity : weekEntities) {
                 entity.getWeeks().add(weekEntity.getWeek());
             }
@@ -258,13 +276,13 @@ public class EventServiceImpl implements IEventService {
      * @return: void
      */
     @Override
-    public void status(Long id,Integer status) {
+    public void status(Long id, Integer status) {
         EventEntity eventEntity = eventMapper.selectById(id);
-        if (eventEntity!=null){
+        if (eventEntity != null) {
             eventEntity.setStatus(status);
             eventMapper.updateById(eventEntity);
         } else {
-            throw new BaseException(ErrorEnum.COMMON_QUANTITY_LIMIT,"当前事件不存在！");
+            throw new BaseException(ErrorEnum.COMMON_QUANTITY_LIMIT, "当前事件不存在！");
         }
     }
 }

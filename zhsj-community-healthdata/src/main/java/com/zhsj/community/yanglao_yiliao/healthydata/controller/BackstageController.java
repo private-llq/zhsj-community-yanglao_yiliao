@@ -1,6 +1,5 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.common.utils.PageVo;
 import com.zhsj.community.yanglao_yiliao.healthydata.bo.DeviceListReqBo;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +37,9 @@ public class BackstageController {
     @PostMapping("/deviceList")
     public R<PageVo<DeviceListRspBo>> deviceList(@RequestBody @Valid DeviceListReqBo reqBo) {
         PageVo<DeviceListRspBo> rspBoPageVo = deviceInfoService.deviceList(reqBo);
-        return R.ok(rspBoPageVo);
+        R<PageVo<DeviceListRspBo>> ok = R.ok(rspBoPageVo);
+        ok.setMessage(null);
+        return ok;
     }
 
     /***************************************************************************************************************************

@@ -23,8 +23,7 @@ public class ActivityReqDto {
     /**
      * id
      */
-    private Long id;
-
+    private String id;
     /**
      * 活动描述
      */

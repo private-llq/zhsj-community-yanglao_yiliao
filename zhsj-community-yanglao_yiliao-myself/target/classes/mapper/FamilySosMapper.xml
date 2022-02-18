@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhsj.community.yanglao_yiliao.myself.mapper.FamilySosMapper">
+    <insert id="saveAll">
+        insert into t_family_sos (id,name,mobile,uid,create_time) values
+        <foreach collection="list" separator="," item="list">
+            (#{list.id},#{list.name},#{list.mobile},#{list.uid},#{list.createTime})
+        </foreach>
+    </insert>
+</mapper>

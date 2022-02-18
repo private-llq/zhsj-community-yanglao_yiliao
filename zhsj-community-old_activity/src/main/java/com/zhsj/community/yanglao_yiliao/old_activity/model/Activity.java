@@ -1,7 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhsj.baseweb.support.LoginUser;
@@ -79,6 +78,22 @@ public class Activity {
      */
     private int voiceTime;
     /**
+     * 手机
+     */
+    private String phone;
+    /**
+     * 昵称
+     */
+    private String userName;
+    /**
+     * 性别
+     */
+    private Integer sex;
+    /**
+     * 年龄
+     */
+    private Integer age;
+    /**
      * 发布时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -88,7 +103,6 @@ public class Activity {
     /**
      * 是否删除（0：已删除false，1：未删除true）
      */
-    @TableLogic
     private Boolean deleted;
 
     /**

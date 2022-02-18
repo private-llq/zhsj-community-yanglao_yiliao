@@ -3,7 +3,8 @@ package com.zhsj.community.yanglao_yiliao.old_activity.service;
 
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityReqDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypeDto;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypedDto;
+
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface ActivityTypeService {
      *
      * @return ActivityType
      */
-    List<ActivityType> selectList();
+    List<ActivityTypedDto> selectList();
 
     /**
      * 新增活动类型
@@ -28,7 +29,7 @@ public interface ActivityTypeService {
      * @param activityTypeDto
      * @return int
      */
-    int activityType(ActivityTypeDto activityTypeDto);
+    boolean activityType(ActivityTypeDto activityTypeDto);
 
     /**
      * 修改活动类型
@@ -36,13 +37,13 @@ public interface ActivityTypeService {
      * @param activityTypeDto
      * @return int
      */
-    int updateActivityType(ActivityTypeDto activityTypeDto);
+    boolean updateActivityType(ActivityTypeDto activityTypeDto);
 
     /***
      * 删除活动类型
-     * @param activityTypeCode
+     * @param id
      */
-    void deleteActivityType(String activityTypeCode);
+    void deleteActivityType(String id);
 
     /**
      * 大后台查询所有的活动

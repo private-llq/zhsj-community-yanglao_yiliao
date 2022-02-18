@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @RequestMapping("user")
 public class UserDataController {
 
-    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER)
+    @DubboReference(version = RpcConst.Rpc.VERSION, group = RpcConst.Rpc.Group.GROUP_BASE_USER, check = false)
     private IBaseUserInfoRpcService baseUserInfoRpcService;
 
     @Resource

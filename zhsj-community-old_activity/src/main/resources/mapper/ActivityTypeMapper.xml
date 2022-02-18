@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityTypeMapper">
+
+    <update id="addByIdActivityType">
+        UPDATE t_activity_type SET activity_type_code=activity_type_code+1 WHERE activity_type_code>=#{activityTypeCode}
+    </update>
+
+</mapper>

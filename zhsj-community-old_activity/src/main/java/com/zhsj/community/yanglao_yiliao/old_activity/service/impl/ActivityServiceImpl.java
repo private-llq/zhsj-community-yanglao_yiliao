@@ -1,16 +1,15 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
-import com.zhsj.base.api.vo.PageVO;
 import com.zhsj.base.api.vo.UserImVo;
 import com.zhsj.basecommon.constant.BaseConstant;
 import com.zhsj.baseweb.support.ContextHolder;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityDetailsMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.mapper.ActivityMapper;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.Activity;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityService;
@@ -21,8 +20,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -40,9 +37,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
     @Autowired
     private ActivityMapper activityMapper;
-
-    @Autowired
-    private ActivityDetailsMapper activityDetailsMapper;
 
 
     @DubboReference(version = BaseConstant.Rpc.VERSION, group = BaseConstant.Rpc.Group.GROUP_BASE_USER)
@@ -71,7 +65,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setPublishTimed(minutes);
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
-                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                log.info("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},eHomeUserIm = {}", activity.getUserUuid(), eHomeUserIm);
                 continue;
             }
             activity.setImId(eHomeUserIm.getImId());
@@ -86,7 +80,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     /**
-     * 获取附近活动
+     * 活动人所在地
      *
      * @param activityReqVoDto 用户id，查询时间类型
      */
@@ -105,7 +99,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setPublishTimed(minutes);
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
-                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                log.info("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
                 continue;
             }
             activity.setImId(eHomeUserIm.getImId());
@@ -147,14 +141,20 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         //辅助相同属性
         BeanUtils.copyProperties(reqBo, activity);
         LocalDateTime now = LocalDateTime.now();
-        //默认不是好友  后期能查询 再调整 2021-11-23
-        activity.setUserUuid(userAuth().getAccount());
+        //默认不是好友,新增属性
+        //activity.setUserUuid(userAuth().getAccount());
+        UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getAccount());
+        activity.setUserUuid(userDetail1.getAccount());
+        activity.setPhone(userDetail1.getPhone());
+        activity.setUserName(userDetail1.getNickName());
+        activity.setSex(userDetail1.getSex());
+        activity.setAge(userDetail1.getAge());
         activity.setDeleted(true);
         activity.setIsUser(true);
         activity.setPublishTime(now);
         activity.setCreateTime(now);
         activity.setUpdateTime(now);
-        //新增详情表
+        //新增活动表
         return this.activityMapper.insert(activity);
     }
 
@@ -180,7 +180,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 long minutes = Duration.between(publishTime, now).toMinutes();
                 activity.setPublishTimed(minutes);
                 if (userAuth() == null || userAuth().getImId() == null) {
-                    log.error("调用【userAuth()】的【getEHomeUserIm】获取【E到家用户imid】为null，userAuth() = {},userAuth().getImId() = {}", activity.getUserUuid(), userAuth());
+                    log.info("userAuth() = {},userAuth().getImId() = {}", activity.getUserUuid(), userAuth());
+                    continue;
                 }
                 activity.setImId(userAuth().getImId());
                 UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
@@ -189,8 +190,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setAge(userDetail1.getAge());
                 activity.setSex(userDetail1.getSex());
                 activity.setUserName(userDetail1.getNickName());
-            }
-            if (!activity.getUserUuid().equals(userAuth().getAccount())) {
+            }else {
                 //这个不是自己
                 long apiDistance = GouldUtil.getApiDistance(activity.getLongitude() + "," + activity.getLatitude(),
                         activityPageDto.getLongitude() + "," + activityPageDto.getLatitude());
@@ -202,7 +202,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
                 activity.setPublishTimed(minutes);
                 UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activityPageDto.getId());
                 if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
-                    log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                    log.info("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},eHomeUserIm = {}", activity.getUserUuid(), eHomeUserIm);
                     continue;
                 }
                 activity.setImId(eHomeUserIm.getImId());
@@ -237,7 +237,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
             activity.setPublishTimed(minutes);
             UserImVo eHomeUserIm = this.iBaseUserInfoRpcService.getEHomeUserIm(activity.getUserUuid());
             if (eHomeUserIm == null || eHomeUserIm.getImId() == null) {
-                log.error("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},UserImVo = {}", activity.getUserUuid(), eHomeUserIm);
+                log.info("调用【IBaseUserInfoRpcService】的【getEHomeUserIm】获取【E到家用户imid】为null，activity.getUserUuid() = {},eHomeUserIm = {}", activity.getUserUuid(), eHomeUserIm);
                 continue;
             }
             activity.setImId(eHomeUserIm.getImId());
@@ -261,55 +261,21 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     @Override
     public List<ActivityReqDto> likeActivity(LikeActivityDto likeActivity) {
         log.info("likeActivity 的值:{}", likeActivity);
-        //假如没有电话和昵称，调别人的接口
-        List<ActivityReqDto> list = new ArrayList<>();
-        if (!likeActivity.getPublishTime().isEmpty() || !likeActivity.getActivityTypeName().isEmpty()) {
-            List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
-            for (ActivityReqDto a : activityReqDtos) {
-                UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(a.getUserUuid());
-                a.setSex(userDetail.getSex());
-                a.setPhone(userDetail.getPhone());
-                a.setUserName(userDetail.getNickName());
-                a.setAge(userDetail.getAge());
-            }
-            list.addAll(activityReqDtos);
+        UserDetail userDetail1 = this.iBaseUserInfoRpcService.getUserDetail(userAuth().getAccount());
+        Activity activity = new Activity();
+        if (userDetail1 == null) {
+            activity.setDeleted(false);
+        } else {
+            activity.setDeleted(true);
         }
-        if (!likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty()) {
-            PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
-            for (UserDetail d : userDetailPageVO.getData()) {
-                List<ActivityReqDto> activity = this.activityMapper.selectByIdActivityed(d.getAccount());
-                if (activity == null) {
-                    System.out.println("不存在:" + activity);
-                    continue;
-                }
-                ActivityReqDto activityReqDto = new ActivityReqDto();
-                BeanUtils.copyProperties(activity, activityReqDto);
-                activityReqDto.setPhone(d.getPhone());
-                activityReqDto.setAge(d.getAge());
-                activityReqDto.setSex(d.getSex());
-                activityReqDto.setUserName(d.getNickName());
-                list.addAll(activity);
-            }
-        }
-        if (!likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty() || !likeActivity.getUserName().isEmpty() || !likeActivity.getPhone().isEmpty()) {
-            List<ActivityReqDto> objects = new ArrayList<>();
-            PageVO<UserDetail> userDetailPageVO = this.iBaseUserInfoRpcService.queryUser(likeActivity.getUserName(), likeActivity.getPhone(), likeActivity.getPage(), likeActivity.getData());
-            for (UserDetail userDetail : userDetailPageVO.getData()) {
-                List<ActivityReqDto> list1 = this.activityMapper.selectByIdActivityed(userDetail.getAccount());
-                objects.addAll(list1);
-            }
-            List<ActivityReqDto> activityReqDtos = this.activityMapper.likeActivity(likeActivity);
-            objects.addAll(activityReqDtos);
-            for (ActivityReqDto activityReqDto : objects) {
-                UserDetail d = this.iBaseUserInfoRpcService.getUserDetail(activityReqDto.getUserUuid());
-                activityReqDto.setPhone(d.getPhone());
-                activityReqDto.setAge(d.getAge());
-                activityReqDto.setSex(d.getSex());
-                activityReqDto.setUserName(d.getNickName());
-            }
-            list.addAll(objects);
-        }
-        return list;
+        activity.setUserName(userDetail1.getNickName());
+        activity.setUserUuid(userDetail1.getAccount());
+        activity.setAge(userDetail1.getAge());
+        activity.setPhone(userDetail1.getPhone());
+        QueryWrapper<Activity> Wrapper = new QueryWrapper<>();
+        Wrapper.eq("user_uuid", userDetail1.getAccount());
+        this.activityMapper.update(activity, Wrapper);
+        return this.activityMapper.likeActivity(likeActivity);
     }
 
     /**
@@ -325,6 +291,10 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         ActivityReqDto activityReqDto = new ActivityReqDto();
         BeanUtils.copyProperties(activity, activityReqDto);
         UserDetail userDetail = this.iBaseUserInfoRpcService.getUserDetail(activity.getUserUuid());
+        if (userDetail == null || activity.getUserUuid() == null) {
+            log.info("调用【iBaseUserInfoRpcService()】的【getUserDetail】获取【userDetail】为null，userDetail = {},activity.getUserUuid() = {}", userDetail, activity.getUserUuid());
+            return activityReqDto;
+        }
         activityReqDto.setSex(userDetail.getSex());
         activityReqDto.setPhone(userDetail.getPhone());
         activityReqDto.setUserName(userDetail.getNickName());

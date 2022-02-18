@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
 import com.zhsj.community.yanglao_yiliao.common.qo.FamilysQo;
-import com.zhsj.community.yanglao_yiliao.common.utils.BaseQo;
+import com.zhsj.community.yanglao_yiliao.myself.bo.FamilyRecordPageReqBo;
 
 import java.util.List;
 import java.util.Map;
@@ -59,5 +59,5 @@ public interface IFamilyRecordService extends IService<FamilyRecordEntity> {
      * @Param:
      * @return:
      */
-    Map<String, Object> selectPage(BaseQo<String> qo);
+    Map<String, Object> selectPage(FamilyRecordPageReqBo reqBo);
 }

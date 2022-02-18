@@ -25,7 +25,7 @@ public class TimeUtils {
     }
 
     /**
-     * 格式化LocalDateTime yyyy-MM-dd HH:mm
+     * 格式化LocalDateTime yyyy-MM-dd-HH-mm
      */
     public static String formatTime(@NotNull LocalDateTime localDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm");

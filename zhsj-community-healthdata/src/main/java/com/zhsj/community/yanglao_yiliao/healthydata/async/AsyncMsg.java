@@ -8,6 +8,7 @@ import com.zhsj.base.api.rpc.IBaseSmsRpcService;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.base.api.vo.UserImVo;
 import com.zhsj.basecommon.constant.BaseConstant;
+import com.zhsj.basecommon.vo.R;
 import com.zhsj.baseweb.support.LoginUser;
 import com.zhsj.community.yanglao_yiliao.common.entity.AgencySosEntity;
 import com.zhsj.community.yanglao_yiliao.common.entity.FamilyRecordEntity;
@@ -24,7 +25,6 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -59,12 +59,12 @@ public class AsyncMsg {
     @Async
     public void asyncMsg(@NotNull LoginUser loginUser,
                          @NotNull Integer healthDataState) {
-        // 判断是否在规定时间内已经推送了消息（一天推两次）
+        // ---判断是否在规定时间内已经推送了消息（一天推两次）
         String uid = (String) redisService.get(HealthDataConstant.HEALTH_DATA_PUSH_MSG + loginUser.getAccount());
         if (uid != null) {
             return;
         }
-        // 推送APP消息（身体健康状态一般）
+        // ---推送APP消息（身体健康状态一般）
         if (healthDataState.equals(HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW)) {
             List<FamilyRecordEntity> list = getFamilyId(loginUser.getAccount());
             if (CollectionUtil.isEmpty(list)) {
@@ -89,7 +89,7 @@ public class AsyncMsg {
                                 null));
             }
         }
-        // 发送短信（身体健康状态极差）
+        // ---发送短信（身体健康状态极差）
         if (healthDataState.equals(HealthDataConstant.HEALTH_COLOR_STATUS_RED)) {
             List<String> list = getSosUid(loginUser.getAccount());
             if (CollectionUtil.isEmpty(list)) {
@@ -105,8 +105,8 @@ public class AsyncMsg {
                         map);
             }
         }
-        // 设置推送消息缓存
-        redisService.set(HealthDataConstant.HEALTH_DATA_PUSH_MSG + loginUser.getAccount(), loginUser.getAccount(), 720L, TimeUnit.MINUTES);
+        // ---设置推送消息缓存
+        redisService.set(HealthDataConstant.HEALTH_DATA_PUSH_MSG + loginUser.getAccount(), loginUser.getAccount(), 600L, TimeUnit.MINUTES);
     }
 
     /**
@@ -139,7 +139,11 @@ public class AsyncMsg {
      */
     private List<String> getSosUid(@NotNull String loginUserId) {
         log.info("调用【SosFeign】服务的【selectUser】方法获取用户的SOS通讯录");
-        Map<String, Object> map = sosFeign.selectUser(loginUserId).getData();
+        R<Map<String, Object>> r = sosFeign.selectUser(loginUserId);
+        if (r.getCode() != 0) {
+            return null;
+        }
+        Map<String, Object> map = r.getData();
         if (CollectionUtil.isEmpty(map)) {
             log.error("调用【SosFeign】服务的【selectUser】方法获取用户的SOS通讯录为null, loginUserId = {}", loginUserId);
             return null;

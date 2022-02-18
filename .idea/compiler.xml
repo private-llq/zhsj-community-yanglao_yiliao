@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="zhsj-community-old_activity" />
+        <module name="zhsj-community-healthdata" />
+        <module name="zhsj-community-yanglao_yiliao-myself" />
+        <module name="zhsj-community-yanglao_yiliao-common" />
+        <module name="zhsj-community-interface" />
+        <module name="zhsj-community-yiliao_service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

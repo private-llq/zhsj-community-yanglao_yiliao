@@ -46,7 +46,7 @@ public class EventEntity extends BaseEntity {
     /**
      * 分钟
      */
-    @Range(min = 0,max = 60, message = "分钟只能是0分到60分之间",groups = {EventValidate.class})
+    @Range(min = 0,max = 59, message = "分钟只能是0分到59分之间",groups = {EventValidate.class})
     @NotNull(message = "分钟不能为空！",groups = {EventValidate.class})
     private Integer warnMinute;
 

@@ -15,6 +15,7 @@ import com.zhsj.community.yanglao_yiliao.common.utils.ValidatorUtils;
 import com.zhsj.community.yanglao_yiliao.myself.service.IAgencySosService;
 import com.zhsj.community.yanglao_yiliao.myself.service.IFamilySosService;
 import com.zhsj.community.yanglao_yiliao.myself.service.IRouteSosService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ import java.util.Map;
  * @author: Hu
  * @create: 2021-11-11 14:07
  **/
+@Slf4j
 @RestController
 @RequestMapping("sos")
 public class SosController {
@@ -41,7 +43,7 @@ public class SosController {
     @Autowired
     private IRouteSosService routeSosService;
 
-    private static final int NUMBER=3;
+    private static final int NUMBER = 3;
 
 
     /**
@@ -52,12 +54,11 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R
      */
     @GetMapping
-    public R sos(@RequestParam Long familyId){
+    public R<Void> sos(@RequestParam Long familyId) {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        familySosService.sos(loginUser,familyId);
+        familySosService.sos(loginUser, familyId);
         return R.ok();
     }
-
 
 
     /**
@@ -65,12 +66,12 @@ public class SosController {
      * @author: Hu
      * @since: 2021/11/12 11:06
      * @Param: []
-     * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
+     * @return: com.zhsj.basecommon.vo.R<java.util.Map < java.lang.String, java.lang.Object>>
      */
     @GetMapping("select")
-    public R<Map<String,Object>> select(@RequestParam Long familyId){
+    public R<Map<String, Object>> select(@RequestParam Long familyId) {
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        Map<String,Object> map = familySosService.selectByUid(loginUser,familyId);
+        Map<String, Object> map = familySosService.selectByUid(loginUser, familyId);
         return R.ok(map);
     }
 
@@ -80,12 +81,12 @@ public class SosController {
      * @author: Hu
      * @since: 2021/12/8 15:20
      * @Param: [uid]
-     * @return: com.zhsj.basecommon.vo.R<java.util.Map<java.lang.String,java.lang.Object>>
+     * @return: com.zhsj.basecommon.vo.R<java.util.Map < java.lang.String, java.lang.Object>>
      */
     @GetMapping("selectUser")
     @LoginIgnore
-    public R<Map<String,Object>> selectUser(@RequestParam String uid){
-        Map<String,Object> map = familySosService.selectUser(uid);
+    public R<Map<String, Object>> selectUser(@RequestParam String uid) {
+        Map<String, Object> map = familySosService.selectUser(uid);
         return R.ok(map);
     }
 
@@ -97,16 +98,24 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R
      */
     @PostMapping("saveFamily")
-    public R<Boolean> saveFamily(@RequestBody FamilySosEntity familySosEntity){
-        ValidatorUtils.validateEntity(familySosEntity,FamilySosEntity.SosValidate.class);
+    public R<Boolean> saveFamily(@RequestBody FamilySosEntity familySosEntity) {
+        log.info("绑定家属");
+        ValidatorUtils.validateEntity(familySosEntity, FamilySosEntity.SosValidate.class);
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>().eq("uid", loginUser.getAccount()));
-        if (list.size()>=NUMBER) {
-            return R.fail("个人最大添加数量3！");
+        List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>()
+                .eq("uid", loginUser.getAccount())
+                .eq("deleted", 0));
+        if (list != null && list.size() >= NUMBER) {
+            return R.fail("SOS通讯录最多绑定三个家人！");
         }
         if (StrUtil.isNotBlank(familySosEntity.getMobile()) && StrUtil.isNotBlank(loginUser.getPhone())) {
             if (familySosEntity.getMobile().equals(loginUser.getPhone())) {
                 return R.fail("SOS通讯录不能添加自己！");
+            }
+        }
+        for (FamilySosEntity sosEntity : list) {
+            if (StrUtil.isNotBlank(familySosEntity.getMobile()) && StrUtil.isNotBlank(sosEntity.getMobile())) {
+                return R.fail("您的SOS通讯录已添加该手机号！");
             }
         }
         familySosEntity.setUid(loginUser.getAccount());
@@ -124,11 +133,14 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R
      */
     @PostMapping("saveAgency")
-    public R<Boolean> saveAgency(@RequestBody AgencySosEntity agencySosEntity){
+    public R<Boolean> saveAgency(@RequestBody AgencySosEntity agencySosEntity) {
+        log.info("绑定机构");
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        List<AgencySosEntity> list = agencySosService.list(new QueryWrapper<AgencySosEntity>().eq("uid", loginUser.getAccount()));
-        if (list.size()!=0){
-            return R.fail("机构最大添加数量1！");
+        List<AgencySosEntity> list = agencySosService.list(new QueryWrapper<AgencySosEntity>()
+                .eq("uid", loginUser.getAccount())
+                .eq("deleted", 0));
+        if (list != null && list.size() != 0) {
+            return R.fail("SOS通讯录最多绑定1个机构");
         }
         agencySosEntity.setId(SnowFlake.nextId());
         agencySosEntity.setCreateTime(LocalDateTime.now());
@@ -145,8 +157,22 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @PutMapping("updateFamily")
-    public R<Boolean> updateFamily(@RequestBody FamilySosEntity familySosEntity){
-        ValidatorUtils.validateEntity(familySosEntity,FamilySosEntity.SosValidate.class);
+    public R<Boolean> updateFamily(@RequestBody FamilySosEntity familySosEntity) {
+        log.info("修改SOS联系人");
+        ValidatorUtils.validateEntity(familySosEntity, FamilySosEntity.SosValidate.class);
+        LoginUser loginUser = ContextHolder.getContext().getLoginUser();
+        if (familySosEntity.getMobile().equals(loginUser.getPhone())) {
+            log.error("SOS通讯录不能修改为本人手机号！");
+            return R.fail("SOS通讯录不能修改为本人手机号！");
+        }
+        List<FamilySosEntity> list = familySosService.list(new QueryWrapper<FamilySosEntity>()
+                .eq("uid", loginUser.getAccount())
+                .eq("deleted", 0));
+        for (FamilySosEntity sosEntity : list) {
+            if (StrUtil.isNotBlank(familySosEntity.getMobile()) && StrUtil.isNotBlank(sosEntity.getMobile())) {
+                return R.fail("您的SOS通讯录已添加该手机号！");
+            }
+        }
         familySosEntity.setUpdateTime(LocalDateTime.now());
         return R.ok(familySosService.updateById(familySosEntity));
     }
@@ -160,13 +186,15 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @PutMapping("updateAgency")
-    public R<Boolean> updateAgency(@RequestBody AgencySosEntity agencySosEntity){
+    public R<Boolean> updateAgency(@RequestBody AgencySosEntity agencySosEntity) {
+        log.info("修改求救机构");
         agencySosEntity.setUpdateTime(LocalDateTime.now());
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        boolean update = agencySosService.update(agencySosEntity, new LambdaQueryWrapper<AgencySosEntity>().eq(AgencySosEntity::getUid, loginUser.getAccount()));
+        boolean update = agencySosService.update(agencySosEntity, new LambdaQueryWrapper<AgencySosEntity>()
+                .eq(AgencySosEntity::getUid, loginUser.getAccount())
+                .eq(AgencySosEntity::getDeleted, 0));
         return R.ok(update);
     }
-
 
 
     /**
@@ -177,9 +205,12 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<com.zhsj.community.yanglao_yiliao.common.entity.RouteSosEntity>
      */
     @GetMapping("findTheWay")
-    public R<RouteSosEntity> findTheWay(){
+    public R<RouteSosEntity> findTheWay() {
+        log.info("我要找路");
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        RouteSosEntity entity = routeSosService.getOne(new QueryWrapper<RouteSosEntity>().eq("uid", loginUser.getAccount()));
+        RouteSosEntity entity = routeSosService.getOne(new QueryWrapper<RouteSosEntity>()
+                .eq("uid", loginUser.getAccount())
+                .eq("deleted", 0));
         return R.ok(entity);
     }
 
@@ -192,12 +223,12 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @PostMapping("saveRoute")
-    public R<Void> saveRoute(@RequestBody RouteSosEntity routeSosEntity){
+    public R<Void> saveRoute(@RequestBody RouteSosEntity routeSosEntity) {
+        log.info("新增修改sos我要找路终点地址");
         LoginUser loginUser = ContextHolder.getContext().getLoginUser();
-        routeSosService.saveRoute(routeSosEntity,loginUser);
+        routeSosService.saveRoute(routeSosEntity, loginUser);
         return R.ok();
     }
-
 
 
     /**
@@ -208,7 +239,8 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @DeleteMapping("deleteFamily")
-    public R<Boolean> deleteFamily(@RequestParam Long id){
+    public R<Boolean> deleteFamily(@RequestParam Long id) {
+        log.info("删除SOS联系人");
         return R.ok(familySosService.removeById(id));
     }
 
@@ -220,7 +252,8 @@ public class SosController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Boolean>
      */
     @DeleteMapping("deleteAgency")
-    public R<Boolean> deleteAgency(@RequestParam Long id){
+    public R<Boolean> deleteAgency(@RequestParam Long id) {
+        log.info("删除SOS求救机构");
         return R.ok(agencySosService.removeById(id));
     }
 

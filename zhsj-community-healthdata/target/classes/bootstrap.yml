@@ -1,0 +1,75 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: dev
+logging:
+  config: classpath:logback.xml
+
+---
+spring:
+  profiles: dev
+  cloud:
+    config:
+      discovery:
+        service-id: base-config-server
+        enabled: true
+      name: application-healthdata
+      profile: dev
+      username: ecf50273a250499a9ec28953c2c494ab
+      password: ecf50273a250499a9ec28953c2c494ab
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.12.49:36366/eureka
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+
+---
+spring:
+  profiles: test
+  cloud:
+    config:
+      discovery:
+        service-id: base-config-server
+        enabled: true
+      name: application-healthdata
+      profile: test
+      username: f14550980f8c4070a43864e365a0e8fa
+      password: 8a33d8f0f7b3452ab52b9644c1188139
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.1.182:36366/eureka
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+
+---
+spring:
+  profiles: prod
+  cloud:
+    config:
+      discovery:
+        service-id: base-config-server
+        enabled: true
+      name: application-healthdata
+      profile: prod
+      username: cfd39a0d977742bba485998b7752a452
+      password: 6c6e06fc325b40379fa0687c0f197e1d
+eureka:
+  client:
+    service-url:
+      defaultZone: http://222.178.213.183:36366/eureka
+  instance:
+    hostname: ${spring.cloud.client.ip-address}
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+
+
+
+
+

@@ -1,7 +1,6 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -35,7 +34,7 @@ public class ActivityType {
     /**
      * 活动类型编码
      */
-    private String activityTypeCode;
+    private Integer activityTypeCode;
 
 
     /**
@@ -47,7 +46,6 @@ public class ActivityType {
     /**
      * 是否删除（0：已删除false，1：未删除true）
      */
-    @TableLogic
     private Boolean deleted;
 
     /**

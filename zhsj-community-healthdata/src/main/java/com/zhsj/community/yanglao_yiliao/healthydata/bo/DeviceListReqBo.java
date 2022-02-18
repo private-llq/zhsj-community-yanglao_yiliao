@@ -1,6 +1,7 @@
 package com.zhsj.community.yanglao_yiliao.healthydata.bo;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,21 +15,27 @@ import javax.validation.constraints.NotNull;
 public class DeviceListReqBo {
 
     /**
+     * 用户名进行模糊搜索，可以为空）
+     */
+    private String userName;
+    /**
      * 设备名称（进行模糊搜索，可以为空）
      */
     private String deviceName;
     /**
-     * 设备马克地址（进行模糊搜索，可以为空）
+     * 手机号（进行模糊搜索，可以为空）
      */
-    private String deviceAddress;
+    private String phoneNo;
     /**
      * 当前分页页码
      */
     @NotNull(message = "分页页码不能为空")
+    @Range(min = 1)
     private Integer pageNo;
     /**
      * 当前分页每页条数
      */
     @NotNull(message = "每页条数不能为空")
+    @Range(min = 1)
     private Integer pageSize;
 }

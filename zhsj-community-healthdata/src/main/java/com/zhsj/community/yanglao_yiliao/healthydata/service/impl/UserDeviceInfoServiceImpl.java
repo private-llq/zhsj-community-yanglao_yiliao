@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhsj.base.api.entity.RealInfoDto;
+import com.zhsj.base.api.entity.RealUserDetail;
 import com.zhsj.base.api.entity.UserDetail;
 import com.zhsj.base.api.rpc.IBaseUserInfoRpcService;
 import com.zhsj.basecommon.constant.BaseConstant;
@@ -29,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +68,6 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
             deviceInfo.setUpdateTime(LocalDateTime.now());
             updateById(deviceInfo);
         }
-
     }
 
     /***************************************************************************************************************************
@@ -132,7 +134,7 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
                 s -> BeanUtil.copyProperties(s, DeviceInfoRspBo.class)).collect(Collectors.toList());
     }
 
-    // --------------------------------------------------------后台管理接口-----------------------------------------------------
+    /////////////////////////////////////////////////后台管理接口//////////////////////////////////////////////////////////////
 
     /***************************************************************************************************************************
      * @description 大后台医疗养老设备管理-获取用户绑定设备列表
@@ -144,34 +146,79 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
     @Override
     public PageVo<DeviceListRspBo> deviceList(DeviceListReqBo reqBo) {
         log.info("大后台医疗养老设备管理-获取用户绑定设备列表, DeviceListReqBo = {}", reqBo);
-        Page<UserDeviceInfo> page = page(new Page<>(reqBo.getPageNo(), reqBo.getPageSize()),
-                new QueryWrapper<UserDeviceInfo>()
-                        .like(StrUtil.isNotBlank(reqBo.getDeviceName()), "m_device_name", reqBo.getDeviceName())
-                        .like(StrUtil.isNotBlank(reqBo.getDeviceAddress()), "m_device_address", reqBo.getDeviceAddress())
-                        .eq("bind", true)
-                        .orderByDesc("create_time"));
         Page<DeviceListRspBo> rspBoPage = new Page<>();
-        rspBoPage.setCurrent(page.getCurrent())
-                .setSize(page.getSize())
-                .setPages(page.getPages())
-                .setTotal(page.getTotal());
         ArrayList<DeviceListRspBo> arr = new ArrayList<>();
-        if (CollectionUtil.isEmpty(page.getRecords())) {
+        if (StrUtil.isBlank(reqBo.getUserName()) && StrUtil.isBlank(reqBo.getPhoneNo())) {
+            Page<UserDeviceInfo> page = page(new Page<>(reqBo.getPageNo(), reqBo.getPageSize()), new QueryWrapper<UserDeviceInfo>()
+                    .eq("bind", true)
+                    .like(StrUtil.isNotBlank(reqBo.getDeviceName()), "m_device_name", reqBo.getDeviceName())
+                    .orderByDesc("create_time"));
+            rspBoPage.setCurrent(page.getCurrent())
+                    .setSize(page.getSize())
+                    .setPages(page.getPages())
+                    .setTotal(page.getTotal());
+            if (!CollectionUtil.isEmpty(page.getRecords())) {
+                for (UserDeviceInfo deviceInfo : page.getRecords()) {
+                    DeviceListRspBo deviceListRspBo = new DeviceListRspBo();
+                    BeanUtils.copyProperties(deviceInfo, deviceListRspBo);
+                    UserDetail userDetail = iBaseUserInfoRpcService.getUserDetail(deviceInfo.getUserUuid());
+                    if (userDetail != null) {
+                        deviceListRspBo.setSex(userDetail.getSex());
+                        deviceListRspBo.setAge(userDetail.getAge());
+                        deviceListRspBo.setPhone(userDetail.getPhone());
+                    }
+                    RealInfoDto idCardRealInfo = iBaseUserInfoRpcService.getIdCardRealInfo(deviceInfo.getUserUuid());
+                    if (idCardRealInfo != null) {
+                        deviceListRspBo.setNickName(idCardRealInfo.getIdCardName());
+                    }
+                    deviceListRspBo.setFilingTime(formatTime(deviceInfo.getCreateTime()));
+                    arr.add(deviceListRspBo);
+                }
+            }
             rspBoPage.setRecords(arr);
         } else {
-            for (UserDeviceInfo deviceInfo : page.getRecords()) {
-                DeviceListRspBo deviceListRspBo = new DeviceListRspBo();
-                BeanUtils.copyProperties(deviceInfo, deviceListRspBo);
-                UserDetail userDetail = iBaseUserInfoRpcService.getUserDetail(deviceInfo.getUserUuid());
-                deviceListRspBo.setNickName(userDetail.getNickName());
-                deviceListRspBo.setSex(userDetail.getSex());
-                deviceListRspBo.setAge(userDetail.getAge());
-                deviceListRspBo.setPhone(userDetail.getPhone());
-                deviceListRspBo.setFilingTime(formatTime(deviceInfo.getCreateTime()));
-                arr.add(deviceListRspBo);
+            List<RealUserDetail> list = iBaseUserInfoRpcService.getRealUserDetails(reqBo.getPhoneNo(), reqBo.getUserName());
+            if (CollectionUtil.isEmpty(list)) {
+                rspBoPage.setCurrent(reqBo.getPageNo())
+                        .setSize(reqBo.getPageSize())
+                        .setPages(0)
+                        .setTotal(0)
+                        .setRecords(arr);
+            } else {
+                List<String> str = new ArrayList<>();
+                for (RealUserDetail realUserDetail : list) {
+                    str.add(realUserDetail.getAccount());
+                }
+                Page<UserDeviceInfo> page = page(new Page<>(reqBo.getPageNo(), reqBo.getPageSize()), new QueryWrapper<UserDeviceInfo>()
+                        .in("user_uuid", str)
+                        .eq("bind", true)
+                        .like(StrUtil.isNotBlank(reqBo.getDeviceName()), "m_device_name", reqBo.getDeviceName())
+                        .orderByDesc("create_time"));
+                rspBoPage.setCurrent(page.getCurrent())
+                        .setSize(page.getSize())
+                        .setPages(page.getPages())
+                        .setTotal(page.getTotal());
+                if (!CollectionUtil.isEmpty(page.getRecords())) {
+                    for (UserDeviceInfo deviceInfo : page.getRecords()) {
+                        DeviceListRspBo deviceListRspBo = new DeviceListRspBo();
+                        BeanUtils.copyProperties(deviceInfo, deviceListRspBo);
+                        UserDetail userDetail = iBaseUserInfoRpcService.getUserDetail(deviceInfo.getUserUuid());
+                        if (userDetail != null) {
+                            deviceListRspBo.setSex(userDetail.getSex());
+                            deviceListRspBo.setAge(userDetail.getAge());
+                            deviceListRspBo.setPhone(userDetail.getPhone());
+                        }
+                        RealInfoDto idCardRealInfo = iBaseUserInfoRpcService.getIdCardRealInfo(deviceInfo.getUserUuid());
+                        if (idCardRealInfo != null) {
+                            deviceListRspBo.setNickName(idCardRealInfo.getIdCardName());
+                        }
+                        deviceListRspBo.setFilingTime(formatTime(deviceInfo.getCreateTime()));
+                        arr.add(deviceListRspBo);
+                    }
+                }
+                rspBoPage.setRecords(arr);
             }
         }
-        rspBoPage.setRecords(arr);
         return PageVo.newPageVO(rspBoPage);
     }
 

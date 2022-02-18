@@ -20,6 +20,7 @@ public interface IEventService {
      * @return:
      */
     Long save(EventEntity eventEntity, LoginUser loginUser);
+
     /**
      * @Description: 修改
      * @author: Hu
@@ -28,6 +29,7 @@ public interface IEventService {
      * @return:
      */
     void update(EventEntity eventEntity, LoginUser loginUser);
+
     /**
      * @Description: 查集合
      * @author: Hu
@@ -36,6 +38,7 @@ public interface IEventService {
      * @return:
      */
     List<EventEntity> list(Integer week, LoginUser loginUser);
+
     /**
      * @Description: 删除
      * @author: Hu
@@ -44,6 +47,7 @@ public interface IEventService {
      * @return:
      */
     void delete(Long id);
+
     /**
      * @Description: 查详情
      * @author: Hu
@@ -60,7 +64,7 @@ public interface IEventService {
      * @Param:
      * @return:
      */
-    void status(Long id,Integer status);
+    void status(Long id, Integer status);
 
     /**
      * @Description: 查询所有事件

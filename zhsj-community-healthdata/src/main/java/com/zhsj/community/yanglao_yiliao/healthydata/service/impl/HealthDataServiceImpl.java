@@ -101,9 +101,10 @@ public class HealthDataServiceImpl implements HealthDataService {
                         .orderByDesc("create_time"));
         List<Sleep> sleepList = sleepPage.getRecords();
         if (CollectionUtil.isNotEmpty(sleepList)) {
-            refreshTimeList.add(sleepList.get(0).getCreateTime());
-            LocalDate lastSleepLocalDate = sleepList.get(0).getCreateTime().toLocalDate();
-            LocalDateTime toDayElevenClock = TimeUtils.buildLocalDateTime(lastSleepLocalDate.getYear(), lastSleepLocalDate.getMonthValue(), lastSleepLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
+            LocalDateTime createTime = sleepList.get(0).getCreateTime();
+            refreshTimeList.add(createTime);
+            LocalDate lastSleepLocalDate = createTime.toLocalDate();
+            LocalDateTime toDayElevenClock = LocalDateTime.of(lastSleepLocalDate.getYear(), lastSleepLocalDate.getMonthValue(), lastSleepLocalDate.getDayOfMonth(), HealthDataConstant.GRAB_SLEEP_TIME_ELEVEN, 0, 0);
             LocalDateTime yesterdayNineClock = toDayElevenClock.plusHours(-14);
             int sleepCount = buildSleepTimeCounts(reqBo, yesterdayNineClock, toDayElevenClock);
             if (sleepCount != 0) {
@@ -126,10 +127,8 @@ public class HealthDataServiceImpl implements HealthDataService {
         buildTotalHealthStatus(healthDataRspBo);
         // ---PUSH APP MSG AND SEND MSG
         if (loginUser.getAccount().equals(reqBo.getFamilyMemberId())) {
-            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getUserTotalHealthStatus())) {
-                asyncMsg.asyncMsg(loginUser, healthDataRspBo.getUserTotalHealthStatus());
-            }
-            if (HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getUserTotalHealthStatus())) {
+            if (HealthDataConstant.HEALTH_COLOR_STATUS_YELLOW.equals(healthDataRspBo.getUserTotalHealthStatus()) ||
+                    HealthDataConstant.HEALTH_COLOR_STATUS_RED.equals(healthDataRspBo.getUserTotalHealthStatus())) {
                 asyncMsg.asyncMsg(loginUser, healthDataRspBo.getUserTotalHealthStatus());
             }
         }

@@ -4,7 +4,6 @@ package com.zhsj.community.yanglao_yiliao.old_activity.controller;
 import com.zhsj.basecommon.vo.R;
 import com.zhsj.community.yanglao_yiliao.old_activity.common.PageVoed;
 import com.zhsj.community.yanglao_yiliao.old_activity.dto.*;
-import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
 import com.zhsj.community.yanglao_yiliao.old_activity.service.ActivityTypeService;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.MyPageUtils;
 import com.zhsj.community.yanglao_yiliao.old_activity.util.PageInfo;
@@ -48,7 +47,12 @@ public class ActivityController {
     public PageInfo<ActivityDto> queryActivityList(@RequestBody @Valid ActivityReqBo reqBo) {
         log.info("reqBo的值{}", reqBo);
         List<ActivityDto> rspList = this.activityService.queryActivityList(reqBo);
-        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(reqBo.getPage(), reqBo.getData(), rspList);
+        PageInfo<ActivityDto> activityDtoPageInfo = null;
+        try {
+            activityDtoPageInfo = MyPageUtils.pageMap(reqBo.getPage(), reqBo.getData(), rspList);
+        } catch (Exception e) {
+            return new PageInfo<ActivityDto>();
+        }
         return activityDtoPageInfo;
     }
 
@@ -56,7 +60,7 @@ public class ActivityController {
     /**
      * @param activityReqVoDto 用户id，经度，维度
      * @return java.util.Map<java.lang.String, java.util.Map < java.lang.String, java.lang.Integer>>
-     * @description 获取附近活动
+     * @description 活动人所在地
      * @author liulq
      * @date 2021/11/24 19:00
      */
@@ -64,7 +68,12 @@ public class ActivityController {
     public PageInfo<ActivityDto> queryActivity(@RequestBody @Valid ActivityReqVoDto activityReqVoDto) {
         log.info("activityReqVo的值{}", activityReqVoDto);
         List<ActivityDto> activityDtos = this.activityService.queryActivity(activityReqVoDto);
-        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityReqVoDto.getPage(), activityReqVoDto.getData(), activityDtos);
+        PageInfo<ActivityDto> activityDtoPageInfo = null;
+        try {
+            activityDtoPageInfo = MyPageUtils.pageMap(activityReqVoDto.getPage(), activityReqVoDto.getData(), activityDtos);
+        } catch (Exception e) {
+            return new PageInfo<ActivityDto>();
+        }
         return activityDtoPageInfo;
     }
 
@@ -105,8 +114,8 @@ public class ActivityController {
      * @return: com.zhsj.basecommon.vo.R<java.lang.Void>
      */
     @GetMapping("/queryActivityTypeList")
-    public R<List<ActivityType>> queryActivityTypeList() {
-        List<ActivityType> list = this.activityTypeService.selectList();
+    public R<List<ActivityTypedDto>> queryActivityTypeList() {
+        List<ActivityTypedDto> list = this.activityTypeService.selectList();
         return R.ok(list);
     }
 
@@ -138,7 +147,12 @@ public class ActivityController {
     public PageInfo<ActivityDto> pageListed(@RequestBody @Valid ActivityReqBo activityReqBo) {
         log.info("activityReqBo的值{}", activityReqBo);
         List<ActivityDto> activityDtos = this.activityService.pageListed(activityReqBo);
-        PageInfo<ActivityDto> activityDtoPageInfo = MyPageUtils.pageMap(activityReqBo.getPage(), activityReqBo.getData(), activityDtos);
+        PageInfo<ActivityDto> activityDtoPageInfo = null;
+        try {
+            activityDtoPageInfo = MyPageUtils.pageMap(activityReqBo.getPage(), activityReqBo.getData(), activityDtos);
+        } catch (Exception e) {
+            return new PageInfo<ActivityDto>();
+        }
         return activityDtoPageInfo;
     }
 
@@ -155,8 +169,14 @@ public class ActivityController {
     @PostMapping("addActivityType")
     public R addActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDto的值：{}", activityTypeDto);
-        this.activityTypeService.activityType(activityTypeDto);
-        return R.ok("新增活动类型成功");
+        boolean b = this.activityTypeService.activityType(activityTypeDto);
+        if (!b){
+            R<Object> r = new R<>();
+            r.setCode(400);
+            r.setMessage("活动分类重复");
+            return r;
+        }
+        return R.ok("新增活动分类成功");
     }
 
 
@@ -170,7 +190,13 @@ public class ActivityController {
     @PostMapping("updateActivityType")
     public R updateActivityType(@RequestBody @Valid ActivityTypeDto activityTypeDto) {
         log.info("activityTypeDto的值：{}", activityTypeDto);
-        this.activityTypeService.updateActivityType(activityTypeDto);
+        boolean b = this.activityTypeService.updateActivityType(activityTypeDto);
+        if (!b){
+            R<Object> r = new R<>();
+            r.setCode(400);
+            r.setMessage("活动分类重复");
+            return r;
+        }
         return R.ok("修改活动类型成功");
     }
 
@@ -182,9 +208,9 @@ public class ActivityController {
      * @date: 2021-12-06
      */
     @DeleteMapping("deleteActivityType")
-    public R deleteActivityType(@RequestParam String activityTypeCode) {
-        log.info("activityTypeCode的值：{}", activityTypeCode);
-        this.activityTypeService.deleteActivityType(activityTypeCode);
+    public R deleteActivityType(@RequestParam String id) {
+        log.info("activityTypeCode的值：{}", id);
+        this.activityTypeService.deleteActivityType(id);
         return R.ok("删除成功");
     }
 
@@ -197,6 +223,7 @@ public class ActivityController {
      */
     @PostMapping("selectActivityList")
     public PageInfo<?> selectActivityList(@RequestBody @Valid PageVoed pageVoed) {
+        log.info("页面：{}",pageVoed);
         List<ActivityReqDto> activityReqDtos = this.activityTypeService.selectActivityList();
         PageInfo<ActivityReqDto> activityReqDtoPageInfo = MyPageUtils.pageMap(pageVoed.getPage(), pageVoed.getData(), activityReqDtos);
         return activityReqDtoPageInfo;
@@ -226,11 +253,12 @@ public class ActivityController {
      * @date: 2021-12-09
      */
     @PostMapping("likeActivity")
-    public PageInfo likeActivity(@RequestBody LikeActivityDto likeActivity) {
+    public R<PageInfo<ActivityReqDto>> likeActivity(@RequestBody LikeActivityDto likeActivity) {
         log.info("likeActivity的值{}", likeActivity);
         List<ActivityReqDto> activityReqDtos = this.activityService.likeActivity(likeActivity);
         PageInfo<ActivityReqDto> activityDtoPageInfo = MyPageUtils.pageMap(likeActivity.getPage(), likeActivity.getData(), activityReqDtos);
-        return activityDtoPageInfo;
+        R<PageInfo<ActivityReqDto>> ok = R.ok(activityDtoPageInfo);
+        return ok;
     }
 
 

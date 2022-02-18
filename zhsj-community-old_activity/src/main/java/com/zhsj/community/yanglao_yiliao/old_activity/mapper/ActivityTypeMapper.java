@@ -1,10 +1,13 @@
 package com.zhsj.community.yanglao_yiliao.old_activity.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zhsj.community.yanglao_yiliao.old_activity.dto.ActivityTypedDto;
 import com.zhsj.community.yanglao_yiliao.old_activity.model.ActivityType;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 /**
@@ -16,12 +19,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ActivityTypeMapper extends BaseMapper<ActivityType> {
     /**
-     * 删除活动类型
-     * @param activityTypeCode
+     * @Description: 查询所有活动类型
+     * @Author: liulq
+     * @date: 2022-01-13
      */
-    @Delete("DELETE FROM t_activity_type where activity_type_code=#{activityTypeCode}")
-    void deleteActivityType(@Param("activityTypeCode") String activityTypeCode);
+    @Select("select * from t_activity_type  as t ORDER BY t.activity_type_code ASC")
+    List<ActivityTypedDto> selectListctivityType();
 
+    /**
+     * @Description: 修改activityTypeCode
+     * @Author: liulq
+     * @date: 2022-01-13
+     */
+    void addByIdActivityType(Integer activityTypeCode);
 
-
+    /**
+     * @Description: 根据id删除活动类型
+     * @Author: liulq
+     * @date: 2022-01-13
+     */
+    @Update("DELETE FROM t_activity_type WHERE id=#{id} ")
+    void deleteByIdactivityType(Long id);
 }

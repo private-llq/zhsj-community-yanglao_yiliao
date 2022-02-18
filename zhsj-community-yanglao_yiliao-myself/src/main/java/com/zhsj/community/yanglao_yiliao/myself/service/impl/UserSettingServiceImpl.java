@@ -43,10 +43,8 @@ public class UserSettingServiceImpl extends ServiceImpl<UserSettingMapper, UserS
             entity.setShakeStatus(1);
             entity.setCreateTime(LocalDateTime.now());
             userSettingMapper.insert(entity);
-            return entity;
-        } else {
-            return entity;
         }
+        return entity;
     }
 
 

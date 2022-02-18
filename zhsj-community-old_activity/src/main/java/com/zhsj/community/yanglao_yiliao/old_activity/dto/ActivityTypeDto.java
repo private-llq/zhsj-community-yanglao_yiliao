@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -17,10 +19,16 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ActivityTypeDto {
     /**
+     * id
+     */
+    private Long id;
+    /**
      * 活动类型编码
+     * activityTypeCode不能小于0
      */
     @NotNull(message = "活动类型编码不能为空")
-    private String activityTypeCode;
+    @Min(1)
+    private Integer activityTypeCode;
 
 
     /**

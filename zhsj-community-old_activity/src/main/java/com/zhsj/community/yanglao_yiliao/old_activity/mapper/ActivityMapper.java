@@ -58,7 +58,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      *
      * @return Activity
      */
-    @Select("SELECT * from  t_activity where id=#{id} and delete = 1")
+    @Select("SELECT * from  t_activity where id=#{id} and deleted = 1")
     Activity selectByIdActivity(@Param("id") Long id);
 
 
@@ -75,10 +75,7 @@ public interface ActivityMapper extends BaseMapper<Activity> {
      *
      * @return ActivityReqDto
      */
-    @Select("SELECT * from  t_activity where deleted = 1 ")
+    @Select("SELECT * from  t_activity as t where deleted = 1 ORDER BY t.publish_time DESC")
     List<ActivityReqDto> selectActivityList();
 
-
-    @Select("SELECT * from  t_activity where user_uuid=#{id} and deleted = 1")
-    List<ActivityReqDto> selectByIdActivityed(String id);
 }
